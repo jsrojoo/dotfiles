@@ -7,7 +7,9 @@ set scrolloff=3         " 3 lines above/below cursor when scrolling
 " Integrate with system clipboard
 set clipboard=unnamedplus,unnamed
 
-nmap <leader>g :action GotoDeclaration<cr>
+" nmap gd :action GotoDeclaration<cr>
+nmap <C-w>c CloseContent<cr>
+nmap gi :action GotoImplementation<cr>
 nmap <leader>b :action Back<cr>
 nmap <leader>f :action Forward<cr>
 nmap <leader>t :action GotoFile<cr>
@@ -21,8 +23,8 @@ nmap [c :action VcsShowNextChangeMarker<cr>
 nmap ]c :action VcsShowPrevChangeMarker<cr>
 nmap <leader>f :action ShowReformatFileDialog<cr>
 vmap <leader>f :action ShowReformatFileDialog<cr>
-vmap <leader>ev :action refactoring.introduce.property<cr>
-vmap <leader>ev :action IntroduceVariable<cr>
+vmap <leader>v :action refactoring.introduce.property<cr>
+vmap <leader>v :action IntroduceVariable<cr>
 
 " nmap <C-J> :action List-selectPreviousRow<cr>
 " nmap <C-J> :action PopupMenu-selectPrevious<cr>
