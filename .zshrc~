@@ -166,5 +166,4 @@ alias knex-base=~/FirstPerformance/lincoln-project/knex-base
 alias fp-central-jobs=~/FirstPerformance/lincoln-project/fp-central-jobs
 alias db="mycli -h 172.17.0.1 -P 3307 -u root -proot"
 alias verc="nvim ~/.local/share/nvim/site/init.vim"
-alias vzrc="nvim ~/.zshrc"
 
