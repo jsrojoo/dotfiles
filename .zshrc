@@ -79,6 +79,7 @@ plugins=(
         tmux
         zsh-autosuggestions
         zsh-completions
+        zsh-syntax-highlighting
         )
 
 autoload -U compinit && compinit # for zsh-completions
@@ -151,20 +152,50 @@ fi
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 alias v="nvim"
 alias c=reset
-alias q=exit
+alias "\q"=exit
 alias t=tmux
-alias FirstPerformance=~/FirstPerformance
-alias washington=~/FirstPerformance/washington
-alias data-models=~/FirstPerformance/data-models
-alias tweedle-dum=~/FirstPerformance/tweedle-dum
-alias lincoln-project=~/FirstPerformance/lincoln-project
-alias lincoln=~/FirstPerformance/lincoln-project/lincoln
-alias fp-central-core=~/FirstPerformance/lincoln-project/fp-central-core
-alias fp-core=~/FirstPerformance/lincoln-project/fp-core
-alias fp-plugins=~/FirstPerformance/lincoln-project/fp-plugins
-alias knex-base=~/FirstPerformance/lincoln-project/knex-base
-alias fp-central-jobs=~/FirstPerformance/lincoln-project/fp-central-jobs
+# alias FirstPerformance=~/FirstPerformance
+# alias washington=~/FirstPerformance/washington
+# alias data-models=~/FirstPerformance/data-models
+# alias tweedle-dum=~/FirstPerformance/tweedle-dum
+# alias lincoln-project=~/FirstPerformance/lincoln-project
+# alias lincoln=~/FirstPerformance/lincoln-project/lincoln
+# alias fp-central-core=~/FirstPerformance/lincoln-project/fp-central-core
+# alias fp-core=~/FirstPerformance/lincoln-project/fp-core
+# alias fp-plugins=~/FirstPerformance/lincoln-project/fp-plugins
+# alias knex-base=~/FirstPerformance/lincoln-project/knex-base
+# alias fp-central-jobs=~/FirstPerformance/lincoln-project/fp-central-jobs
+
+export WORK_PROJECTS=~/FirstPerformance
+
+cd $WORK_PROJECTS
+for dir in */; do
+  local lincoln="lincoln-project"
+  local project=${dir%?}
+  alias $project=$WORK_PROJECTS/$dir
+
+  if [ "$project" = "$lincoln" ]; then
+    cd $project
+    for lincoln_projects in */; do
+      local lincoln_project=${lincoln_projects%?}
+      alias $lincoln_project="$(pwd)/$lincoln_project"
+    done
+    cd ..
+  fi
+done
+cd
+
 alias db="mycli -h 172.17.0.1 -P 3307 -u root -proot"
-alias verc="nvim ~/.local/share/nvim/site/init.vim"
+alias vrc="nvim ~/.local/share/nvim/site/init.vim"
 alias vzrc="nvim ~/.zshrc"
 
+
+###-tns-completion-start-###
+# if [ -f /home/rojo/.tnsrc ]; then 
+#     source /home/rojo/.tnsrc 
+# fi
+###-tns-completion-end-###
+export JAVA_HOME=/usr/lib/jvm/default
+export PATH=$PATH:$JAVA_HOME/bin
+export ANDROID_HOME=~/Android/Sdk
+export PATH=$PATH:$JAVA_HOME/bin:$ANDROID_HOME/platform-tools:$ANDROID_HOME/tools
