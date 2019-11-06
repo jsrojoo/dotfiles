@@ -185,6 +185,7 @@ for dir in */; do
 done
 cd
 
+alias FirstPerformance="$WORK_PROJECTS"
 alias db="mycli -h 172.17.0.1 -P 3307 -u root -proot"
 alias vrc="nvim ~/.local/share/nvim/site/init.vim"
 alias vzrc="nvim ~/.zshrc"
