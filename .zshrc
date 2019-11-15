@@ -133,9 +133,9 @@ else
 fi
 
 # use tmux automatically
-# if [ -z "$TMUX" ]; then
-#     tmux attach -t default || tmux new -s default
-# fi
+if [ -z "$TMUX" ]; then
+    tmux attach -t default || tmux new -s default
+fi
 
 # This loads NVM
 [[ -s $HOME/.nvm/nvm.sh ]] && . $HOME/.nvm/nvm.sh
@@ -189,6 +189,9 @@ alias FirstPerformance="$WORK_PROJECTS"
 alias db="mycli -h 172.17.0.1 -P 3307 -u root -proot"
 alias vrc="nvim ~/.local/share/nvim/site/init.vim"
 alias vzrc="nvim ~/.zshrc"
+alias notes=~/Notes
+alias standup=~/standup
+alias lincoln-dev-central="cd ~/FirstPerformance/lincoln-project/lincoln && npm run dev-central"
 
 
 ###-tns-completion-start-###
