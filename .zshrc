@@ -80,6 +80,7 @@ plugins=(
         zsh-autosuggestions
         zsh-completions
         zsh-syntax-highlighting
+        jsontools
         )
 
 autoload -U compinit && compinit # for zsh-completions
