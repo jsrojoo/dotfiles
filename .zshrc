@@ -135,7 +135,7 @@ fi
 
 # use tmux automatically
 if [ -z "$TMUX" ]; then
-    tmux attach -t default || tmux new -s default
+    tmux attach -t 133t || tmux new -s 133t
 fi
 
 # This loads NVM

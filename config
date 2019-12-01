@@ -44,12 +44,17 @@ bindsym $mod+q exec --no-startup-id morc_menu
 ## sound-section - DO NOT EDIT if you wish to automatically upgrade Alsa -> Pulseaudio later! ##
 ################################################################################################
 
-exec --no-startup-id volumeicon
+bindsym $mod+Ctrl+m exec pavucontrol
 # bindsym $mod+Ctrl+m exec terminal -e 'alsamixer'
 # exec --no-startup-id pulseaudio
 exec --no-startup-id pa-applet
-bindsym $mod+Ctrl+m exec pavucontrol
+exec --no-startup-id blueman-applet
+exec --no-startup-id volumeicon
 
+# Pulse Audio controls
+bindsym XF86AudioRaiseVolume exec pactl set-sink-volume 1 +5% #increase sound volume
+bindsym XF86AudioLowerVolume exec pactl set-sink-volume 1 -5% #decrease sound volume
+bindsym XF86AudioMute exec pactl set-sink-mute 1 toggle # mute sound
 ################################################################################################
 
 # Screen brightness controls
@@ -58,7 +63,7 @@ bindsym $mod+Ctrl+m exec pavucontrol
 
 # Start Applications
 bindsym $mod+Ctrl+b exec terminal -e 'bmenu'
-bindsym $mod+F2 exec palemoon
+bindsym $mod+F2 exec brave
 bindsym $mod+F3 exec pcmanfm
 # bindsym $mod+F3 exec ranger
 bindsym $mod+Shift+F3 exec gksu pcmanfm
