@@ -91,12 +91,12 @@ source $ZSH/oh-my-zsh.sh
 # 10ms for key sequences
 ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=5'
 KEYTIMEOUT=1
-bindkey -v 
+bindkey -v
 
 bindkey '^R' history-incremental-search-backward # vi style incremental search
 bindkey '^S' history-incremental-search-forward
 bindkey '^P' history-search-backward
-bindkey '^N' history-search-forward  
+bindkey '^N' history-search-forward
 
 bindkey '^ ' autosuggest-accept
 # export MANPATH="/usr/local/man:$MANPATH"
@@ -135,7 +135,7 @@ fi
 
 # use tmux automatically
 if [ -z "$TMUX" ]; then
-    tmux attach -t 133t || tmux new -s 133t
+    tmux attach -t 1337 || tmux new -s 133t
 fi
 
 # This loads NVM
@@ -155,7 +155,7 @@ alias v="nvim"
 alias c=reset
 alias "\q"=exit
 alias t=tmux
-# alias FirstPerformance=~/FirstPerformance
+alias FirstPerformance=~/FirstPerformance
 # alias washington=~/FirstPerformance/washington
 # alias data-models=~/FirstPerformance/data-models
 # alias tweedle-dum=~/FirstPerformance/tweedle-dum
@@ -190,17 +190,17 @@ alias FirstPerformance="$WORK_PROJECTS"
 alias db="mycli -h 172.17.0.2 -P 3306 -u root -proot"
 alias vrc="nvim ~/.local/share/nvim/site/init.vim"
 alias vzrc="nvim ~/.zshrc"
-alias notes=~/Notes
-alias standup=~/standup
 alias lincoln-dev-central="cd ~/FirstPerformance/lincoln-project/lincoln && npm run dev-central"
 
 
 ###-tns-completion-start-###
-# if [ -f /home/rojo/.tnsrc ]; then 
-#     source /home/rojo/.tnsrc 
+# if [ -f /home/rojo/.tnsrc ]; then
+#     source /home/rojo/.tnsrc
 # fi
 ###-tns-completion-end-###
 export JAVA_HOME=/usr/lib/jvm/default
 export PATH=$PATH:$JAVA_HOME/bin
 export ANDROID_HOME=~/Android/Sdk
 export PATH=$PATH:$JAVA_HOME/bin:$ANDROID_HOME/platform-tools:$ANDROID_HOME/tools
+
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
