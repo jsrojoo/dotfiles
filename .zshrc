@@ -135,7 +135,7 @@ fi
 
 # use tmux automatically
 if [ -z "$TMUX" ]; then
-    tmux attach -t 1337 || tmux new -s 133t
+    tmux attach -t 1337 || tmux new -s 1337
 fi
 
 # This loads NVM
@@ -191,6 +191,7 @@ alias db="mycli -h 172.17.0.2 -P 3306 -u root -proot"
 alias vrc="nvim ~/.local/share/nvim/site/init.vim"
 alias vzrc="nvim ~/.zshrc"
 alias lincoln-dev-central="cd ~/FirstPerformance/lincoln-project/lincoln && npm run dev-central"
+alias redis-cluster="cd ~/FirstPerformance/redis-5.0.7/utils/create-cluster && ./create-cluster start"
 
 
 ###-tns-completion-start-###
@@ -202,5 +203,6 @@ export JAVA_HOME=/usr/lib/jvm/default
 export PATH=$PATH:$JAVA_HOME/bin
 export ANDROID_HOME=~/Android/Sdk
 export PATH=$PATH:$JAVA_HOME/bin:$ANDROID_HOME/platform-tools:$ANDROID_HOME/tools
+# export TERM=screen-256color
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh

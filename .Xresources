@@ -42,7 +42,8 @@
 Xcursor.theme: xcursor-breeze
 Xcursor.size:                     0
 
-URxvt.font: xft:DejaVu Sans Mono for Powerline:size=14:antialias=true
+URxvt.font: xft:DejaVu Sans Mono for Powerline:size=13:antialias=true
+! font: xft:DejaVu Sans Mono for Powerline:size=14:antialias=true
 URxvt*letterSpace: 0
 
 URxvt.depth:                      32
@@ -53,3 +54,4 @@ URxvt*cursorBlink:                true
 URxvt*background:                 black
 URxvt*foreground:                 grey
 URxvt*saveLines:                  5000
+urxvt.perl-ext-common: default,resize-font
