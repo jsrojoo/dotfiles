@@ -202,7 +202,19 @@ alias redis-cluster="cd ~/FirstPerformance/redis-5.0.7/utils/create-cluster && .
 export JAVA_HOME=/usr/lib/jvm/default
 export PATH=$PATH:$JAVA_HOME/bin
 export ANDROID_HOME=~/Android/Sdk
-export PATH=$PATH:$JAVA_HOME/bin:$ANDROID_HOME/platform-tools:$ANDROID_HOME/tools
+export PATH=$PATH:$JAVA_HOME/bin:$ANDROID_HOME/platform-tools/bin:$ANDROID_HOME/tools/bin
 # export TERM=screen-256color
 
+# PYTHON STUFF
+export WORKON_HOME=$HOME/.virtualenvs
+export PROJECT_HOME=$HOME/Devel
+source /usr/bin/virtualenvwrapper.sh
+eval "$(pyenv init -)"
+
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+
+###-tns-completion-start-###
+if [ -f /home/rojo/.tnsrc ]; then 
+    source /home/rojo/.tnsrc 
+fi
+###-tns-completion-end-###

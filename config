@@ -48,6 +48,7 @@ bindsym $mod+Ctrl+m exec pavucontrol
 # bindsym $mod+Ctrl+m exec terminal -e 'alsamixer'
 # exec --no-startup-id pulseaudio
 exec --no-startup-id pa-applet
+exec --no-startup-id volumeicon
 exec --no-startup-id blueman-applet
 
 # Pulse Audio controls
