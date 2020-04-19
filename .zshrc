@@ -40,7 +40,7 @@ ZSH_THEME="agnoster"
 # DISABLE_LS_COLORS="true"
 
 # Uncomment the following line to disable auto-setting terminal title.
-# DISABLE_AUTO_TITLE="true"
+DISABLE_AUTO_TITLE="true"
 
 # Uncomment the following line to enable command auto-correction.
 # ENABLE_CORRECTION="true"
@@ -187,11 +187,13 @@ done
 cd
 
 alias FirstPerformance="$WORK_PROJECTS"
-alias db="mycli -h 172.17.0.2 -P 3306 -u root -proot"
+alias db="cd ~/Downloads && mycli -h 172.17.0.2 -P 3306 -u root -proot"
 alias vrc="nvim ~/.local/share/nvim/site/init.vim"
 alias vzrc="nvim ~/.zshrc"
 alias lincoln-dev-central="cd ~/FirstPerformance/lincoln-project/lincoln && npm run dev-central"
 alias redis-cluster="cd ~/FirstPerformance/redis-5.0.7/utils/create-cluster && ./create-cluster start"
+alias fp-auth="~ && ~/FirstPerformance/lincoln-project/fp-saas/deps/fp-api-authenticator"
+alias q="npm run test"
 
 
 ###-tns-completion-start-###
