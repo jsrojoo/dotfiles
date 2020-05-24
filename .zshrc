@@ -83,6 +83,8 @@ plugins=(
         jsontools
         )
 
+plugins=(auto-notify $plugins)
+
 autoload -U compinit && compinit # for zsh-completions
 
 source $ZSH/oh-my-zsh.sh
@@ -173,12 +175,19 @@ alias lincoln-dev-central="cd ~/FirstPerformance/lincoln-project/lincoln && npm 
 alias redis-cluster="cd ~/FirstPerformance/redis-5.0.7/utils/create-cluster && ./create-cluster start"
 alias fp-auth="~ && ~/FirstPerformance/lincoln-project/fp-saas/deps/fp-api-authenticator"
 alias q="npm run test"
+alias f="firefox"
 
 export JAVA_HOME=/usr/lib/jvm/default
-export PATH=$PATH:$JAVA_HOME/bin
 export ANDROID_HOME=~/Android/Sdk
-export PATH=$PATH:$JAVA_HOME/bin:$ANDROID_HOME/platform-tools/bin:$ANDROID_HOME/tools/bin
+export PATH=$PATH:$JAVA_HOME/bin:$ANDROID_HOME/platform-tools/bin:$ANDROID_HOME/tools/bin:/home/rojo/.gem/ruby/2.7.0/bin
 # export TERM=screen-256color
+export PYENV_ROOT=/home/rojo/.pyenv
+
+# auto-notify plugin
+export AUTO_NOTIFY_THRESHOLD=5
+
+eval "$(pyenv init -)"
+eval "$(pyenv virtualenv-init -)"
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
