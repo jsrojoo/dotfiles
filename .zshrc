@@ -81,9 +81,10 @@ plugins=(
         zsh-completions
         zsh-syntax-highlighting
         jsontools
+        zsh_reload
+        z
+        auto-notify
         )
-
-plugins=(auto-notify $plugins)
 
 autoload -U compinit && compinit # for zsh-completions
 
@@ -168,7 +169,6 @@ for dir in */; do
 done
 cd
 
-alias FirstPerformance="$WORK_PROJECTS"
 alias db="cd ~/Downloads && mycli -h 172.17.0.2 -P 3306 -u root -proot"
 alias vrc="nvim ~/.local/share/nvim/site/init.vim"
 alias vzrc="nvim ~/.zshrc"
