@@ -84,6 +84,8 @@ plugins=(
         zsh_reload
         z
         auto-notify
+        vi-mode
+        httpie
         )
 
 autoload -U compinit && compinit # for zsh-completions
@@ -93,17 +95,11 @@ source $ZSH/oh-my-zsh.sh
 # User configuration
 # 10ms for key sequences
 ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=5'
-KEYTIMEOUT=1
-bindkey -v
-
-bindkey '^R' history-incremental-search-backward # vi style incremental search
-bindkey '^S' history-incremental-search-forward
-bindkey '^P' history-search-backward
-bindkey '^N' history-search-forward
 
 bindkey '^ ' autosuggest-accept
+KEYTIMEOUT=1
 # export MANPATH="/usr/local/man:$MANPATH"
-
+#
 # You may need to manually set your language environment
 # export LANG=en_US.UTF-8
 # Updates editor information when the keymap changes.
@@ -175,7 +171,7 @@ alias vzrc="nvim ~/.zshrc"
 alias redis-cluster="cd ~/FirstPerformance/redis-5.0.7/utils/create-cluster && ./create-cluster start"
 alias fp-auth="~ && ~/FirstPerformance/lincoln-project/fp-saas/deps/fp-api-authenticator"
 alias q="npm run test"
-alias f="firefox"
+alias f="firefox --private-window &"
 
 export JAVA_HOME=/usr/lib/jvm/default
 export ANDROID_HOME=~/Android/Sdk
