@@ -171,13 +171,26 @@ alias vzrc="nvim ~/.zshrc"
 alias redis-cluster="cd ~/FirstPerformance/redis-5.0.7/utils/create-cluster && ./create-cluster start"
 alias fp-auth="~ && ~/FirstPerformance/lincoln-project/fp-saas/deps/fp-api-authenticator"
 alias q="npm run test"
-alias f="firefox --private-window &"
+
+gitCommitToCurrentBranch () {
+  local message=$1
+  git commit -m "id:$(git rev-parse --abbrev-ref HEAD) $message"
+}
+
+gitPushToCurrentBranch () {
+  git push origin $(git rev-parse --abbrev-ref HEAD) $1
+}
+
+gitPullRebase () {
+  git pull upstream --rebase $1
+}
+# alias f="firefox --private-window &"
 
 export JAVA_HOME=/usr/lib/jvm/default
 export ANDROID_HOME=~/Android/Sdk
 export PATH=$PATH:$JAVA_HOME/bin:$ANDROID_HOME/platform-tools/bin:$ANDROID_HOME/tools/bin:/home/rojo/.gem/ruby/2.7.0/bin
 # export TERM=screen-256color
-export PYENV_ROOT=/home/rojo/.pyenv
+# export PYENV_ROOT=/home/rojo/.pyenv
 
 # auto-notify plugin
 export AUTO_NOTIFY_THRESHOLD=5
