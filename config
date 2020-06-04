@@ -63,7 +63,7 @@ bindsym XF86AudioMute exec pactl set-sink-mute 1 toggle # mute sound
 
 # Start Applications
 bindsym $mod+Ctrl+b exec terminal -e 'bmenu'
-bindsym $mod+F2 exec brave
+bindsym $mod+F2 exec firefox
 bindsym $mod+F3 exec pcmanfm
 # bindsym $mod+F3 exec ranger
 bindsym $mod+Shift+F3 exec gksu pcmanfm
@@ -99,8 +99,8 @@ bindsym $mod+k focus up
 
 # move focused window
 bindsym Ctrl+Shift+h move left
-bindsym Ctrl+Shift+j move down
-bindsym Ctrl+Shift+k move up
+# bindsym Ctrl+Shift+j move down
+# bindsym Ctrl+Shift+k move up
 bindsym Ctrl+Shift+l move right
 
 # alternatively, you can use the cursor keys:
@@ -268,17 +268,17 @@ mode "$mode_system" {
 }
 
 # Resize window (you can also use the mouse for that)
-bindsym $mod+z mode "resize"
+bindsym $mod+r mode "resize"
 mode "resize" {
         # These bindings trigger as soon as you enter the resize mode
         # Pressing left will shrink the window’s width.
         # Pressing right will grow the window’s width.
         # Pressing up will shrink the window’s height.
         # Pressing down will grow the window’s height.
-        bindsym j resize shrink width 5 px or 5 ppt
-        bindsym k resize grow height 5 px or 5 ppt
-        bindsym l resize shrink height 5 px or 5 ppt
-        bindsym semicolon resize grow width 5 px or 5 ppt
+        bindsym h resize shrink width 5 px or 5 ppt
+        bindsym j resize grow height 5 px or 5 ppt
+        bindsym k resize shrink height 5 px or 5 ppt
+        bindsym l resize grow width 5 px or 5 ppt
 
         # same bindings, but for the arrow keys
         bindsym Left resize shrink width 10 px or 10 ppt
@@ -310,6 +310,7 @@ exec --no-startup-id clipit
 # exec --no-startup-id xautolock -time 10 -locker blurlock
 exec_always --no-startup-id ff-theme-util
 exec_always --no-startup-id fix_xcursor
+exec --no-startup-id docker start mysql
 
 # Color palette used for the terminal ( ~/.Xresources file )
 # Colors are gathered based on the documentation:
@@ -354,6 +355,7 @@ bar {
 
 	bindsym button4 nop
 	bindsym button5 nop
+        font xft:DejaVu Sans Mono for Powerline 11
 #   font xft:URWGothic-Book 11
 	# strip_workspace_numbers yes
 
@@ -441,4 +443,3 @@ mode "$mode_gaps_outer" {
         bindsym Escape mode "default"
 }
 
-exec --no-startup-id docker start mysql
