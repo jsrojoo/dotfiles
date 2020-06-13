@@ -34,8 +34,9 @@ bindsym $mod+Return exec i3-sensible-terminal
 bindsym $mod+Shift+q kill
 
 # start program launcher
-bindsym $mod+g exec --no-startup-id dmenu_recency
-bindsym $mod+d exec --no-startup-id dmenu_recency
+# bindsym $mod+g exec --no-startup-id dmenu_recency
+bindsym $mod+d exec --no-startup-id rofi -show run
+bindsym $mod+g exec --no-startup-id rofi -show run
 
 # launch categorized menu
 bindsym $mod+q exec --no-startup-id morc_menu
@@ -391,8 +392,8 @@ client.background       #F8F8F2
 #############################
 
 # Set inner/outer gaps
-gaps inner 5
-gaps outer 50
+gaps inner 25
+gaps outer 0
 
 # Additionally, you can issue commands with the following syntax. This is useful to bind keys to changing the gap size.
 # gaps inner|outer current|all set|plus|minus <px>
