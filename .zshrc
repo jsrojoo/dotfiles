@@ -10,7 +10,7 @@ export ZSH=$HOME/.oh-my-zsh
 # to know which specific one was loaded, run: echo $RANDOM_THEME
 # See https://github.com/robbyrussell/oh-my-zsh/wiki/Themes
 
-ZSH_THEME="agnoster"
+ZSH_THEME="avit"
 # Set list of themes to pick from when loading at random
 # Setting this variable when ZSH_THEME=random will cause zsh to load
 # a theme from this variable instead of looking in ~/.oh-my-zsh/themes/
@@ -85,7 +85,6 @@ plugins=(
         z
         auto-notify
         vi-mode
-        httpie
         )
 
 autoload -U compinit && compinit # for zsh-completions
@@ -150,7 +149,7 @@ fi
 # Example aliases
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
-WORK_PROJECTS=/home/rojo/FirstPerformance
+WORK_PROJECTS=/home/rojo/fp
 
 alias v="nvim"
 alias c=reset
@@ -165,11 +164,11 @@ for dir in */; do
 done
 cd
 
-alias db="cd ~/Downloads && mycli -h 172.17.0.2 -P 3306 -u root -proot"
+alias db="cd ~/fp/sql && mycli -h 172.17.0.2 -P 3306 -u root -proot"
 alias vrc="nvim ~/.local/share/nvim/site/init.vim"
 alias vzrc="nvim ~/.zshrc"
-alias redis-cluster="cd ~/FirstPerformance/redis-5.0.7/utils/create-cluster && ./create-cluster start"
-alias fp-auth="~ && ~/FirstPerformance/lincoln-project/fp-saas/deps/fp-api-authenticator"
+alias redis-cluster="cd ~/fp/redis-5.0.7/utils/create-cluster && ./create-cluster start"
+alias fp-auth="~ && ~/fp/lincoln-project/fp-saas/deps/fp-api-authenticator"
 alias q="npm run test"
 
 gitCommitToCurrentBranch () {
