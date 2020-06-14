@@ -102,8 +102,8 @@ KEYTIMEOUT=1
 # You may need to manually set your language environment
 # export LANG=en_US.UTF-8
 # Updates editor information when the keymap changes.
-vim_ins_mode="%{$fg[cyan]%}[INS]%{$reset_color%}"
-vim_cmd_mode="%{$fg[green]%}[CMD]%{$reset_color%}"
+vim_ins_mode="%{$fg[cyan]%}[I]%{$reset_color%}"
+vim_cmd_mode="%{$fg[green]%}[C]%{$reset_color%}"
 vim_mode=$vim_ins_mode
 
 function zle-keymap-select {
@@ -116,7 +116,7 @@ function zle-line-finish {
   vim_mode=$vim_ins_mode
 }
 zle -N zle-line-finish
-RPROMPT='${vim_mode}'
+PROMPT=$PROMPT'${vim_mode} ''λ '
 # Fix a bug when you C-c in CMD mode and you'd be prompted with CMD mode indicator, while in fact you would be in INS mode
 # Fixed by catching SIGINT (C-c), set vim_mode to INS and then repropagate the SIGINT, so if anything else depends on it, we will not break it
 # Thanks Ron! (see comments)
@@ -188,7 +188,7 @@ gitPullRebase () {
 export JAVA_HOME=/usr/lib/jvm/default
 export ANDROID_HOME=~/Android/Sdk
 export PATH=$PATH:$JAVA_HOME/bin:$ANDROID_HOME/platform-tools/bin:$ANDROID_HOME/tools/bin:/home/rojo/.gem/ruby/2.7.0/bin
-# export TERM=screen-256color
+export TERM=screen-256color
 # export PYENV_ROOT=/home/rojo/.pyenv
 
 # auto-notify plugin

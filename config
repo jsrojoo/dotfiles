@@ -39,7 +39,7 @@ bindsym $mod+d exec --no-startup-id rofi -show run
 bindsym $mod+g exec --no-startup-id rofi -show run
 
 # launch categorized menu
-bindsym $mod+q exec --no-startup-id morc_menu
+bindsym $mod+q exec --no-startup-id rofi -show drun
 
 ################################################################################################
 ## sound-section - DO NOT EDIT if you wish to automatically upgrade Alsa -> Pulseaudio later! ##
@@ -53,9 +53,9 @@ exec --no-startup-id volumeicon
 exec --no-startup-id blueman-applet
 
 # Pulse Audio controls
-bindsym XF86AudioRaiseVolume exec pactl set-sink-volume 1 +5% #increase sound volume
-bindsym XF86AudioLowerVolume exec pactl set-sink-volume 1 -5% #decrease sound volume
-bindsym XF86AudioMute exec pactl set-sink-mute 1 toggle # mute sound
+bindsym XF86AudioRaiseVolume exec pactl set-sink-volume 0 +5% #increase sound volume
+bindsym XF86AudioLowerVolume exec pactl set-sink-volume 0 -5% #decrease sound volume
+bindsym XF86AudioMute exec pactl set-sink-mute 0 toggle # mute sound
 ################################################################################################
 
 # Screen brightness controls
@@ -111,7 +111,7 @@ bindsym Ctrl+Shift+l move right
 # bindsym $mod+Shift+Right move right
 
 # workspace back and forth (with/without active container)
-workspace_auto_back_and_forth yes
+workspace_auto_back_and_forth no
 bindsym $mod+b workspace back_and_forth
 bindsym $mod+Shift+b move container to workspace back_and_forth; workspace back_and_forth
 
@@ -311,6 +311,7 @@ exec --no-startup-id clipit
 # exec --no-startup-id xautolock -time 10 -locker blurlock
 exec_always --no-startup-id ff-theme-util
 exec_always --no-startup-id fix_xcursor
+exec --no-startup-id screenkey
 exec --no-startup-id docker start mysql
 
 # Color palette used for the terminal ( ~/.Xresources file )
@@ -346,6 +347,8 @@ set_from_resource $term_color15    color15
 
 # Start i3bar to display a workspace bar (plus the system information i3status if available)
 bar {
+        mode hide
+        hidden_state hide
 	i3bar_command i3bar
 	status_command i3status
 	position bottom
