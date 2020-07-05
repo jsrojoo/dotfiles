@@ -1,31 +1,63 @@
-*.foreground: #D6DCE3
-*.background: [95]#21222C
-*.color0:     [95]#21222C
-*.color8:     #4D4D4D
-*.color1:     #aF5555
-*.color9:     #aF6E67
-*.color2:     [80]#50FA7B
-*.color10:    [80]#50FA7B
-*.color3:     #F1FA8C
-*.color11:    #F4F99D
-*.color4:     #CAA9FA
-*.color12:    #CAA9FA
-*.color5:     #FF79C6
-*.color13:    #FF92D0
-*.color6:     #8BE9FD
-*.color14:    #9AEDFE
-*.color7:     #BFBFBF
-*.color15:    #E6E6E6
+#define bblk  #676e95
+#define bblu  #82aaff
+#define bcyn  #89ddff
+#define bg    #292d3e
+#define bgrn  #c3e88d
+#define blk   #292d3e
+#define blu   #82aaff
+#define bmag  #c792ea
+#define bred  #f07178
+#define bwht  #959dcb
+#define bylw  #ffcb6b
+#define curs  #bfc7d5
+#define cyn   #89ddff
+#define fg    #dddddd
+#define grn   #c3e88d
+#define mag   #c792ea
+#define red   #f07178
+#define wht   #bfc7d5
+#define ylw   #ffcb6b
 
-Xcursor.theme: xcursor-breeze
+*background:   bg
+*foreground:   fg
+*cursorColor:  curs
+
+*color0:      blk
+*color1:      red
+*color2:      grn
+*color3:      ylw
+*color4:      blu
+*color5:      mag
+*color6:      cyn
+*color7:      wht
+*color8:      bblk
+*color9:      bred
+*color10:     bgrn
+*color11:     bylw
+*color12:     bblu
+*color13:     bmag
+*color14:     bcyn
+*color15:     bwht
+
+Xcursor.theme: Bibata_Amber
 Xcursor.size:                     0
 
-URxvt.font:                       xft:DejaVu Sans Mono for Powerline:size=12:antialias=true
+URxvt*cursorBlink:                true
 URxvt*letterSpace:                0
+URxvt*mouseWheelScrollPage:       false
+URxvt*saveLines:                  5000
+URxvt*scrollBar:                  false
 
 URxvt.depth:                      32
-URxvt*scrollBar:                  false
-URxvt*mouseWheelScrollPage:       false
-URxvt*cursorBlink:                true
-URxvt*saveLines:                  5000
+URxvt.font:                       xft:DejaVu Sans Mono for Powerline:size=14:antialias=true
+URxvt.keysym.C-S-j:               resize-font:smaller
+URxvt.keysym.C-S-k:               resize-font:bigger
 Urxvt.perl-ext-common:            default,resize-font
+
+Xft.dpi: 96
+Xft.antialias: true
+Xft.hinting: true
+Xft.rgba: rgb
+Xft.autohint: false
+Xft.hintstyle: hintslight
+Xft.lcdfilter: lcddefault

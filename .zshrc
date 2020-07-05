@@ -102,8 +102,8 @@ KEYTIMEOUT=1
 # You may need to manually set your language environment
 # export LANG=en_US.UTF-8
 # Updates editor information when the keymap changes.
-vim_ins_mode="%{$fg[cyan]%}[I]%{$reset_color%}"
-vim_cmd_mode="%{$fg[green]%}[C]%{$reset_color%}"
+vim_ins_mode="%{$fg[cyan]%}I%{$reset_color%}"
+vim_cmd_mode="%{$fg[green]%}C%{$reset_color%}"
 vim_mode=$vim_ins_mode
 
 function zle-keymap-select {
@@ -116,7 +116,7 @@ function zle-line-finish {
   vim_mode=$vim_ins_mode
 }
 zle -N zle-line-finish
-PROMPT=$PROMPT'${vim_mode} ''λ '
+PROMPT=$PROMPT'[${vim_mode} λ] '
 # Fix a bug when you C-c in CMD mode and you'd be prompted with CMD mode indicator, while in fact you would be in INS mode
 # Fixed by catching SIGINT (C-c), set vim_mode to INS and then repropagate the SIGINT, so if anything else depends on it, we will not break it
 # Thanks Ron! (see comments)
@@ -133,7 +133,7 @@ fi
 
 # use tmux automatically
 if [ -z "$TMUX" ]; then
-    tmux attach -t 1337 || tmux new -s 1337
+    tmux attach -t w || tmux new -s w
 fi
 
 # This loads NVM
@@ -170,6 +170,7 @@ alias vzrc="nvim ~/.zshrc"
 alias redis-cluster="cd ~/fp/redis-5.0.7/utils/create-cluster && ./create-cluster start"
 alias fp-auth="~ && ~/fp/lincoln-project/fp-saas/deps/fp-api-authenticator"
 alias q="npm run test"
+alias dots=~/dotfiles
 
 gitCommitToCurrentBranch () {
   local message=$1
@@ -188,7 +189,8 @@ gitPullRebase () {
 export JAVA_HOME=/usr/lib/jvm/default
 export ANDROID_HOME=~/Android/Sdk
 export PATH=$PATH:$JAVA_HOME/bin:$ANDROID_HOME/platform-tools/bin:$ANDROID_HOME/tools/bin:/home/rojo/.gem/ruby/2.7.0/bin
-export TERM=screen-256color
+# export TERM=screen-256color
+export TERM=rxvt-unicode-256color
 # export PYENV_ROOT=/home/rojo/.pyenv
 
 # auto-notify plugin

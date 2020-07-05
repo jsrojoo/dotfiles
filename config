@@ -53,8 +53,8 @@ exec --no-startup-id volumeicon
 exec --no-startup-id blueman-applet
 
 # Pulse Audio controls
-bindsym XF86AudioRaiseVolume exec pactl set-sink-volume 0 +5% #increase sound volume
-bindsym XF86AudioLowerVolume exec pactl set-sink-volume 0 -5% #decrease sound volume
+bindsym XF86AudioRaiseVolume exec pactl set-sink-volume 0 +1% #increase sound volume
+bindsym XF86AudioLowerVolume exec pactl set-sink-volume 0 -1% #decrease sound volume
 bindsym XF86AudioMute exec pactl set-sink-mute 0 toggle # mute sound
 ################################################################################################
 
@@ -70,7 +70,7 @@ bindsym $mod+F3 exec pcmanfm
 bindsym $mod+Shift+F3 exec gksu pcmanfm
 bindsym $mod+F5 exec terminal -e 'mocp'
 # bindsym $mod+t exec --no-startup-id pkill compton
-bindsym $mod+Ctrl+t exec --no-startup-id compton -b
+# bindsym $mod+Ctrl+t exec --no-startup-id compton -b
 bindsym $mod+Shift+d --release exec "killall dunst; exec notify-send 'restart dunst'"
 bindsym Print exec --no-startup-id i3-scrot
 bindsym $mod+Print --release exec --no-startup-id i3-scrot -w
@@ -111,7 +111,7 @@ bindsym Ctrl+Shift+l move right
 # bindsym $mod+Shift+Right move right
 
 # workspace back and forth (with/without active container)
-workspace_auto_back_and_forth no
+workspace_auto_back_and_forth yes
 bindsym $mod+b workspace back_and_forth
 bindsym $mod+Shift+b move container to workspace back_and_forth; workspace back_and_forth
 
@@ -155,9 +155,9 @@ bindsym $mod+Ctrl+Left workspace prev
 # to display names or symbols instead of plain workspace numbers you can use
 # something like: set $ws1 1:mail
 #                 set $ws2 2:
-set $ws1 "1: Dev "
-set $ws2 "2: Comms "
-set $ws3 "3: Etc "
+set $ws1 "λ"
+set $ws2 "Web"
+set $ws3 "Etc"
 set $ws4 4
 set $ws5 5
 set $ws6 6
@@ -185,6 +185,7 @@ bindsym $mod+Ctrl+7 move container to workspace $ws7
 bindsym $mod+Ctrl+8 move container to workspace $ws8
 
 # Assign apps to their workspaces
+assign [class="firefox"] $ws1
 assign [class="Slack"] $ws2
 assign [class="time doctor" class="Time Doctor"] $ws3
 assign [class="Brave"] $ws1
@@ -199,12 +200,6 @@ bindsym $mod+Shift+5 move container to workspace $ws5; workspace $ws5
 bindsym $mod+Shift+6 move container to workspace $ws6; workspace $ws6
 bindsym $mod+Shift+7 move container to workspace $ws7; workspace $ws7
 bindsym $mod+Shift+8 move container to workspace $ws8; workspace $ws8
-
-# Open applications on specific workspaces
-# assign [class="Thunderbird"] $ws1
-# assign [class="Pale moon"] $ws2
-# assign [class="Pcmanfm"] $ws3
-# assign [class="Skype"] $ws5
 
 # Open specific applications in floating mode
 for_window [class="Slack"] focus
@@ -236,7 +231,7 @@ for_window [class="(?i)System-config-printer.py"] floating enable # border norma
 for_window [class="Skype"] floating enable # border normal
 for_window [class="Thus"] floating enable # border normal
 for_window [class="Timeset-gui"] floating enable # border normal
-for_window [class="(?i)virtualbox"] floating enable # border normal
+# for_window [class="(?i)virtualbox"] floating enable # border normal
 for_window [class="Xfburn"] floating enable
 
 # switch to workspace with urgent window automatically
@@ -276,10 +271,10 @@ mode "resize" {
         # Pressing right will grow the window’s width.
         # Pressing up will shrink the window’s height.
         # Pressing down will grow the window’s height.
-        bindsym h resize shrink width 5 px or 5 ppt
-        bindsym j resize grow height 5 px or 5 ppt
-        bindsym k resize shrink height 5 px or 5 ppt
-        bindsym l resize grow width 5 px or 5 ppt
+        bindsym h resize shrink width  1 px or 1 ppt
+        bindsym j resize grow height   1 px or 1 ppt
+        bindsym k resize shrink height 1 px or 1 ppt
+        bindsym l resize grow width    1 px or 1 ppt
 
         # same bindings, but for the arrow keys
         bindsym Left resize shrink width 10 px or 10 ppt
@@ -347,33 +342,34 @@ set_from_resource $term_color15    color15
 
 # Start i3bar to display a workspace bar (plus the system information i3status if available)
 bar {
-        mode hide
+        mode dock
         hidden_state hide
-	i3bar_command i3bar
-	status_command i3status
-	position bottom
+        i3bar_command i3bar
+        status_command i3status
+        position bottom
 
 ## please set your primary output first. Example: 'xrandr --output eDP1 --primary'
 #	tray_output primary
 #	tray_output eDP1
 
-	bindsym button4 nop
-	bindsym button5 nop
-        font xft:DejaVu Sans Mono for Powerline 10
+        bindsym button4 nop
+        bindsym button5 nop
+        font xft:DejaVu Sans Mono for Powerline 11
 #   font xft:URWGothic-Book 11
 	# strip_workspace_numbers yes
 
 # Dracula colors
         colors {
-          background #282A36
-            statusline #F8F8F2
+            background #292d3e
+            statusline #dddddd
             separator  #44475A
 
-            focused_workspace  #44475A #44475A #F8F8F2
-            active_workspace   #282A36 #44475A #F8F8F2
-            inactive_workspace #282A36 #282A36 #BFBFBF
-            urgent_workspace   #FF5555 #FF5555 #F8F8F2
-            binding_mode       #FF5555 #FF5555 #F8F8F2
+# class                        border  backgr. text    indic.   child_border
+#            focused_workspace  #bbbbbb #bbbbbb #dddddd #44475A
+#            active_workspace   #bbbbbb #ffffff #ffffff
+#            inactive_workspace #bbbbbb #bbbbbb #F8F8F2
+#            urgent_workspace   #FF5555 #FF5555 #F8F8F2
+#            binding_mode       #FF5555 #FF5555 #F8F8F2
         }
 }
 
@@ -381,14 +377,14 @@ bar {
 bindsym $mod+m bar mode toggle
 
 # [Dracula] Theme colors
-# class                   border  backgr. text    indic.   child_border
-client.focused          #6272A4 #6272A4 #F8F8F2 #6272A4   #6272A4
-client.focused_inactive #44475A #44475A #F8F8F2 #44475A   #44475A
-client.unfocused        #282A36 #282A36 #BFBFBF #282A36   #282A36
-client.urgent           #44475A #FF5555 #F8F8F2 #FF5555   #FF5555
-client.placeholder      #282A36 #282A36 #F8F8F2 #282A36   #282A36
-
-client.background       #F8F8F2
+# class                 border  backgr. text    indic.   child_border
+# client.focused          #6272A4 #6272A4 #F8F8F2 #6272A4   #6272A4
+# client.focused_inactive #44475A #44475A #F8F8F2 #44475A   #44475A
+# client.unfocused        #282A36 #282A36 #BFBFBF #282A36   #282A36
+# client.urgent           #44475A #FF5555 #F8F8F2 #FF5555   #FF5555
+# client.placeholder      #282A36 #282A36 #F8F8F2 #282A36   #282A36
+#
+# client.background       #f8F8F2
 
 #############################
 ### settings for i3-gaps: ###
@@ -396,7 +392,7 @@ client.background       #F8F8F2
 
 # Set inner/outer gaps
 gaps inner 25
-gaps outer 0
+# gaps outer 25
 
 # Additionally, you can issue commands with the following syntax. This is useful to bind keys to changing the gap size.
 # gaps inner|outer current|all set|plus|minus <px>
