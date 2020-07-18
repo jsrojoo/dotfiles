@@ -70,21 +70,22 @@ DISABLE_AUTO_TITLE="true"
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
 plugins=(
-        git
+        auto-notify
         docker
         extract
+        git
+        jsontools
         npm
         pip
         redis-cli
-        tmux
-        zsh-autosuggestions
-        zsh-completions
-        zsh-syntax-highlighting
-        jsontools
-        zsh_reload
+        # tmux
         z
-        auto-notify
+        zsh-autosuggestions
+        # zsh-completions
+        zsh-syntax-highlighting
+        zsh_reload
         vi-mode
+        # fzf-tab
         )
 
 autoload -U compinit && compinit # for zsh-completions
@@ -153,7 +154,6 @@ WORK_PROJECTS=/home/rojo/fp
 
 alias v="nvim"
 alias c=reset
-alias "\q"=exit
 alias t=tmux
 alias fp=$WORK_PROJECTS
 
@@ -171,6 +171,9 @@ alias redis-cluster="cd ~/fp/redis-5.0.7/utils/create-cluster && ./create-cluste
 alias fp-auth="~ && ~/fp/lincoln-project/fp-saas/deps/fp-api-authenticator"
 alias q="npm run test"
 alias dots=~/dotfiles
+alias cat=bat
+alias slack="trickle -u 50 -d 50 slack &"
+alias timedoctor="trickle -u 50 -d 50 timedoctor &"
 
 gitCommitToCurrentBranch () {
   local message=$1
@@ -184,7 +187,6 @@ gitPushToCurrentBranch () {
 gitPullRebase () {
   git pull upstream --rebase $1
 }
-# alias f="firefox --private-window &"
 
 export JAVA_HOME=/usr/lib/jvm/default
 export ANDROID_HOME=~/Android/Sdk
