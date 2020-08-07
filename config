@@ -204,7 +204,9 @@ for_window [class="Slack" class="slack"] focus;
 for_window [class="time doctor" class="Time Doctor"] focus
 for_window [class="Brave"] focus
 for_window [title="urxvt"] focus
-for_window [title="Firefox" title="firefox"] focus
+for_window [title="termite"] focus
+for_window [title="screenkey"] sticky
+for_window [class="Firefox" title="firefox"] focus
 for_window [title="alsamixer"] floating enable # border pixel 1
 for_window [class="Calamares"] floating enable # border normal
 for_window [class="Clipgrab"] floating enable
@@ -293,7 +295,8 @@ bindsym $mod+Shift+l exec --no-startup-id blurlock
 # Autostart applications
 exec --no-startup-id /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1
 exec --no-startup-id nitrogen --restore; sleep 1; compton -b
-#exec --no-startup-id manjaro-hello
+# exec --no-startup-id manjaro-hello
+# exec --no-startup-id /usr/local/lib/paperview /home/rojo/Videos/bmps 5
 exec --no-startup-id nm-applet
 exec --no-startup-id xfce4-power-manager
 exec --no-startup-id pamac-tray
@@ -341,57 +344,39 @@ set_from_resource $term_color15    color15
 
 # Start i3bar to display a workspace bar (plus the system information i3status if available)
 bar {
-        mode hide
-        hidden_state hide
-        i3bar_command i3bar
-        status_command i3status
-        position bottom
+  mode dock
+    hidden_state hide
+    i3bar_command i3bar
+    status_command i3status
+    position top
 
 ## please set your primary output first. Example: 'xrandr --output eDP1 --primary'
 #	tray_output primary
 #	tray_output eDP1
 
-        bindsym button4 nop
-        bindsym button5 nop
-        font xft:Jetbrains Mono 11
+    bindsym button4 nop
+    bindsym button5 nop
+    font xft:Jetbrains Mono 11
 #   font xft:URWGothic-Book 11
-strip_workspace_numbers yes
+    strip_workspace_numbers yes
 
-# Dracula colors
-        colors {
-            background #292d3e
-            statusline #dddddd
-            separator  #44475A
-
-# class                        border  backgr. text    indic.   child_border
-#            focused_workspace  #bbbbbb #bbbbbb #dddddd #44475A
-#            active_workspace   #bbbbbb #ffffff #ffffff
-#            inactive_workspace #bbbbbb #bbbbbb #F8F8F2
-#            urgent_workspace   #FF5555 #FF5555 #F8F8F2
-#            binding_mode       #FF5555 #FF5555 #F8F8F2
-        }
+    colors {
+      background #292d3e
+        statusline #dddddd
+        separator  #44475A
+    }
 }
 
 # hide/unhide i3status bar
-bindsym $mod+m bar mode toggle
-
-# [Dracula] Theme colors
-# class                 border  backgr. text    indic.   child_border
-# client.focused          #6272A4 #6272A4 #F8F8F2 #6272A4   #6272A4
-# client.focused_inactive #44475A #44475A #F8F8F2 #44475A   #44475A
-# client.unfocused        #282A36 #282A36 #BFBFBF #282A36   #282A36
-# client.urgent           #44475A #FF5555 #F8F8F2 #FF5555   #FF5555
-# client.placeholder      #282A36 #282A36 #F8F8F2 #282A36   #282A36
-#
-# client.background       #f8F8F2
+# bindsym $mod+m bar mode toggle
 
 #############################
 ### settings for i3-gaps: ###
 #############################
 
 # Set inner/outer gaps
-gaps inner 25
-# gaps outer 25
+# gaps inner 25
+gaps outer 25
 
 # Additionally, you can issue commands with the following syntax. This is useful to bind keys to changing the gap size.
 # gaps inner|outer current|all set|plus|minus <px>
@@ -442,3 +427,86 @@ mode "$mode_gaps_outer" {
         bindsym Escape mode "default"
 }
 
+mode "mouse" {
+
+    # set your three speeds here
+    set $slow 20
+    set $quick 50
+    set $fast 50
+
+    # Mouse movement (slow/fine-tuned) -- vim keybindings
+
+    bindsym a exec xdotool mousemove_relative -- -$slow 0
+    bindsym s exec xdotool mousemove_relative 0 $slow
+    bindsym w exec xdotool mousemove_relative -- 0 -$slow
+    bindsym d exec xdotool mousemove_relative $slow 0
+
+    # # Mouse movement (slow/fine-tuned) -- arrow keys
+    #
+    # bindsym Left exec xdotool mousemove_relative -- -$slow 0
+    # bindsym Down exec xdotool mousemove_relative 0 $slow
+    # bindsym Up exec xdotool mousemove_relative -- 0 -$slow
+    # bindsym Right exec xdotool mousemove_relative $slow 0
+    #
+    # # Mouse movement (quicker) -- vim keybindings
+    #
+    # bindsym Shift+a exec xdotool mousemove_relative -- -$quick 0
+    # bindsym Shift+s exec xdotool mousemove_relative 0 $quick
+    # bindsym Shift+w exec xdotool mousemove_relative -- 0 -$quick
+    # bindsym Shift+d exec xdotool mousemove_relative $quick 0
+    #
+    # # Mouse movement (quicker) -- arrow keys
+    #
+    # bindsym Shift+Left exec xdotool mousemove_relative -- -$quick 0
+    # bindsym Shift+Down exec xdotool mousemove_relative 0 $quick
+    # bindsym Shift+Up exec xdotool mousemove_relative -- 0 -$quick
+    # bindsym Shift+Right exec xdotool mousemove_relative $quick 0
+    #
+    # # Mouse movement (fast) -- vim keybindings
+    #
+    # bindsym Shift+$mod2+a exec xdotool mousemove_relative -- -$fast 0
+    # bindsym Shift+$mod2+s exec xdotool mousemove_relative 0 $fast
+    # bindsym Shift+$mod2+w exec xdotool mousemove_relative -- 0 -$fast
+    # bindsym Shift+$mod2+d exec xdotool mousemove_relative $fast 0
+    #
+    # # Mouse movement (fast) -- arrow keys
+    #
+    # bindsym Shift+$mod2+Left exec xdotool mousemove_relative -- -$fast 0
+    # bindsym Shift+$mod2+Down exec xdotool mousemove_relative 0 $fast
+    # bindsym Shift+$mod2+Up exec xdotool mousemove_relative -- 0 -$fast
+    # bindsym Shift+$mod2+Right exec xdotool mousemove_relative $fast 0
+
+    # Left Click
+    bindsym q exec xdotool click 1
+
+    # # Middle Click
+    # bindsym e exec xdotool click 2
+    #
+    # # Right Click
+    # bindsym r exec xdotool click 3
+    #
+    # # Left Click-and-drag
+    # bindsym Shift+q exec xdotool mousedown 1
+    #
+    # # Middle Click-and-drag
+    # bindsym Shift+e exec xdotool mousedown 2
+    #
+    # # Right Click-and-drag
+    # bindsym Shift+r exec xdotool mousedown 3
+    #
+    # # Left Drag release
+    # bindsym $mod2+q exec xdotool mouseup 1
+    #
+    # # Middle Drag release
+    # bindsym $mod2+e exec xdotool mouseup 2
+    #
+    # # Right Drag release
+    # bindsym $mod2+r exec xdotool mouseup 3
+
+
+    # return to normal keybindings -- IMPORTANT!!
+
+    bindsym Escape mode "default"
+}
+
+bindsym $mod+m mode "mouse"

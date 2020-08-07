@@ -73,19 +73,18 @@ plugins=(
         auto-notify
         docker
         extract
-        git
+        # git
         jsontools
         npm
         pip
         redis-cli
-        # tmux
+        tmux
+        vi-mode
         z
         zsh-autosuggestions
-        # zsh-completions
+        zsh-completions
         zsh-syntax-highlighting
         zsh_reload
-        vi-mode
-        # fzf-tab
         )
 
 autoload -U compinit && compinit # for zsh-completions
@@ -117,14 +116,15 @@ function zle-line-finish {
   vim_mode=$vim_ins_mode
 }
 zle -N zle-line-finish
+
 PROMPT=$PROMPT'[${vim_mode} λ] '
 # Fix a bug when you C-c in CMD mode and you'd be prompted with CMD mode indicator, while in fact you would be in INS mode
 # Fixed by catching SIGINT (C-c), set vim_mode to INS and then repropagate the SIGINT, so if anything else depends on it, we will not break it
 # Thanks Ron! (see comments)
-function TRAPINT() {
-  vim_mode=$vim_ins_mode
-  return $(( 128 + $1 ))
-}
+# function TRAPINT() {
+#   vim_mode=$vim_ins_mode
+#   return $(( 128 + $1 ))
+# }
 # Preferred editor for local and remote sessions
 if [[ -n $SSH_CONNECTION ]]; then
   export EDITOR='vim'
@@ -150,30 +150,30 @@ fi
 # Example aliases
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
-WORK_PROJECTS=/home/rojo/fp
+# WORK_PROJECTS="/home/rojo/fp"
 
 alias v="nvim"
-alias c=reset
-alias t=tmux
-alias fp=$WORK_PROJECTS
-
-cd $WORK_PROJECTS
-for dir in */; do
-  local project=${dir%?}
-  alias $project=$WORK_PROJECTS/$dir
-done
-cd
-
+alias c="reset"
+alias t="tmux"
+alias "\q"="exit"
 alias db="cd ~/fp/sql && mycli -h 172.17.0.2 -P 3306 -u root -proot"
 alias vrc="nvim ~/.local/share/nvim/site/init.vim"
 alias vzrc="nvim ~/.zshrc"
 alias redis-cluster="cd ~/fp/redis-5.0.7/utils/create-cluster && ./create-cluster start"
 alias fp-auth="~ && ~/fp/lincoln-project/fp-saas/deps/fp-api-authenticator"
 alias q="npm run test"
-alias dots=~/dotfiles
-alias cat=bat
+alias dots="~/dotfiles"
+alias cat="bat"
 alias slack="trickle -u 50 -d 50 slack &"
 alias timedoctor="trickle -u 50 -d 50 timedoctor &"
+alias run="cd ~/fp/fall-v10/fp-saas/ && ./run.sh"
+alias update="sudo pacman -Syyu"
+alias paci="sudo pacman -S $1"
+alias yai="yay -S $1"
+alias yau="yay -R $1"
+alias use-colemak="setxkbmap us -variant colemak"
+
+alias send-test-buffer="node ~/fp/eg-repos/test-scripts/flbl-payload-test.js"
 
 gitCommitToCurrentBranch () {
   local message=$1
@@ -188,13 +188,16 @@ gitPullRebase () {
   git pull upstream --rebase $1
 }
 
+fixKeeb () {
+  setxkbmap us;
+  setxkbmap -option ctrl:nocaps;
+  xcape -e 'Control_L=Escape';
+  xset r rate 280 120;
+}
+
 export JAVA_HOME=/usr/lib/jvm/default
 export ANDROID_HOME=~/Android/Sdk
 export PATH=$PATH:$JAVA_HOME/bin:$ANDROID_HOME/platform-tools/bin:$ANDROID_HOME/tools/bin:/home/rojo/.gem/ruby/2.7.0/bin
-# export TERM=screen-256color
-export TERM=rxvt-unicode-256color
-# export PYENV_ROOT=/home/rojo/.pyenv
-
 # auto-notify plugin
 export AUTO_NOTIFY_THRESHOLD=5
 
@@ -204,7 +207,7 @@ eval "$(pyenv virtualenv-init -)"
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
 ###-tns-completion-start-###
-if [ -f /home/rojo/.tnsrc ]; then 
-    source /home/rojo/.tnsrc 
+if [ -f /home/rojo/.tnsrc ]; then
+    source /home/rojo/.tnsrc
 fi
 ###-tns-completion-end-###
