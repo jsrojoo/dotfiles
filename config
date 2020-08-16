@@ -18,7 +18,7 @@ hide_edge_borders none
 # change borders
 bindsym $mod+u border none
 bindsym $mod+y border pixel 1
-bindsym $mod+n border normal
+# bindsym $mod+n border normal
 
 # Font for window titles. Will also be used by the bar unless a different font
 # is used in the bar {} block below.
@@ -83,9 +83,9 @@ focus_follows_mouse no
 
 # change focus
 bindsym $mod+h focus left
+bindsym $mod+n focus down
+bindsym $mod+e focus up
 bindsym $mod+l focus right
-bindsym $mod+j focus down
-bindsym $mod+k focus up
 # bindsym $mod+l focus up
 # bindsym $mod+semicolon focus right
 # bindsym Ctrl+a focus left
@@ -100,10 +100,10 @@ bindsym $mod+k focus up
 # bindsym $mod+Right focus right
 
 # move focused window
-bindsym Ctrl+Shift+h move left
+bindsym Ctrl+Shift+Left move left
 # bindsym Ctrl+Shift+j move down
 # bindsym Ctrl+Shift+k move up
-bindsym Ctrl+Shift+l move right
+bindsym Ctrl+Shift+Right move right
 
 # alternatively, you can use the cursor keys:
 # bindsym $mod+Shift+Left move left
@@ -159,6 +159,8 @@ bindsym $mod+Ctrl+Left workspace prev
 set $ws1 "1: λ "
 set $ws2 "2: Web "
 set $ws3 "3: Etc "
+set $ws4 4
+set $ws5 5
 set $ws6 6
 set $ws7 7
 set $ws8 8
@@ -201,11 +203,11 @@ bindsym $mod+Shift+8 move container to workspace $ws8; workspace $ws8
 
 # Open specific applications in floating mode
 for_window [class="Slack" class="slack"] focus;
+for_window [title="key-mon" title="Key-mon"] stick
 for_window [class="time doctor" class="Time Doctor"] focus
 for_window [class="Brave"] focus
 for_window [title="urxvt"] focus
 for_window [title="termite"] focus
-for_window [title="screenkey"] sticky
 for_window [class="Firefox" title="firefox"] focus
 for_window [title="alsamixer"] floating enable # border pixel 1
 for_window [class="Calamares"] floating enable # border normal
@@ -294,9 +296,9 @@ bindsym $mod+Shift+l exec --no-startup-id blurlock
 
 # Autostart applications
 exec --no-startup-id /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1
-exec --no-startup-id nitrogen --restore; sleep 1; compton -b
+# exec --no-startup-id nitrogen --restore; sleep 1; compton -b
 # exec --no-startup-id manjaro-hello
-# exec --no-startup-id /usr/local/lib/paperview /home/rojo/Videos/bmps 5
+exec --no-startup-id /usr/local/lib/paperview /home/rojo/Videos/bmps 5
 exec --no-startup-id nm-applet
 exec --no-startup-id xfce4-power-manager
 exec --no-startup-id pamac-tray
@@ -375,8 +377,8 @@ bar {
 #############################
 
 # Set inner/outer gaps
-# gaps inner 25
-gaps outer 25
+gaps inner 25
+# gaps outer 25
 
 # Additionally, you can issue commands with the following syntax. This is useful to bind keys to changing the gap size.
 # gaps inner|outer current|all set|plus|minus <px>
@@ -437,9 +439,14 @@ mode "mouse" {
     # Mouse movement (slow/fine-tuned) -- vim keybindings
 
     bindsym a exec xdotool mousemove_relative -- -$slow 0
-    bindsym s exec xdotool mousemove_relative 0 $slow
     bindsym w exec xdotool mousemove_relative -- 0 -$slow
-    bindsym d exec xdotool mousemove_relative $slow 0
+
+    # qwerty
+    # bindsym d exec xdotool mousemove_relative $slow 0
+    # bindsym s exec xdotool mousemove_relative 0 $slow
+    # colemak
+    bindsym r exec xdotool mousemove_relative 0 $slow
+    bindsym s exec xdotool mousemove_relative $slow 0
 
     # # Mouse movement (slow/fine-tuned) -- arrow keys
     #

@@ -6,4 +6,4 @@ xcape -e 'Control_L=Escape'
 
 # increase repeat rate
 xset r rate 280 120
-# setxkbmap us -variant colemak
+setxkbmap us -variant colemak

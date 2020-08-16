@@ -79,12 +79,12 @@ plugins=(
         pip
         redis-cli
         tmux
-        vi-mode
         z
         zsh-autosuggestions
         zsh-completions
         zsh-syntax-highlighting
         zsh_reload
+        vi-mode
         )
 
 autoload -U compinit && compinit # for zsh-completions
@@ -172,6 +172,8 @@ alias paci="sudo pacman -S $1"
 alias yai="yay -S $1"
 alias yau="yay -R $1"
 alias use-colemak="setxkbmap us -variant colemak"
+alias arst="setxkbmap us && fixKeeb"
+alias asdf="setxkbmap us -variant colemak && fixKeeb"
 
 alias send-test-buffer="node ~/fp/eg-repos/test-scripts/flbl-payload-test.js"
 
@@ -189,7 +191,6 @@ gitPullRebase () {
 }
 
 fixKeeb () {
-  setxkbmap us;
   setxkbmap -option ctrl:nocaps;
   xcape -e 'Control_L=Escape';
   xset r rate 280 120;
@@ -211,3 +212,5 @@ if [ -f /home/rojo/.tnsrc ]; then
     source /home/rojo/.tnsrc
 fi
 ###-tns-completion-end-###
+
+export FZF_DEFAULT_OPTS='--bind ctrl-n:down,ctrl-e:up'
