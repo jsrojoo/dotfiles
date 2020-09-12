@@ -166,7 +166,7 @@ alias dots="~/dotfiles"
 alias cat="bat"
 alias slack="trickle -u 50 -d 50 slack &"
 alias timedoctor="trickle -u 50 -d 50 timedoctor &"
-alias run="cd ~/fp/fall-v10/fp-saas/ && ./run.sh"
+alias run="cd ~/fp/eg-repos/components/fp-eg/fpeg && ./run.sh"
 alias update="sudo pacman -Syyu"
 alias paci="sudo pacman -S $1"
 alias yai="yay -S $1"
@@ -175,7 +175,8 @@ alias use-colemak="setxkbmap us -variant colemak"
 alias arst="setxkbmap us && fixKeeb"
 alias asdf="setxkbmap us -variant colemak && fixKeeb"
 
-alias send-test-buffer="node ~/fp/eg-repos/test-scripts/flbl-payload-test.js"
+alias send-test-buffer="node ~/fp/eg-repos/test-scripts/fdmn-test.js"
+alias vmux="v ~/.local/share/nvim/site/config/vimux.vim"
 
 gitCommitToCurrentBranch () {
   local message=$1

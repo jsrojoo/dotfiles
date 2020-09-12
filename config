@@ -100,10 +100,10 @@ bindsym $mod+l focus right
 # bindsym $mod+Right focus right
 
 # move focused window
-bindsym Ctrl+Shift+Left move left
+bindsym Ctrl+Shift+h move left
 # bindsym Ctrl+Shift+j move down
 # bindsym Ctrl+Shift+k move up
-bindsym Ctrl+Shift+Right move right
+bindsym Ctrl+Shift+l move right
 
 # alternatively, you can use the cursor keys:
 # bindsym $mod+Shift+Left move left
