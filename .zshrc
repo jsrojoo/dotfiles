@@ -152,31 +152,59 @@ fi
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 # WORK_PROJECTS="/home/rojo/fp"
 
-alias v="nvim"
-alias c="reset"
-alias t="tmux"
 alias "\q"="exit"
-alias db="cd ~/fp/sql && mycli -h 172.17.0.2 -P 3306 -u root -proot"
-alias vrc="nvim ~/.local/share/nvim/site/init.vim"
-alias vzrc="nvim ~/.zshrc"
-alias redis-cluster="cd ~/fp/redis-5.0.7/utils/create-cluster && ./create-cluster start"
-alias fp-auth="~ && ~/fp/lincoln-project/fp-saas/deps/fp-api-authenticator"
-alias q="npm run test"
-alias dots="~/dotfiles"
-alias cat="bat"
-alias slack="trickle -u 50 -d 50 slack &"
-alias timedoctor="trickle -u 50 -d 50 timedoctor &"
-alias run="cd ~/fp/eg-repos/components/fp-eg/fpeg && ./run.sh"
-alias update="sudo pacman -Syyu"
-alias paci="sudo pacman -S $1"
-alias yai="yay -S $1"
-alias yau="yay -R $1"
-alias use-colemak="setxkbmap us -variant colemak"
-alias arst="setxkbmap us && fixKeeb"
-alias asdf="setxkbmap us -variant colemak && fixKeeb"
+alias "arst"="setxkbmap us && fixKeeb"
+alias "asdf"="setxkbmap us -variant colemak && fixKeeb"
+alias "c"="reset"
+alias "cat"="bat"
+alias "db"="cd ~/fp/sql && mycli -h 172.17.0.2 -P 3306 -u root -proot"
+alias "dots"="~/dotfiles"
+alias "paci"="sudo pacman -S $1"
+alias "q"="npm run test"
+alias "redis"="iredis"
+alias "redis-cluster"="cd ~/fp/redis-5.0.7/utils/create-cluster && ./create-cluster start"
+alias "run"="cd ~/fp/eg-repos/components/fp-eg/fpeg && ./run.sh"
+alias "send-test-buffer"="cd ~/fp/eg-repos/components/fp-eg/fpeg && ./send-test-buffer.sh"
+alias "slack"="trickle -u 50 -d 50 slack &"
+alias "t"="tmux"
+alias "timedoctor"="trickle -u 50 -d 50 timedoctor &"
+alias "update"="sudo pacman -Syyu"
+alias "use-colemak"="setxkbmap us -variant colemak"
+alias "v"="nvim"
+alias "vmux"="v ~/.local/share/nvim/site/config/vimux.vim"
+alias "vrc"="nvim ~/.local/share/nvim/site/init.vim"
+alias "vzrc"="nvim ~/.zshrc"
+alias "yai"="yay -S $1"
+alias "yau"="yay -R $1"
+alias "k"="kubectl"
 
-alias send-test-buffer="node ~/fp/eg-repos/test-scripts/fdmn-test.js"
-alias vmux="v ~/.local/share/nvim/site/config/vimux.vim"
+alias "ssh-oracle"="ssh fp-vanilla-oracle-docker-qa"
+
+function useContext () {
+  # arn:aws:eks:us-east-1:739760443361:cluster/k8s-dev
+  # fp-k8s.firstperformance.com-ro
+  # k8s.dev.firstperformance.com-ro
+
+  context="arn:aws:eks:us-east-1:739760443361:cluster/k8s-dev"
+
+  case $1 in
+    clients)
+      context="arn:aws:eks:us-east-1:739760443361:cluster/k8s-dev"
+      ;;
+    gitops|dev)
+      context="fp-k8s.firstperformance.com-ro"
+      ;;
+    *)
+      context="arn:aws:eks:us-east-1:739760443361:cluster/k8s-dev"
+      ;;
+  esac
+
+  k config use-context $context
+}
+
+function getPods () {
+  k -n $1 get pods
+}
 
 gitCommitToCurrentBranch () {
   local message=$1
@@ -194,14 +222,44 @@ gitPullRebase () {
 fixKeeb () {
   setxkbmap -option ctrl:nocaps;
   xcape -e 'Control_L=Escape';
-  xset r rate 280 120;
+  xmodmap -e "keycode 108 = Alt_R Meta_R Alt_R Meta_R"
+  # xset r rate 280 120;
 }
 
-export JAVA_HOME=/usr/lib/jvm/default
-export ANDROID_HOME=~/Android/Sdk
-export PATH=$PATH:$JAVA_HOME/bin:$ANDROID_HOME/platform-tools/bin:$ANDROID_HOME/tools/bin:/home/rojo/.gem/ruby/2.7.0/bin
-# auto-notify plugin
-export AUTO_NOTIFY_THRESHOLD=5
+function gateway () {
+  gatewaytype=$1
+
+  docker run --name api-gateway-$gatewaytype --network="host" \
+    --volume /mnt/sda/fp/winter-v5/fp-api-gateway/config/$gatewaytype-gateway.config.yml:/var/lib/eg/gateway.config.yml \
+    --rm api-gateway
+}
+
+wa () {
+  config=$1
+
+  TZ=utc nodemon -r dotenv/config \
+    --max_old_space_size=5120 \
+    --harmony index.js \
+    dotenv_config_path=$PWD/$config.env
+}
+
+de () {
+  config=$1
+
+  echo $config
+  TZ=utc nodemon -r dotenv/config \
+    --max_old_space_size=5120 \
+    --harmony ./bin/index.js \
+    dotenv_config_path=$PWD/$config.env
+}
+
+apil () {
+  de $1;
+}
+
+noidle () {
+  python /mnt/sda/Software/pygui/test.py
+}
 
 eval "$(pyenv init -)"
 eval "$(pyenv virtualenv-init -)"
@@ -213,5 +271,14 @@ if [ -f /home/rojo/.tnsrc ]; then
     source /home/rojo/.tnsrc
 fi
 ###-tns-completion-end-###
+#
 
+source <(kubectl completion zsh)
+
+export ANDROID_HOME=~/Android/Sdk
+export AUTO_NOTIFY_THRESHOLD=5 # auto-notify plugin
+export JAVA_HOME=/usr/lib/jvm/default
+export PATH=$PATH:$JAVA_HOME/bin:$ANDROID_HOME/platform-tools/bin:$ANDROID_HOME/tools/bin:/home/rojo/.gem/ruby/2.7.0/bin
 export FZF_DEFAULT_OPTS='--bind ctrl-n:down,ctrl-e:up'
+export KUBECONFIG="$HOME/.kube/k8s-ro.config"
+export DOCKER_GATEWAY_HOST=172.17.0.1

@@ -3,10 +3,10 @@
 
 # Set mod key (Mod1=<Alt>, Mod4=<Super>)
 set $mod Mod4
-# set $mod Mod3
+set $mod2 Mod1
 
 # set default desktop layout (default is tiling)
-# workspace_layout tabbed <stacking|tabbed>
+workspace_layout tabbed # <stacking|tabbed>
 
 # Configure border style <normal|1pixel|pixel xx|none|pixel>
 new_window none
@@ -25,11 +25,12 @@ bindsym $mod+y border pixel 1
 font xft:DejaVu Sans Mono for Powerline 0
 
 # Use Mouse+$mod to drag floating windows
-floating_modifier $mod
+floating_modifier $mod2
 
 # start a terminal
 # bindsym $mod+Return exec i3-sensible-terminal
 bindsym $mod+Return exec termite
+bindsym $mod2+Return exec termite
 
 # kill focused window
 bindsym $mod+Shift+q kill
@@ -37,7 +38,9 @@ bindsym $mod+Shift+q kill
 # start program launcher
 # bindsym $mod+g exec --no-startup-id dmenu_recency
 bindsym $mod+d exec --no-startup-id rofi -show run
-bindsym $mod+g exec --no-startup-id rofi -show run
+bindsym $mod2+w exec --no-startup-id rofi -show
+bindsym $mod2+o exec --no-startup-id rofi -show run
+bindsym $mod+o exec --no-startup-id rofi -show run
 
 # launch categorized menu
 bindsym $mod+q exec --no-startup-id rofi -show drun
@@ -54,20 +57,24 @@ exec --no-startup-id volumeicon
 exec --no-startup-id blueman-applet
 
 # Pulse Audio controls
-bindsym XF86AudioRaiseVolume exec pactl set-sink-volume 0 +1% #increase sound volume
-bindsym XF86AudioLowerVolume exec pactl set-sink-volume 0 -1% #decrease sound volume
-bindsym XF86AudioMute exec pactl set-sink-mute 0 toggle # mute sound
+# bindsym XF86AudioRaiseVolume exec pactl set-sink-volume 0 +1% #increase sound volume
+# bindsym XF86AudioLowerVolume exec pactl set-sink-volume 0 -1% #decrease sound volume
+# bindsym XF86AudioMute exec pactl set-sink-mute 0 toggle # mute sound
+
+bindsym XF86AudioRaiseVolume exec pactl set-sink-volume 1 +1% #increase sound volume
+bindsym XF86AudioLowerVolume exec pactl set-sink-volume 1 -1% #decrease sound volume
+bindsym XF86AudioMute exec pactl set-sink-mute          1 toggle # mute sound
 ################################################################################################
 
 # Screen brightness controls
-# bindsym XF86MonBrightnessUp exec "xbacklight -inc 10; notify-send 'brightness up'"
-# bindsym XF86MonBrightnessDown exec "xbacklight -dec 10; notify-send 'brightness down'"
+# bindsym XF86KbdBrightnessUp exec "xbacklight -inc 5; notify-send 'brightness up'"
+# bindsym XF86KbdBrightnessDown exec "xbacklight -dec 5; notify-send 'brightness down'"
 
 # Start Applications
 bindsym $mod+Ctrl+b exec terminal -e 'bmenu'
 bindsym $mod+F2 exec firefox
 bindsym $mod+F3 exec pcmanfm
-# bindsym $mod+F3 exec ranger
+# bindsym $mod+F4 exec ranger
 bindsym $mod+Shift+F3 exec gksu pcmanfm
 bindsym $mod+F5 exec terminal -e 'mocp'
 # bindsym $mod+t exec --no-startup-id pkill compton
@@ -186,10 +193,11 @@ bindsym $mod+Ctrl+7 move container to workspace $ws7
 bindsym $mod+Ctrl+8 move container to workspace $ws8
 
 # Assign apps to their workspaces
-assign [class="firefox"] $ws2
-assign [class="Slack"] $ws3
+assign [class="Termite"]                         $ws1
+assign [class="Brave-browser"]                   $ws2
+assign [class="Firefox" title="firefox" ]        $ws2
+assign [class="Slack"]                           $ws3
 assign [class="time doctor" class="Time Doctor"] $ws3
-assign [title="urxvt"] $ws1
 
 # Move to workspace with focused container
 bindsym $mod+Shift+1 move container to workspace $ws1; workspace $ws1
@@ -205,9 +213,9 @@ bindsym $mod+Shift+8 move container to workspace $ws8; workspace $ws8
 for_window [class="Slack" class="slack"] focus;
 for_window [title="key-mon" title="Key-mon"] stick
 for_window [class="time doctor" class="Time Doctor"] focus
-for_window [class="Brave"] focus
+for_window [class="Brave-browser"] focus
 for_window [title="urxvt"] focus
-for_window [title="termite"] focus
+for_window [title="Termite"] focus
 for_window [class="Firefox" title="firefox"] focus
 for_window [title="alsamixer"] floating enable # border pixel 1
 for_window [class="Calamares"] floating enable # border normal
@@ -296,13 +304,14 @@ bindsym $mod+Shift+l exec --no-startup-id blurlock
 
 # Autostart applications
 exec --no-startup-id /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1
-# exec --no-startup-id nitrogen --restore; sleep 1; compton -b
+exec --no-startup-id nitrogen --restore; sleep 1; compton -b
 # exec --no-startup-id manjaro-hello
-exec --no-startup-id /usr/local/lib/paperview /home/rojo/Videos/bmps 5
+# exec --no-startup-id /usr/local/lib/paperview /home/rojo/Videos/bmps 5
 exec --no-startup-id nm-applet
 exec --no-startup-id xfce4-power-manager
 exec --no-startup-id pamac-tray
 exec --no-startup-id clipit
+# exec --no-startup-id dunst -config ~/.config/dunst
 # exec --no-startup-id blueman-applet
 # exec_always --no-startup-id sbxkb
 # exec --no-startup-id start_conky_maia
@@ -310,8 +319,9 @@ exec --no-startup-id clipit
 # exec --no-startup-id xautolock -time 10 -locker blurlock
 exec_always --no-startup-id ff-theme-util
 exec_always --no-startup-id fix_xcursor
-exec --no-startup-id screenkey
+# exec --no-startup-id screenkey
 exec --no-startup-id docker start mysql
+exec --no-startup-id flameshot
 
 # Color palette used for the terminal ( ~/.Xresources file )
 # Colors are gathered based on the documentation:
@@ -358,7 +368,7 @@ bar {
 
     bindsym button4 nop
     bindsym button5 nop
-    font xft:Jetbrains Mono 11
+    font xft:Jetbrains Mono 12
 #   font xft:URWGothic-Book 11
     strip_workspace_numbers yes
 
@@ -433,7 +443,7 @@ mode "mouse" {
 
     # set your three speeds here
     set $slow 20
-    set $quick 50
+    set $quick 400
     set $fast 50
 
     # Mouse movement (slow/fine-tuned) -- vim keybindings
@@ -457,9 +467,11 @@ mode "mouse" {
     #
     # # Mouse movement (quicker) -- vim keybindings
     #
-    # bindsym Shift+a exec xdotool mousemove_relative -- -$quick 0
+    bindsym Shift+a exec xdotool mousemove_relative -- -$quick 0
+    bindsym Shift+w exec xdotool mousemove_relative -- 0 -$quick
+    bindsym Shift+r exec xdotool mousemove_relative 0 $quick
+    bindsym Shift+s exec xdotool mousemove_relative $quick 0
     # bindsym Shift+s exec xdotool mousemove_relative 0 $quick
-    # bindsym Shift+w exec xdotool mousemove_relative -- 0 -$quick
     # bindsym Shift+d exec xdotool mousemove_relative $quick 0
     #
     # # Mouse movement (quicker) -- arrow keys
