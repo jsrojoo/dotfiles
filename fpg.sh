@@ -1,5 +1,4 @@
 alias db=" mycli -h $(docker inspect --format '{{ .NetworkSettings.IPAddress }}' mysql) -u root -proot"
-alias rgns-db=" mssql-cli -S mssql-rgns-dev.ckyd1jsd7pkj.us-east-1.rds.amazonaws.com -U admin -P regionsdev2021 -d Central_DEV"
 alias redis-cluster="cd ~/Software/redis-6.2.3/utils/create-cluster && ./create-cluster start"
 alias redis-server="~/Software/redis-5.0.13/src/redis-server"
 
