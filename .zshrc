@@ -161,4 +161,5 @@ alias redis="iredis"
 
 source ~/.fzf.zsh
 
-[[ -e ~/dotfiles/fpg.sh ]] && source ~/dotfiles/fpg.sh
+source /Users/joseph.rojo/.docker/init-bash.sh || true # Added by Docker Desktop
+# [[ -e ~/dotfiles/fpg.sh ]] && source ~/dotfiles/fpg.sh

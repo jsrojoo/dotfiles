@@ -1,8 +1,8 @@
 import:
-  - /home/i337/.config/alacritty/palenight-theme.yml
+  - /Users/joseph.rojo/.config/alacritty/palenight-theme.yml
 mouse:
     hide_when_typing: true
 font:
-  size: 10
+  size: 16
 cursor:
   blink_interval: 250
