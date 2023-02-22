@@ -1,3 +1,6 @@
+autoload -Uz compinit
+compinit
+
 # Lines configured by zsh-newuser-install
 HISTFILE=~/.histfile
 HISTSIZE=100000
@@ -148,7 +151,7 @@ alias ...="cd ../.."
 alias ....="cd ../../.."
 alias .....="cd ../../../.."
 
-alias src='source ~/.zshrc'
+alias src='exec zsh'
 alias t='tmux'
 alias v='fnm use --log-level quiet default; nvim'
 alias vrc='v ~/.config/nvim/init.vim'
@@ -160,8 +163,5 @@ alias xx='xrdb ~/.Xresources'
 alias redis="iredis"
 
 source ~/.fzf.zsh
-
-source /Users/joseph.rojo/.docker/init-bash.sh || true # Added by Docker Desktop
-# [[ -e ~/dotfiles/fpg.sh ]] && source ~/dotfiles/fpg.sh
 
 source /Users/joseph.rojo/.docker/init-zsh.sh || true # Added by Docker Desktop
