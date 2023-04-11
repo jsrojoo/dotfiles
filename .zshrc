@@ -1,5 +1,6 @@
-autoload -Uz compinit
-compinit
+# For loading kubectl completion
+autoload bashcompinit && bashcompinit
+autoload -Uz compinit; compinit
 
 # Lines configured by zsh-newuser-install
 HISTFILE=~/.histfile
@@ -14,8 +15,15 @@ setopt hist_find_no_dups
 setopt hist_ignore_all_dups
 
 fpath=(~/.zsh/completion $fpath)
-fpath+=$HOME/.zsh/pure
 fpath=(~/.zsh/zsh-completions/src $fpath)
+fpath=(~/.zsh/_fnm $fpath)
+fpath+=$HOME/.zsh/pure
+
+autoload -Uz edit-command-line
+autoload -Uz vcs_info
+autoload -U add-zsh-hook
+autoload -U select-word-style
+autoload -U promptinit; promptinit
 
 source <(kubectl completion zsh)
 
@@ -25,6 +33,7 @@ source <(kubectl completion zsh)
 [[ -e ~/.zsh/zsh-command-time/command-time.plugin.zsh ]] && source ~/.zsh/zsh-command-time/command-time.plugin.zsh
 [[ -e ~/.zsh/auto-notify.zsh ]] && source ~/.zsh/auto-notify.zsh
 [[ -e ~/.zsh/fzf-z/fzf-z.plugin.zsh ]] && source ~/.zsh/fzf-z/fzf-z.plugin.zsh
+[[ -e ~/.zsh/zsh-command-time/command-time.plugin.zsh ]] && source ~/.zsh/zsh-command-time/command-time.plugin.zsh
 
 if [[ "$(command -v nvim)" ]]; then
     export EDITOR='nvim'
@@ -32,20 +41,15 @@ if [[ "$(command -v nvim)" ]]; then
     export MANWIDTH=999
 fi
 
+export PATH="$HOME/.cargo/bin/:$PATH"
+export PATH="$HOME/.yarn/bin:$PATH"
 export FZF_DEFAULT_OPTS='--bind ctrl-n:down,ctrl-e:up'
 export KUBECONFIG="$HOME/.kube/k8s-ro.config"
-export PYENV_ROOT="$HOME/.pyenv"
-export PATH="$PYENV_ROOT/bin:$HOME/.cargo/bin/:$PATH"
 export FNM_LOGLEVEL="quiet"
 export PAGER="nvim -R"
-export PATH=/home/i337/.fnm:$PATH
-
-autoload -Uz compinit
-autoload -Uz edit-command-line
-autoload -Uz vcs_info
-autoload -U add-zsh-hook
-autoload -U select-word-style
-autoload -U promptinit; promptinit
+export REQUESTS_CA_BUNDLE="$HOME/ca_certs/zscaler.crt"
+export SSL_CERT_FILE="$HOME/ca_certs/zscaler.crt"
+export NODE_EXTRA_CA_CERTS="$HOME/ca_certs/zscaler.crt"
 
 for dump in ~/.zcompdump(N.mh+24)
 do
@@ -126,11 +130,6 @@ if [ -z "$TMUX" ]; then
     tmux attach -t w || tmux new -s w
 fi
 
-eval "$(pyenv init --path)"
-
-eval "$(pyenv init -)"
-eval "$(pyenv virtualenv-init -)"
-
 # general use
 alias ls='exa'                                                         # ls
 alias l='exa -labF --git'                                              # list, size, type, git
@@ -165,3 +164,15 @@ alias redis="iredis"
 source ~/.fzf.zsh
 
 source /Users/joseph.rojo/.docker/init-zsh.sh || true # Added by Docker Desktop
+
+source ~/dotfiles/scripts.sh
+
+complete -C '/usr/local/bin/aws_completer' aws
+
+urlencode () {
+  printf %s $1 | jq -sRr @uri
+}
+
+export PYENV_ROOT="$HOME/.pyenv"
+command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"
+eval "$(pyenv init -)"
