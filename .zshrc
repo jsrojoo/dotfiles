@@ -43,6 +43,8 @@ fi
 
 export PATH="$HOME/.cargo/bin/:$PATH"
 export PATH="$HOME/.yarn/bin:$PATH"
+export PATH="$HOME/.local/bin:$PATH"
+# Created by `pipx` on 2023-04-14 11:59:43
 export FZF_DEFAULT_OPTS='--bind ctrl-n:down,ctrl-e:up'
 export KUBECONFIG="$HOME/.kube/k8s-ro.config"
 export FNM_LOGLEVEL="quiet"
@@ -176,3 +178,5 @@ urlencode () {
 export PYENV_ROOT="$HOME/.pyenv"
 command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"
 eval "$(pyenv init -)"
+
+eval "$(register-python-argcomplete pipx)"
