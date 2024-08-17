@@ -6,6 +6,7 @@ require('plugins/lsp-config')
 require('plugins/completions')
 require('plugins/python')
 require('plugins/git')
+require('plugins/fuzzy-finder')
 
 require "paq" {
     "savq/paq-nvim",
