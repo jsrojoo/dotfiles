@@ -4,7 +4,7 @@ alias v="nvim"
 alias vrc="nvim ~/.config/nvim/init.lua"
 alias zrc="nvim ~/.zshrc"
 alias trc="nvim ~/.tmux.nvim/init.lua"
-alias t="nvim -u ~/.tmux.nvim/init.lua"
+alias t="nvim -u ~/dotfiles/tmux-nvim.lua"
 alias src="source ~/.zshrc"
 alias nvenv="source ~/.config/nvim/nvim-venv/bin/activate"
 
