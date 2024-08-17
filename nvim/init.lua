@@ -12,6 +12,7 @@ require "paq" {
     "hrsh7th/nvim-cmp",
     "L3MON4D3/LuaSnip",
     "saadparwaiz1/cmp_luasnip",
+    "Vimjas/vim-python-pep8-indent",
 }
 
 require("mason").setup()
@@ -56,6 +57,20 @@ cmp.setup.cmdline({ '/', '?' }, {
   sources = {
     { name = 'buffer' }
   }
+})
+
+cmp.setup.cmdline(':', {
+  mapping = cmp.mapping.preset.cmdline(),
+  sources = cmp.config.sources({
+    { name = 'path' }
+  }, {
+    {
+      name = 'cmdline',
+      option = {
+        ignore_cmds = { 'Man', '!' }
+      }
+    }
+  })
 })
 
 
