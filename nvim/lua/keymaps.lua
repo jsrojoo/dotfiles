@@ -11,6 +11,7 @@ end
 -- Change leader to a space
 vim.g.mapleader = ' '
 
+map('n', '<space>', '<nop>')
 map('n', '<leader>w', ':w<cr>')
 map('n', '<leader>q', ':qa!<cr>')
 map('n', '<leader>r', ':so %<CR>')
