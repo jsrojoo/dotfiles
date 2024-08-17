@@ -1,9 +1,11 @@
 require('options')
+require('keymaps')
 
 require('plugins/mason-lsp-installer')
 require('plugins/lsp-config')
 require('plugins/completions')
 require('plugins/python')
+require('plugins/git')
 
 require "paq" {
     "savq/paq-nvim",
