@@ -10,6 +10,11 @@ end
 
 fzf_lua.setup {
   'fzf-vim',
+  keymap = {
+    fzf = {
+      ["ctrl-s"] = "toggle-all",
+    },
+  },
   winopts = {
     backdrop = 100,
   },
