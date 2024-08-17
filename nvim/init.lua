@@ -13,6 +13,7 @@ require "paq" {
     "L3MON4D3/LuaSnip",
     "saadparwaiz1/cmp_luasnip",
     "Vimjas/vim-python-pep8-indent",
+    "spywhere/tmux.nvim",
 }
 
 require("mason").setup()
