@@ -11,15 +11,10 @@ require('plugins/fuzzy-finder')
 require "paq" {
     "savq/paq-nvim",
     "neovim/nvim-lspconfig",
-
+    'maxmx03/solarized.nvim',
     "EdenEast/nightfox.nvim",
-
     "spywhere/tmux.nvim",
 }
 
-vim.cmd([[
-colorscheme nordfox
-]])
-
-
-
+vim.o.background = 'light' -- or 'light'
+vim.cmd.colorscheme 'solarized'
