@@ -11,13 +11,13 @@ require "paq" {
     "savq/paq-nvim",
     "neovim/nvim-lspconfig",
 
-    "shaunsingh/nord.nvim",
+    "EdenEast/nightfox.nvim",
 
     "spywhere/tmux.nvim",
 }
 
 vim.cmd([[
-colorscheme nord
+colorscheme nordfox
 ]])
 
 
