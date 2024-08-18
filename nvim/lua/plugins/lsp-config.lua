@@ -101,12 +101,10 @@ end
 -- Use a loop to conveniently call 'setup' on multiple servers and
 -- map buffer local keybindings when the language server attaches.
 -- Add your language server below:
-local python_linter_formatter = "ruff_lsp"
-
-local servers = { python_linter_formatter, }
+local servers = require('plugins/mason-lsp-installer')
 
 -- Call setup
-for _, lsp in ipairs(servers) do
+for _, lsp in ipairs(servers.lsps) do
   lspconfig[lsp].setup {
     on_attach = on_attach,
     root_dir = root_dir,
@@ -114,9 +112,7 @@ for _, lsp in ipairs(servers) do
   }
 end
 
-local python_lsp_completions = "pyright"
-
-require('lspconfig')[python_lsp_completions].setup {
+require('lspconfig')[servers.python_lsp_completions].setup {
   settings = {
     pyright = {
       -- Using Ruff's import organizer
@@ -132,3 +128,12 @@ require('lspconfig')[python_lsp_completions].setup {
 }
 
 
+require('lspconfig')[servers.lua_ls].setup {
+    settings = {
+        Lua = {
+            diagnostics = {
+                globals = { 'vim' }
+            }
+        }
+    }
+}

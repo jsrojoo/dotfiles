@@ -11,8 +11,8 @@ local opt = vim.opt   -- Set options (global/buffer/windows-scoped)
 
 local home = os.getenv('HOME') -- Home directory
 
-g.python_host_prog = '/home/lima.linux/.config/nvim/nvim-venv/bin/python3'
-g.python3_host_prog = '/home/lima.linux/.config/nvim/nvim-venv/bin/python3'
+g.python_host_prog = home .. '/.config/nvim/nvim-venv/bin/python3'
+g.python3_host_prog = home .. '/.config/nvim/nvim-venv/bin/python3'
 -----------------------------------------------------------
 -- General
 -----------------------------------------------------------
