@@ -17,3 +17,5 @@ tmux.bind('l', cmds.select_pane { 'R' } )
 
 tmux.start() -- this will start a terminal session
 
+vim.cmd.colorscheme 'github_light_default'
+

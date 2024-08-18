@@ -14,7 +14,8 @@ require "paq" {
     'maxmx03/solarized.nvim',
     "EdenEast/nightfox.nvim",
     "spywhere/tmux.nvim",
+    "projekt0n/github-nvim-theme"
 }
 
-vim.o.background = 'light' -- or 'light'
-vim.cmd.colorscheme 'solarized'
+-- vim.o.background = 'light' -- or 'light'
+vim.cmd.colorscheme 'github_light_default'

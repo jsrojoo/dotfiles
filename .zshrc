@@ -1,3 +1,9 @@
+# Lima BEGIN
+# Make sure iptables and mount.fuse3 are available
+PATH="$PATH:/usr/sbin:/sbin"
+export PATH
+# Lima END
+
 set -o vi
 
 alias "v"="nvim"
@@ -17,8 +23,3 @@ alias "lt"="eza --tree"
 
 bindkey -v
 bindkey "^R" history-incremental-search-backward
-# Lima BEGIN
-# Make sure iptables and mount.fuse3 are available
-PATH="$PATH:/usr/sbin:/sbin"
-export PATH
-# Lima END
