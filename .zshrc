@@ -23,6 +23,7 @@ alias "lt"="eza --tree"
 
 bindkey -v
 bindkey "^R" history-incremental-search-backward
+bindkey '^ ' autosuggest-accept
 
 setupHistory () {
   HISTFILE=~/.zsh_history
@@ -43,7 +44,6 @@ setupHistory () {
   setopt HIST_NO_STORE             # Don't store history commands
 }
 
-
 setupFzf () {
   # Set up fzf key bindings and fuzzy completion
   source <(fzf --zsh)
@@ -51,5 +51,13 @@ setupFzf () {
   export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
 }
 
-setupHistory;
+setupZshExtensions () {
+  source ~/.zsh/zsh-autocomplete/zsh-autocomplete.plugin.zsh
+  source ~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh
+}
+
+setupZshExtensions;
 setupFzf;
+setupHistory;
+
+eval "$(zoxide init zsh)"
