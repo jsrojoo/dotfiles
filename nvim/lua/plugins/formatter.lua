@@ -1,8 +1,3 @@
-require("paq")({
-	{ "stevearc/conform.nvim" },
-	{ "mhartington/formatter.nvim" },
-})
-
 -- Utilities for creating configurations
 local util = require("formatter.util")
 

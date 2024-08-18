@@ -1,8 +1,3 @@
-require "paq" {
-  "tpope/vim-fugitive",
-  "lewis6991/gitsigns.nvim",
-}
-
 require('gitsigns').setup{
   on_attach = function(bufnr)
     local gitsigns = require('gitsigns')

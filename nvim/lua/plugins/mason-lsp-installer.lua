@@ -1,10 +1,3 @@
--- language server installer
-require('paq') {
-  "williamboman/mason.nvim",
-  "williamboman/mason-lspconfig.nvim",
-  "neovim/nvim-lspconfig",
-}
-
 local python_linter_formatter = "ruff_lsp"
 local python_lsp_completions = "pyright"
 local lua_ls = "lua_ls"

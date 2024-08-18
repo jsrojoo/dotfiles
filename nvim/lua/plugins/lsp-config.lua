@@ -1,8 +1,3 @@
-require "paq" {
-    "neovim/nvim-lspconfig",
-    "hrsh7th/cmp-nvim-lsp",
-}
-
 -----------------------------------------------------------
 -- Neovim LSP configuration file
 -----------------------------------------------------------

@@ -1,12 +1,3 @@
-require("paq")({
-	"pmizio/typescript-tools.nvim",
-	"nvim-lua/plenary.nvim",
-	"neovim/nvim-lspconfig",
-
-	"nvimtools/none-ls.nvim",
-	"nvimtools/none-ls-extras.nvim",
-})
-
 local cmp_status_ok, cmp_nvim_lsp = pcall(require, "cmp_nvim_lsp")
 
 if not cmp_status_ok then
@@ -66,7 +57,7 @@ local null_ls = require("null-ls")
 null_ls.setup({
 	sources = {
 		null_ls.builtins.formatting.stylua,
-		null_ls.builtins.diagnostics.eslint,
+		-- null_ls.builtins.diagnostics.eslint,
 		null_ls.builtins.completion.spell,
 		require("none-ls.code_actions.eslint"),
 	},
