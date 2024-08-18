@@ -43,7 +43,13 @@ setupHistory () {
   setopt HIST_NO_STORE             # Don't store history commands
 }
 
-setupHistory;
 
-# Set up fzf key bindings and fuzzy completion
-source <(fzf --zsh)
+setupFzf () {
+  # Set up fzf key bindings and fuzzy completion
+  source <(fzf --zsh)
+  export FZF_DEFAULT_COMMAND='fd --type f --strip-cwd-prefix'
+  export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+}
+
+setupHistory;
+setupFzf;
