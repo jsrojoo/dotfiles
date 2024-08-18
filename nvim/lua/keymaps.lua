@@ -11,8 +11,8 @@ map('n', '<leader>q', ':q!<cr>')
 map('n', '<leader>r', ':so %<CR>')
 map('n', '<leader>r', ':so %<CR>:PaqInstall<cr>')
 
-map('n', '<leader>fi', ':set foldmethod=indent')
-map('n', '<leader>fs', ':set foldmethod=syntax')
+map('n', '<leader>fi', ':set foldmethod=indent<cr>')
+map('n', '<leader>fs', ':set foldmethod=syntax<cr>')
 
 
 
