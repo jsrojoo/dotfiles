@@ -15,6 +15,7 @@ local lsps = {
   "ruff",
   "ruff_lsp",
   "tsserver",
+  "eslint",
   python_linter_formatter,
   python_lsp_completions,
 }

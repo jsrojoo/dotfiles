@@ -1,4 +1,4 @@
-utils = require('utils')
+local utils = require('utils')
 
 local map = utils.map
 
@@ -14,5 +14,8 @@ map('n', '<leader>r', ':so %<CR>:PaqInstall<cr>')
 map('n', '<leader>fi', ':set foldmethod=indent<cr>')
 map('n', '<leader>fs', ':set foldmethod=syntax<cr>')
 
+local plugins_formatter = [[
+  nnoremap <silent> <leader>fe :Format<CR>
+]]
 
-
+vim.cmd(plugins_formatter)
