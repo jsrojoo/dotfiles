@@ -12,6 +12,8 @@ require("paq")({
 	"lewis6991/gitsigns.nvim",
 	"lukas-reineke/indent-blankline.nvim",
 	"maxmx03/solarized.nvim",
+	"mfussenegger/nvim-lint",
+	"rshkarin/mason-nvim-lint",
 	"neovim/nvim-lspconfig",
 	"nmac427/guess-indent.nvim",
 	"nvim-lua/plenary.nvim",
@@ -36,13 +38,13 @@ require("plugins/completions")
 require("plugins/formatter")
 require("plugins/fuzzy-finder")
 require("plugins/git")
+require("plugins/linters")
 require("plugins/lsp-config")
 require("plugins/mason-lsp-installer")
 require("plugins/python")
 require("plugins/reactjs")
 require("plugins/treesitter")
 
--- vim.o.background = 'light' -- or 'light'
 vim.cmd.colorscheme("github_light_default")
 
 require("guess-indent").setup({})
