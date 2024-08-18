@@ -25,6 +25,10 @@ bindkey -v
 bindkey "^R" history-incremental-search-backward
 
 setupHistory () {
+  HISTFILE=~/.zsh_history
+  HISTSIZE=10000
+  SAVEHIST=1000
+
   setopt EXTENDED_HISTORY          # Write the history file in the ':start:elapsed;command' format.
   setopt INC_APPEND_HISTORY        # Write to the history file immediately, not when the shell exits.
   setopt SHARE_HISTORY             # Share history between all sessions.
@@ -40,3 +44,6 @@ setupHistory () {
 }
 
 setupHistory;
+
+# Set up fzf key bindings and fuzzy completion
+source <(fzf --zsh)
