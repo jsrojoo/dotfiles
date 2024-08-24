@@ -25,15 +25,16 @@ autoload -U add-zsh-hook
 autoload -U select-word-style
 autoload -U promptinit; promptinit
 
-source <(kubectl completion zsh)
+# source <(kubectl completion zsh)
 
 [[ -e ~/.profile ]] && emulate sh -c 'source ~/.profile'
 [[ -e ~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh ]] && source ~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh
-[[ -e ~/.zsh/zsh-z/zsh-z.plugin.zsh ]] && source ~/.zsh/zsh-z/zsh-z.plugin.zsh
+# [[ -e ~/.zsh/zsh-z/zsh-z.plugin.zsh ]] && source ~/.zsh/zsh-z/zsh-z.plugin.zsh
 [[ -e ~/.zsh/zsh-command-time/command-time.plugin.zsh ]] && source ~/.zsh/zsh-command-time/command-time.plugin.zsh
 [[ -e ~/.zsh/auto-notify.zsh ]] && source ~/.zsh/auto-notify.zsh
-[[ -e ~/.zsh/fzf-z/fzf-z.plugin.zsh ]] && source ~/.zsh/fzf-z/fzf-z.plugin.zsh
+# [[ -e ~/.zsh/fzf-z/fzf-z.plugin.zsh ]] && source ~/.zsh/fzf-z/fzf-z.plugin.zsh
 [[ -e ~/.zsh/zsh-command-time/command-time.plugin.zsh ]] && source ~/.zsh/zsh-command-time/command-time.plugin.zsh
+# [[ -e ~/.zsh/zsh-notify/notify.plugin.zsh ]] && source ~/.zsh/zsh-notify/notify.plugin.zsh
 
 if [[ "$(command -v nvim)" ]]; then
     export EDITOR='nvim'
@@ -46,12 +47,35 @@ export PATH="$HOME/.yarn/bin:$PATH"
 export PATH="$HOME/.local/bin:$PATH"
 # Created by `pipx` on 2023-04-14 11:59:43
 export FZF_DEFAULT_OPTS='--bind ctrl-n:down,ctrl-e:up'
-export KUBECONFIG="$HOME/.kube/k8s-ro.config"
 export FNM_LOGLEVEL="quiet"
-export PAGER="nvim -R"
-export REQUESTS_CA_BUNDLE="$HOME/ca_certs/zscaler.crt"
-export SSL_CERT_FILE="$HOME/ca_certs/zscaler.crt"
-export NODE_EXTRA_CA_CERTS="$HOME/ca_certs/zscaler.crt"
+# export PAGER="vim -R"
+
+## Python PIP zscaler
+export CERT_DIR=~/ca_certs/
+export CERT_PATH=~/ca_certs/zscaler.crt
+export NIX_SSL_CERT_FILE=${CERT_PATH} 
+export SSL_CERT_FILE=${CERT_PATH} 
+export SSL_CERT_DIR=${CERT_DIR}
+export REQUESTS_CA_BUNDLE=${CERT_PATH}
+export CURL_CA_BUNDLE=${CERT_PATH}
+export HTTPLIB2_CA_CERTS=${CERT_PATH}
+
+export NODE_EXTRA_CA_CERTS=${CERT_PATH}
+export PYTHONPYCACHEPREFIX="$HOME/.cache/cpython/"
+# export HTTP_PROXY=http://fdcproxy.1dc.com:8080
+# export HTTPS_PROXY=http://fdcproxy.1dc.com:8080
+# export NO_PROXY=http://localhost
+
+# export PYTHONDONTWRITEBYTECODE=1
+
+# CONTAINERS
+#
+# export DOCKER_HOST=unix:///var/run/docker.sock
+# export KUBECONFIG="$HOME/.kube/config"
+
+export PATH="/opt/homebrew/opt/openjdk/bin:$PATH"
+export PATH="/Applications/Fortify/Fortify_SCA_23.1.1/bin:$PATH"
+
 
 for dump in ~/.zcompdump(N.mh+24)
 do
@@ -127,10 +151,14 @@ function xtract {
   fi
 }
 
+function gitLogAuthors {
+  git log --all --format='%aN' | sort -u
+}
+
 # use tmux automatically
-if [ -z "$TMUX" ]; then
-    tmux attach -t w || tmux new -s w
-fi
+# if [ -z "$TMUX" ]; then
+#     tmux attach -t w || tmux new -s w
+# fi
 
 # general use
 alias ls='exa'                                                         # ls
@@ -146,6 +174,7 @@ alias lt='exa --tree --level=2' # tree
 
 alias arst="source ~/.xprofile"
 
+alias -- -="cd -"
 alias ~="cd ~"
 alias ..="cd .."
 alias ...="cd ../.."
@@ -154,29 +183,28 @@ alias .....="cd ../../../.."
 
 alias src='exec zsh'
 alias t='tmux'
-alias v='fnm use --log-level quiet default; nvim'
-alias vrc='v ~/.config/nvim/init.vim'
+alias v='nvim'
+alias vrc='v ~/.config/nvim/init.lua'
 alias vzrc='v ~/.zshrc'
 alias k='kubectl'
 alias kk='minikube kubectl --'
 alias extract='xtract '
 alias xx='xrdb ~/.Xresources'
 alias redis="iredis"
+alias code="~/Desktop/Visual\ Studio\ Code.app/Contents/Resources/app/bin/code"
 
 source ~/.fzf.zsh
 
-source /Users/joseph.rojo/.docker/init-zsh.sh || true # Added by Docker Desktop
-
 source ~/dotfiles/scripts.sh
-
-complete -C '/usr/local/bin/aws_completer' aws
 
 urlencode () {
   printf %s $1 | jq -sRr @uri
 }
 
-export PYENV_ROOT="$HOME/.pyenv"
-command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"
-eval "$(pyenv init -)"
+eval "$(direnv hook zsh)"
 
-eval "$(register-python-argcomplete pipx)"
+export DIRENV_LOG_FORMAT=
+
+eval "$(zoxide init zsh)"
+
+test -e /Users/joseph.rojo/.iterm2_shell_integration.zsh && source /Users/joseph.rojo/.iterm2_shell_integration.zsh || true
