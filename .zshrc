@@ -46,7 +46,7 @@ export PATH="$HOME/.cargo/bin/:$PATH"
 export PATH="$HOME/.yarn/bin:$PATH"
 export PATH="$HOME/.local/bin:$PATH"
 # Created by `pipx` on 2023-04-14 11:59:43
-export FZF_DEFAULT_OPTS='--bind ctrl-n:down,ctrl-e:up'
+export FZF_DEFAULT_OPTS='--bind ctrl-s:toggle-all,ctrl-n:down,ctrl-e:up'
 export FNM_LOGLEVEL="quiet"
 # export PAGER="vim -R"
 
@@ -185,7 +185,7 @@ alias src='exec zsh'
 alias t='tmux'
 alias v='nvim'
 alias vrc='v ~/.config/nvim/init.lua'
-alias vzrc='v ~/.zshrc'
+alias zrc='v ~/.zshrc'
 alias k='kubectl'
 alias kk='minikube kubectl --'
 alias extract='xtract '
@@ -208,3 +208,5 @@ export DIRENV_LOG_FORMAT=
 eval "$(zoxide init zsh)"
 
 test -e /Users/joseph.rojo/.iterm2_shell_integration.zsh && source /Users/joseph.rojo/.iterm2_shell_integration.zsh || true
+
+
