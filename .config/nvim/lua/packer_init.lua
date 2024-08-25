@@ -38,6 +38,8 @@ return packer.startup(function(use)
 
   use "rose-pine/neovim"
 
+  use { "williamboman/mason.nvim" }
+
   use 'neovim/nvim-lspconfig'
 
   -- File explorer

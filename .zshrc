@@ -161,16 +161,16 @@ function gitLogAuthors {
 # fi
 
 # general use
-alias ls='exa'                                                         # ls
-alias l='exa -labF --git'                                              # list, size, type, git
-alias ll='exa -lbGF --git'                                             # long list
-alias llm='exa -lbGF --git --sort=modified'                            # long list, modified date sort
-alias la='exa -lbhHigUmuSa --time-style=long-iso --git --color-scale'  # all list
-alias lx='exa -lbhHigUmuSa@ --time-style=long-iso --git --color-scale' # all + extended list
+alias ls='eza'                                                         # ls
+alias l='eza -labF --git'                                              # list, size, type, git
+alias ll='eza -lbGF --git'                                             # long list
+alias llm='eza -lbGF --git --sort=modified'                            # long list, modified date sort
+alias la='eza -lbhHigUmuSa --time-style=long-iso --git --color-scale'  # all list
+alias lx='eza -lbhHigUmuSa@ --time-style=long-iso --git --color-scale' # all + extended list
 #
 # speciality views
-alias lS='exa -1' # one column, just names
-alias lt='exa --tree --level=2' # tree
+alias lS='eza -1' # one column, just names
+alias lt='eza --tree --level=2' # tree
 
 alias arst="source ~/.xprofile"
 
@@ -209,4 +209,4 @@ eval "$(zoxide init zsh)"
 
 test -e /Users/joseph.rojo/.iterm2_shell_integration.zsh && source /Users/joseph.rojo/.iterm2_shell_integration.zsh || true
 
-
+eval "$(mise activate zsh)"

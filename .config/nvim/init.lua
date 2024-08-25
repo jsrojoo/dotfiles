@@ -39,6 +39,7 @@ local plugins = {
   'coverage',
   'no-neck-pain',
   'hlslens',
+  'mason'
 }
 
 for _, plugin in ipairs(plugins) do
@@ -50,4 +51,3 @@ for _, plugin in ipairs(plugins) do
     plug.enable()
   end
 end
-

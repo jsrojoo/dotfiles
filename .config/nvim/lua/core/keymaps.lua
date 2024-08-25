@@ -55,12 +55,8 @@ nmap('<C-h>', '<C-w>h')
 nmap('<C-j>', '<C-w>j')
 nmap('<C-k>', '<C-w>k')
 nmap('<C-l>', '<C-w>l')
-nmap('<leader>h', '<C-w>h')
-nmap('<leader>j', '<C-w>j')
-nmap('<leader>k', '<C-w>k')
-nmap('<leader>l', '<C-w>l')
 
--- nmap('z', ':Z ')
+nmap('<leader>z', ':Z ')
 
 nmap('<C-w>v', '<C-w>v<C-w><C-w>')
 nmap('<C-w>s', '<C-w>s<C-w><C-w>')
@@ -80,6 +76,7 @@ nmapleader('fa', ':FzfLua git_files<cr>')
 nmapleader('ss', ':FzfLua blines<cr>')
 nmapleader('cw', ':FzfLua grep_cword<cr>')
 nmapleader('fc', ':FzfLua commands<cr>')
+nmapleader('fk', ':FzfLua keymaps<cr>')
 nmapleader('fh', ':FzfLua helptags<cr>')
 
 -- Smalls

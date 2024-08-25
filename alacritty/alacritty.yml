@@ -51,9 +51,9 @@ font:
 window:
   decorations: "none"
 
-key_bindings:
-    - { key: "U", mode: "Vi", action: "ScrollHalfPageUp" }
-    - { key: "D", mode: "Vi", action: "ScrollHalfPageDown" }
-    - { key: "Q", mode: "Vi", action: "ToggleViMode" }
+# key_bindings:
+#     - { key: "U", mode: "Vi", action: "ScrollHalfPageUp" }
+#     - { key: "D", mode: "Vi", action: "ScrollHalfPageDown" }
+#     - { key: "Q", mode: "Vi", action: "ToggleViMode" }
 
 enable_experimental_conpty_backend: false
