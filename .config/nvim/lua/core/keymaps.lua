@@ -45,6 +45,9 @@ map('', '<space>', '<leader>', { noremap=false })
 nmapleader('w', ':w!<cr>')
 nmapleader('q', ':q!<cr>')
 nmapleader(';', ':')
+nmapleader('ei', ':e $MYVIMRC<cr>')
+nmapleader('eo', ':e ~/dotfiles/.config/nvim/lua/core/options.lua<cr>')
+nmapleader('ek', ':e ~/dotfiles/.config/nvim/lua/core/keymaps.lua<cr>')
 
 nmapleader('fs', ':set foldmethod=expr<CR>')
 nmapleader('fi', ':set foldmethod=indent<CR>')
@@ -84,10 +87,7 @@ map('n', 's', '<Plug>(smalls)', { noremap=false })
 map('o', 's', '<Plug>(smalls)', { noremap=false })
 map('x', 's', '<Plug>(smalls)', { noremap=false })
 
-local opts = { noremap=true, silent=true }
+nmap(']d', '<cmd>lua vim.diagnostic.goto_prev()<cr>')
+nmap('[d', '<cmd>lua vim.diagnostic.goto_next()<cr>')
 
-vim.keymap.set('n', '<space>e', vim.diagnostic.open_float, opts)
-vim.keymap.set('n', ']d', vim.diagnostic.goto_prev, opts)
-vim.keymap.set('n', '[d', vim.diagnostic.goto_next, opts)
-vim.keymap.set('n', '<leader>dl', vim.diagnostic.setloclist, opts)
-
+nmapleader('dl', '<cmd>lua vim.diagnostic.setloclist()<cr>')

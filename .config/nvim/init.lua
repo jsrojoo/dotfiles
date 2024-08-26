@@ -1,3 +1,5 @@
+vim.loader.enable()
+
 require('core/options')
 require('core/keymaps')
 
@@ -14,7 +16,7 @@ require('plugins/quick-scope')
 require('plugins/gitsigns')
 require('plugins/luasnip')
 require('plugins/firenvim')
-require('plugins/eslint')
+-- require('plugins/eslint')
 require('plugins/nvim-treesitter')
 
 -- require('plugins/obsidian')
@@ -39,15 +41,19 @@ local plugins = {
   'coverage',
   'no-neck-pain',
   'hlslens',
-  'mason'
 }
 
 for _, plugin in ipairs(plugins) do
   local status_ok, plug = pcall(require, plugin)
 
   plug.setup({})
-
-  if plugin == 'no-neck-pain' then
-    plug.enable()
-  end
 end
+
+require('lint').linters_by_ft = {
+  javascript = {'eslint_d',},
+  python = {'ruff',},
+}
+
+vim.cmd([[
+au BufWritePost * lua require('lint').try_lint()
+]])

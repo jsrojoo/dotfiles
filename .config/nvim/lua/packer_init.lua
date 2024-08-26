@@ -33,12 +33,12 @@ end
 
 -- Install plugins
 return packer.startup(function(use)
- -- Add you plugins here:
   use 'wbthomason/packer.nvim' -- packer can manage itself
 
   use "rose-pine/neovim"
 
   use { "williamboman/mason.nvim" }
+  use { "williamboman/mason-lspconfig.nvim" }
 
   use 'neovim/nvim-lspconfig'
 
@@ -83,6 +83,7 @@ return packer.startup(function(use)
       'hrsh7th/cmp-nvim-lsp',
       'hrsh7th/cmp-path',
       'hrsh7th/nvim-cmp',
+      'hrsh7th/cmp-nvim-lua',
       'saadparwaiz1/cmp_luasnip',
     },
   }
@@ -101,7 +102,6 @@ return packer.startup(function(use)
   use 'wellle/targets.vim'
   use 'christoomey/vim-tmux-navigator'
   use 'dhruvasagar/vim-table-mode'
-  use 'jose-elias-alvarez/null-ls.nvim'
   use 'jose-elias-alvarez/typescript.nvim'
   use 'MunifTanjim/eslint.nvim'
   use {
@@ -161,10 +161,7 @@ return packer.startup(function(use)
 
   use 'mfussenegger/nvim-dap'
   use 'mfussenegger/nvim-dap-python'
-
   use 'tzachar/local-highlight.nvim'
-
-  use 'shaunsingh/nord.nvim'
   use 'levouh/tint.nvim'
   use 'JoosepAlviste/nvim-ts-context-commentstring'
 
@@ -187,6 +184,15 @@ return packer.startup(function(use)
   use "jbyuki/venn.nvim"
 
   use {"shortcuts/no-neck-pain.nvim", tag = "*" }
+
+  use "mfussenegger/nvim-lint"
+  use {
+    "nvimtools/none-ls.nvim",
+      requires = {
+        "nvimtools/none-ls-extras.nvim",
+      },
+
+  }
 
   -- use({
   --   "epwalsh/obsidian.nvim",

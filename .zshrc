@@ -1,6 +1,6 @@
 # For loading kubectl completion
-autoload bashcompinit && bashcompinit
-autoload -Uz compinit; compinit
+# autoload bashcompinit && bashcompinit
+# autoload -Uz compinit; compinit
 
 # Lines configured by zsh-newuser-install
 HISTFILE=~/.histfile
@@ -77,12 +77,12 @@ export PATH="/opt/homebrew/opt/openjdk/bin:$PATH"
 export PATH="/Applications/Fortify/Fortify_SCA_23.1.1/bin:$PATH"
 
 
-for dump in ~/.zcompdump(N.mh+24)
-do
-  compinit
-done
-
-compinit -C
+# for dump in ~/.zcompdump(N.mh+24)
+# do
+#   compinit
+# done
+#
+# compinit -C
 prompt pure
 select-word-style bash
 precmd() { vcs_info }
@@ -103,7 +103,7 @@ bindkey -v
 # End of lines configured by zsh-newuser-install
 
 # fnm
-eval "`fnm env`"
+# eval "`fnm env`"
 
 bindkey '^R' history-incremental-search-backward
 bindkey '^P' up-history
