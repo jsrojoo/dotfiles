@@ -41,6 +41,7 @@ local plugins = {
   'coverage',
   'no-neck-pain',
   'hlslens',
+  'react-extract'
 }
 
 for _, plugin in ipairs(plugins) do
@@ -49,11 +50,8 @@ for _, plugin in ipairs(plugins) do
   plug.setup({})
 end
 
-require('lint').linters_by_ft = {
-  javascript = {'eslint_d',},
-  python = {'ruff',},
-}
+vim.api.nvim_create_user_command("RefactorReact", function(opts)
+  local react_extract_ok, react_extract = pcall(require, "react-extract")
+  react_extract.extract_to_current_file()
+end, {})
 
-vim.cmd([[
-au BufWritePost * lua require('lint').try_lint()
-]])

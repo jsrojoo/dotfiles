@@ -2,9 +2,9 @@
 -- Define keymaps of Neovim and installed plugins.
 -----------------------------------------------------------
 local function map(mode, lhs, rhs, opts)
-  local options = { noremap=true, silent=true }
+  local options = { noremap = true, silent = true }
   if opts then
-    options = vim.tbl_extend('force', options, opts)
+    options = vim.tbl_extend("force", options, opts)
   end
   vim.api.nvim_set_keymap(mode, lhs, rhs, options)
 end
@@ -14,80 +14,80 @@ local function modemap(mode, lhs, rhs, opts)
 end
 
 local function nmap(lhs, rhs, opts)
-  return modemap('n', lhs, rhs, opts)
+  return modemap("n", lhs, rhs, opts)
 end
 
 local function tmap(lhs, rhs, opts)
-  return modemap('t', lhs, rhs, opts)
+  return modemap("t", lhs, rhs, opts)
 end
 
 local function tmapleader(lsh, rhs, opts)
-  return tmap('<space>' .. lsh, rhs, opts)
+  return tmap("<space>" .. lsh, rhs, opts)
 end
 
 local function nmapleader(lsh, rhs, opts)
-  return nmap('<leader>' .. lsh, rhs, opts)
+  return nmap("<leader>" .. lsh, rhs, opts)
 end
 -----------------------------------------------------------
 -- Neovim shortcuts
 -----------------------------------------------------------
 
 -- Disable arrow keys
-map('', '<up>', '<nop>')
-map('', '<down>', '<nop>')
-map('', '<left>', '<nop>')
-map('', '<right>', '<nop>')
+map("", "<up>", "<nop>")
+map("", "<down>", "<nop>")
+map("", "<left>", "<nop>")
+map("", "<right>", "<nop>")
 
 -- Map space to leader key
-map('', '<space>', '<leader>', { noremap=false })
+map("", "<space>", "<leader>", { noremap = false })
 
 -- Convenience keymaps
-nmapleader('w', ':w!<cr>')
-nmapleader('q', ':q!<cr>')
-nmapleader(';', ':')
-nmapleader('ei', ':e $MYVIMRC<cr>')
-nmapleader('eo', ':e ~/dotfiles/.config/nvim/lua/core/options.lua<cr>')
-nmapleader('ek', ':e ~/dotfiles/.config/nvim/lua/core/keymaps.lua<cr>')
+nmapleader("w", ":w!<cr>")
+nmapleader("q", ":q!<cr>")
+nmapleader(";", ":")
+nmapleader("ei", ":e $MYVIMRC<cr>")
+nmapleader("eo", ":e ~/dotfiles/.config/nvim/lua/core/options.lua<cr>")
+nmapleader("ek", ":e ~/dotfiles/.config/nvim/lua/core/keymaps.lua<cr>")
 
-nmapleader('fs', ':set foldmethod=expr<CR>')
-nmapleader('fi', ':set foldmethod=indent<CR>')
+nmapleader("fs", ":set foldmethod=expr<CR>")
+nmapleader("fi", ":set foldmethod=indent<CR>")
 
-tmapleader('<esc>', '<C-\\><C-n>')
+tmapleader("<esc>", "<C-\\><C-n>")
 
-nmap('<C-h>', '<C-w>h')
-nmap('<C-j>', '<C-w>j')
-nmap('<C-k>', '<C-w>k')
-nmap('<C-l>', '<C-w>l')
+nmap("<C-h>", "<C-w>h")
+nmap("<C-j>", "<C-w>j")
+nmap("<C-k>", "<C-w>k")
+nmap("<C-l>", "<C-w>l")
 
-nmap('<leader>z', ':Z ')
+nmap("<leader>z", ":Z ")
 
-nmap('<C-w>v', '<C-w>v<C-w><C-w>')
-nmap('<C-w>s', '<C-w>s<C-w><C-w>')
+nmap("<C-w>v", "<C-w>v<C-w><C-w>")
+nmap("<C-w>s", "<C-w>s<C-w><C-w>")
 
 -- Remap increment
-nmap('<C-s>', '<C-a>')
+nmap("<C-s>", "<C-a>")
 
 -----------------------------------------------------------
 -- Plugin shortcuts
 -----------------------------------------------------------
 -- FZF
 
-nmapleader('ag', ':FzfLua grep_project<cr>')
-nmapleader('fg', ':FzfLua files<cr>')
-nmapleader('<space>', ':FzfLua buffers<cr>')
-nmapleader('fa', ':FzfLua git_files<cr>')
-nmapleader('ss', ':FzfLua blines<cr>')
-nmapleader('cw', ':FzfLua grep_cword<cr>')
-nmapleader('fc', ':FzfLua commands<cr>')
-nmapleader('fk', ':FzfLua keymaps<cr>')
-nmapleader('fh', ':FzfLua helptags<cr>')
+nmapleader("ag", ":FzfLua grep_project<cr>")
+nmapleader("fg", ":FzfLua files<cr>")
+nmapleader("<space>", ":FzfLua buffers<cr>")
+nmapleader("fa", ":FzfLua git_files<cr>")
+nmapleader("ss", ":FzfLua blines<cr>")
+nmapleader("cw", ":FzfLua grep_cword<cr>")
+nmapleader("fc", ":FzfLua commands<cr>")
+nmapleader("fk", ":FzfLua keymaps<cr>")
+nmapleader("fh", ":FzfLua helptags<cr>")
 
 -- Smalls
-map('n', 's', '<Plug>(smalls)', { noremap=false })
-map('o', 's', '<Plug>(smalls)', { noremap=false })
-map('x', 's', '<Plug>(smalls)', { noremap=false })
+map("n", "s", "<Plug>(smalls)", { noremap = false })
+map("o", "s", "<Plug>(smalls)", { noremap = false })
+map("x", "s", "<Plug>(smalls)", { noremap = false })
 
-nmap(']d', '<cmd>lua vim.diagnostic.goto_prev()<cr>')
-nmap('[d', '<cmd>lua vim.diagnostic.goto_next()<cr>')
+nmap("]d", "<cmd>lua vim.diagnostic.goto_prev()<cr>")
+nmap("[d", "<cmd>lua vim.diagnostic.goto_next()<cr>")
 
-nmapleader('dl', '<cmd>lua vim.diagnostic.setloclist()<cr>')
+nmapleader("dl", "<cmd>lua vim.diagnostic.setloclist()<cr>")
