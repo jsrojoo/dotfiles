@@ -1,6 +1,6 @@
 # For loading kubectl completion
-# autoload bashcompinit && bashcompinit
-# autoload -Uz compinit; compinit
+autoload bashcompinit && bashcompinit
+autoload -Uz compinit; compinit
 
 # Lines configured by zsh-newuser-install
 HISTFILE=~/.histfile
@@ -29,10 +29,8 @@ autoload -U promptinit; promptinit
 
 [[ -e ~/.profile ]] && emulate sh -c 'source ~/.profile'
 [[ -e ~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh ]] && source ~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh
-# [[ -e ~/.zsh/zsh-z/zsh-z.plugin.zsh ]] && source ~/.zsh/zsh-z/zsh-z.plugin.zsh
 [[ -e ~/.zsh/zsh-command-time/command-time.plugin.zsh ]] && source ~/.zsh/zsh-command-time/command-time.plugin.zsh
 [[ -e ~/.zsh/auto-notify.zsh ]] && source ~/.zsh/auto-notify.zsh
-# [[ -e ~/.zsh/fzf-z/fzf-z.plugin.zsh ]] && source ~/.zsh/fzf-z/fzf-z.plugin.zsh
 [[ -e ~/.zsh/zsh-command-time/command-time.plugin.zsh ]] && source ~/.zsh/zsh-command-time/command-time.plugin.zsh
 # [[ -e ~/.zsh/zsh-notify/notify.plugin.zsh ]] && source ~/.zsh/zsh-notify/notify.plugin.zsh
 
@@ -45,10 +43,14 @@ fi
 export PATH="$HOME/.cargo/bin/:$PATH"
 export PATH="$HOME/.yarn/bin:$PATH"
 export PATH="$HOME/.local/bin:$PATH"
-# Created by `pipx` on 2023-04-14 11:59:43
-export FZF_DEFAULT_OPTS='--bind ctrl-s:toggle-all,ctrl-n:down,ctrl-e:up'
-export FNM_LOGLEVEL="quiet"
-# export PAGER="vim -R"
+
+export FZF_DEFAULT_OPTS='
+--bind ctrl-x:toggle-all,ctrl-n:down,ctrl-e:up
+--color=fg:#797593,bg:#faf4ed,hl:#d7827e
+--color=fg+:#575279,bg+:#f2e9e1,hl+:#d7827e
+--color=border:#dfdad9,header:#286983,gutter:#faf4ed
+--color=spinner:#ea9d34,info:#56949f
+--color=pointer:#907aa9,marker:#b4637a,prompt:#797593'
 
 ## Python PIP zscaler
 export CERT_DIR=/etc/ssl/certs
@@ -100,7 +102,6 @@ zstyle ':completion:*' matcher-list '' \
   'r:|?=** m:{a-z\-}={A-Z\_}'
 
 bindkey -v
-# End of lines configured by zsh-newuser-install
 
 # fnm
 eval "`fnm env`"
@@ -183,6 +184,7 @@ alias .....="cd ../../../.."
 
 alias src='exec zsh'
 alias t='tmux'
+alias trc='v ~/.tmux.conf'
 alias v='nvim'
 alias vrc='v ~/.config/nvim/init.lua'
 alias zrc='v ~/.zshrc'
@@ -192,6 +194,10 @@ alias extract='xtract '
 alias xx='xrdb ~/.Xresources'
 alias redis="iredis"
 alias code="~/Desktop/Visual\ Studio\ Code.app/Contents/Resources/app/bin/code"
+
+alias dots="tmux switch -t dots"
+alias dev="tmux switch -t dev"
+alias home="tmux switch -t home"
 
 source ~/.fzf.zsh
 
