@@ -51,8 +51,8 @@ export FNM_LOGLEVEL="quiet"
 # export PAGER="vim -R"
 
 ## Python PIP zscaler
-export CERT_DIR=~/ca_certs/
-export CERT_PATH=~/ca_certs/zscaler.crt
+export CERT_DIR=/etc/ssl/certs
+export CERT_PATH=/etc/ssl/certs/zscaler.crt
 export NIX_SSL_CERT_FILE=${CERT_PATH} 
 export SSL_CERT_FILE=${CERT_PATH} 
 export SSL_CERT_DIR=${CERT_DIR}
@@ -103,7 +103,7 @@ bindkey -v
 # End of lines configured by zsh-newuser-install
 
 # fnm
-# eval "`fnm env`"
+eval "`fnm env`"
 
 bindkey '^R' history-incremental-search-backward
 bindkey '^P' up-history
