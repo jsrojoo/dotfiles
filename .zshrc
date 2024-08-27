@@ -54,7 +54,7 @@ export FZF_DEFAULT_OPTS='
 
 ## Python PIP zscaler
 export CERT_DIR=/etc/ssl/certs
-export CERT_PATH=/etc/ssl/certs/zscaler.crt
+export CERT_PATH=/etc/ssl/cert.pem
 export NIX_SSL_CERT_FILE=${CERT_PATH} 
 export SSL_CERT_FILE=${CERT_PATH} 
 export SSL_CERT_DIR=${CERT_DIR}
@@ -73,7 +73,10 @@ export PYTHONPYCACHEPREFIX="$HOME/.cache/cpython/"
 # CONTAINERS
 #
 # export DOCKER_HOST=unix:///var/run/docker.sock
+export DOCKER_HOST=unix:///Users/joseph.rojo/.colima/default/docker.sock
+
 # export KUBECONFIG="$HOME/.kube/config"
+export DOCKER_CLI_HINTS=false
 
 export PATH="/opt/homebrew/opt/openjdk/bin:$PATH"
 export PATH="/Applications/Fortify/Fortify_SCA_23.1.1/bin:$PATH"
@@ -195,9 +198,7 @@ alias xx='xrdb ~/.Xresources'
 alias redis="iredis"
 alias code="~/Desktop/Visual\ Studio\ Code.app/Contents/Resources/app/bin/code"
 
-alias dots="tmux switch -t dots"
-alias dev="tmux switch -t dev"
-alias home="tmux switch -t home"
+alias ts="tmux switch -t "
 
 source ~/.fzf.zsh
 

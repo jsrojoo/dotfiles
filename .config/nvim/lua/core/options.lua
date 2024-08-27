@@ -42,6 +42,8 @@ opt.laststatus = 3          -- Set global statusline
 opt.signcolumn = 'yes:1'
 opt.textwidth = 75
 opt.scrolloff = 999
+opt.cursorcolumn = true
+opt.cursorline = true
 
 opt.list = true
 opt.listchars = {
