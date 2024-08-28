@@ -39,6 +39,7 @@ return packer.startup(function(use)
 
 	use({ "williamboman/mason.nvim" })
 	use({ "williamboman/mason-lspconfig.nvim" })
+	use({ "jay-babu/mason-null-ls.nvim" })
 
 	use("neovim/nvim-lspconfig")
 
@@ -201,12 +202,12 @@ return packer.startup(function(use)
 		},
 	})
 
-  use "napmn/react-extract.nvim"
+	use("napmn/react-extract.nvim")
 
-  use 'tpope/vim-dadbod'
-  use 'kristijanhusak/vim-dadbod-ui'
-  use 'kristijanhusak/vim-dadbod-completion'
-  use 'shumphrey/fugitive-gitlab.vim'
+	use("tpope/vim-dadbod")
+	use("kristijanhusak/vim-dadbod-ui")
+	use("kristijanhusak/vim-dadbod-completion")
+	use("shumphrey/fugitive-gitlab.vim")
 
 	-- use({
 	--   "epwalsh/obsidian.nvim",

@@ -55,14 +55,14 @@ export FZF_DEFAULT_OPTS='
 ## Python PIP zscaler
 export CERT_DIR=/etc/ssl/certs
 export CERT_PATH=/etc/ssl/cert.pem
-export NIX_SSL_CERT_FILE=${CERT_PATH} 
-export SSL_CERT_FILE=${CERT_PATH} 
+export NIX_SSL_CERT_FILE=${CERT_PATH}
+export SSL_CERT_FILE=${CERT_PATH}
 export SSL_CERT_DIR=${CERT_DIR}
 export REQUESTS_CA_BUNDLE=${CERT_PATH}
 export CURL_CA_BUNDLE=${CERT_PATH}
 export HTTPLIB2_CA_CERTS=${CERT_PATH}
 
-export NODE_EXTRA_CA_CERTS=${CERT_PATH}
+export NODE_EXTRA_CA_CERTS=${CERT_DIR}/zscaler.crt
 export PYTHONPYCACHEPREFIX="$HOME/.cache/cpython/"
 # export HTTP_PROXY=http://fdcproxy.1dc.com:8080
 # export HTTPS_PROXY=http://fdcproxy.1dc.com:8080
@@ -100,9 +100,9 @@ zstyle ':vcs_info:git:*' formats '%b'
 # 2 -- word flex completion (abc => A-big-Car)
 # 3 -- full flex completion (abc => ABraCadabra)
 zstyle ':completion:*' matcher-list '' \
-  'm:{a-z\-}={A-Z\_}' \
-  'r:[^[:alpha:]]||[[:alpha:]]=** r:|=* m:{a-z\-}={A-Z\_}' \
-  'r:|?=** m:{a-z\-}={A-Z\_}'
+    'm:{a-z\-}={A-Z\_}' \
+    'r:[^[:alpha:]]||[[:alpha:]]=** r:|=* m:{a-z\-}={A-Z\_}' \
+    'r:|?=** m:{a-z\-}={A-Z\_}'
 
 bindkey -v
 
@@ -127,42 +127,47 @@ bindkey -M vicmd 'e' up-line-or-history
 KEYTIMEOUT=1
 
 function xtract {
-  if [ -z "$1" ]; then
-    echo "Usage: extract <path/file_name>.<zip|rar|bz2|gz|tar|tbz2|tgz|Z|7z|xz|ex|tar.bz2|tar.gz|tar.xz>"
-  else
-    if [ -f $1 ]; then
-      case $1 in
-        *.tar.bz2)   tar xvjf $1    ;;
-        *.tar.gz)    tar xvzf $1    ;;
-        *.tar.xz)    tar xvJf $1    ;;
-        *.lzma)      unlzma $1      ;;
-        *.bz2)       bunzip2 $1     ;;
-        *.rar)       unrar x -ad $1 ;;
-        *.gz)        gunzip $1      ;;
-        *.tar)       tar xvf $1     ;;
-        *.tbz2)      tar xvjf $1    ;;
-        *.tgz)       tar xvzf $1    ;;
-        *.zip)       unzip $1       ;;
-        *.Z)         uncompress $1  ;;
-        *.7z)        7z x $1        ;;
-        *.xz)        unxz $1        ;;
-        *.exe)       cabextract $1  ;;
-        *)           echo "extract: '$1' - unknown archive method" ;;
-      esac
+    if [ -z "$1" ]; then
+        echo "Usage: extract <path/file_name>.<zip|rar|bz2|gz|tar|tbz2|tgz|Z|7z|xz|ex|tar.bz2|tar.gz|tar.xz>"
     else
-      echo "$1 - file does not exist"
+        if [ -f $1 ]; then
+            case $1 in
+                *.tar.bz2)   tar xvjf $1    ;;
+                *.tar.gz)    tar xvzf $1    ;;
+                *.tar.xz)    tar xvJf $1    ;;
+                *.lzma)      unlzma $1      ;;
+                *.bz2)       bunzip2 $1     ;;
+                *.rar)       unrar x -ad $1 ;;
+                *.gz)        gunzip $1      ;;
+                *.tar)       tar xvf $1     ;;
+                *.tbz2)      tar xvjf $1    ;;
+                *.tgz)       tar xvzf $1    ;;
+                *.zip)       unzip $1       ;;
+                *.Z)         uncompress $1  ;;
+                *.7z)        7z x $1        ;;
+                *.xz)        unxz $1        ;;
+                *.exe)       cabextract $1  ;;
+                *)           echo "extract: '$1' - unknown archive method" ;;
+            esac
+        else
+            echo "$1 - file does not exist"
+        fi
     fi
-  fi
 }
 
 function gitLogAuthors {
-  git log --all --format='%aN' | sort -u
+    git log --all --format='%aN' | sort -u
+}
+
+tmuxAlias () {
+    if [ -z "$TMUX" ]; then
+        tmux
+    else
+        tmux switch -t $(tmux ls | awk '{ print $ 1}' | tr ':' ' ' | fzf)
+    fi
 }
 
 # use tmux automatically
-# if [ -z "$TMUX" ]; then
-#     tmux attach -t w || tmux new -s w
-# fi
 
 # general use
 alias ls='eza'                                                         # ls
@@ -171,7 +176,7 @@ alias ll='eza -lbGF --git'                                             # long li
 alias llm='eza -lbGF --git --sort=modified'                            # long list, modified date sort
 alias la='eza -lbhHigUmuSa --time-style=long-iso --git --color-scale'  # all list
 alias lx='eza -lbhHigUmuSa@ --time-style=long-iso --git --color-scale' # all + extended list
-#
+
 # speciality views
 alias lS='eza -1' # one column, just names
 alias lt='eza --tree --level=2' # tree
@@ -186,7 +191,6 @@ alias ....="cd ../../.."
 alias .....="cd ../../../.."
 
 alias src='exec zsh'
-alias t='tmux'
 alias trc='v ~/.tmux.conf'
 alias v='nvim'
 alias vrc='v ~/.config/nvim/init.lua'
@@ -198,6 +202,7 @@ alias xx='xrdb ~/.Xresources'
 alias redis="iredis"
 alias code="~/Desktop/Visual\ Studio\ Code.app/Contents/Resources/app/bin/code"
 
+alias t="tmuxAlias"
 alias ts="tmux switch -t "
 
 source ~/.fzf.zsh
@@ -205,7 +210,7 @@ source ~/.fzf.zsh
 source ~/dotfiles/scripts.sh
 
 urlencode () {
-  printf %s $1 | jq -sRr @uri
+    printf %s $1 | jq -sRr @uri
 }
 
 eval "$(direnv hook zsh)"
