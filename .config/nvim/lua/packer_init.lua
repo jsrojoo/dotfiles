@@ -203,6 +203,11 @@ return packer.startup(function(use)
 
   use "napmn/react-extract.nvim"
 
+  use 'tpope/vim-dadbod'
+  use 'kristijanhusak/vim-dadbod-ui'
+  use 'kristijanhusak/vim-dadbod-completion'
+  use 'shumphrey/fugitive-gitlab.vim'
+
 	-- use({
 	--   "epwalsh/obsidian.nvim",
 	--   tag = "*",  -- recommended, use latest release instead of latest commit

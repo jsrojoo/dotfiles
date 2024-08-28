@@ -5,8 +5,6 @@ require('core/keymaps')
 
 require('packer_init')
 
-vim.cmd.colorscheme('rose-pine')
-
 require('plugins/nvim-cmp')
 require('lsp/lspconfig')
 require('plugins/fzf-lua')
@@ -37,7 +35,6 @@ require('local-highlight').setup({
 })
 
 local plugins = {
-  'tint',
   'coverage',
   'no-neck-pain',
   'hlslens',
@@ -55,3 +52,15 @@ vim.api.nvim_create_user_command("RefactorReact", function(opts)
   react_extract.extract_to_current_file()
 end, {})
 
+require('tint').setup({
+  tint = -20,
+  saturation = .3,
+})
+
+
+
+vim.cmd([[
+colorscheme rose-pine
+
+let g:fugitive_gitlab_domains = ['https://gitlab.scm-emea.aws.fisv.cloud']
+]])
