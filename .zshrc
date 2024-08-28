@@ -161,7 +161,7 @@ function gitLogAuthors {
 
 tmuxAlias () {
     if [ -z "$TMUX" ]; then
-        tmux
+        tmux attach -t dev || tmux new -s dev
     else
         tmux switch -t $(tmux ls | awk '{ print $ 1}' | tr ':' ' ' | fzf)
     fi
