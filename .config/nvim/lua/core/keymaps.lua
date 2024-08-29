@@ -83,6 +83,8 @@ nmapleader("fc", ":FzfLua commands<cr>")
 nmapleader("fk", ":FzfLua keymaps<cr>")
 nmapleader("fh", ":FzfLua helptags<cr>")
 
+nmapleader("gs", ":G <cr>")
+
 -- Smalls
 map("n", "s", "<Plug>(smalls)", { noremap = false })
 map("o", "s", "<Plug>(smalls)", { noremap = false })

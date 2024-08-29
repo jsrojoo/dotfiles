@@ -19,6 +19,7 @@ opt.clipboard = "unnamedplus" -- Copy/paste to system clipboard
 opt.swapfile = false -- Don't use swapfile
 opt.completeopt = "menuone,noinsert,noselect" -- Autocomplete options
 opt.pumheight = 4
+opt.diffopt:append("context:0")
 
 -- g.python3_host_prog = home .. '/.pyenv/versions/nvim/bin/python'
 -- g.node_host_prog = home .. '/Library/Caches/fnm_multishells/12713_1683804398775/bin/node'
@@ -121,9 +122,5 @@ for _, plugin in pairs(disabled_built_ins) do
 end
 
 vim.cmd([[
-au VimEnter,VimResume * hi Cursor guifg=black guibg=white
-au VimEnter,VimResume * set guicursor=n-v-c:block-Cursor/lCursor,i-ci-ve:
-au VimLeave,VimSuspend * set guicursor=a:block-blinkon0
-
 set diffopt+=context:0
 ]])
