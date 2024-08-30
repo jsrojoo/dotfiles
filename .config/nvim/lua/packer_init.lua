@@ -36,6 +36,13 @@ return packer.startup(function(use)
 	use("wbthomason/packer.nvim") -- packer can manage itself
 
 	use("rose-pine/neovim")
+	use({ "catppuccin/nvim", as = "catppuccin" })
+	use({
+		"norcalli/nvim-colorizer.lua",
+		config = function()
+			require("colorizer").setup()
+		end,
+	})
 
 	use({ "williamboman/mason.nvim" })
 	use({ "williamboman/mason-lspconfig.nvim" })

@@ -44,13 +44,13 @@ export PATH="$HOME/.cargo/bin/:$PATH"
 export PATH="$HOME/.yarn/bin:$PATH"
 export PATH="$HOME/.local/bin:$PATH"
 
-export FZF_DEFAULT_OPTS='
---bind ctrl-x:toggle-all,ctrl-n:down,ctrl-e:up
---color=fg:#797593,bg:#faf4ed,hl:#d7827e
---color=fg+:#575279,bg+:#f2e9e1,hl+:#d7827e
---color=border:#dfdad9,header:#286983,gutter:#faf4ed
---color=spinner:#ea9d34,info:#56949f
---color=pointer:#907aa9,marker:#b4637a,prompt:#797593'
+export FZF_DEFAULT_OPTS="
+--bind ctrl-x:toggle-all,ctrl-n:down,ctrl-e:up \
+--color=bg+:#eff1f5,bg:#eff1f5,spinner:#dc8a78,hl:#d20f39 \
+--color=fg:#4c4f69,header:#d20f39,info:#8839ef,pointer:#dc8a78 \
+--color=marker:#7287fd,fg+:#4c4f69,prompt:#8839ef,hl+:#d20f39 \
+--color=selected-bg:#bcc0cc \
+--multi"
 
 ## Python PIP zscaler
 export CERT_DIR=/etc/ssl/certs

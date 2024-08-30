@@ -58,7 +58,8 @@ require("tint").setup({
 })
 
 vim.cmd([[
-colorscheme rose-pine
+" colorscheme rose-pine
+colorscheme catppuccin-latte
 
 let g:fugitive_gitlab_domains = ['https://gitlab.scm-emea.aws.fisv.cloud']
 ]])
