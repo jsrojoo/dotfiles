@@ -208,7 +208,16 @@ return packer.startup(function(use)
 	use("kristijanhusak/vim-dadbod-ui")
 	use("kristijanhusak/vim-dadbod-completion")
 	use("shumphrey/fugitive-gitlab.vim")
-
+	use({
+		"stevearc/oil.nvim",
+		config = function()
+			require("oil").setup({
+				view_options = {
+					show_hidden = true,
+				},
+			})
+		end,
+	})
 	-- use({
 	--   "epwalsh/obsidian.nvim",
 	--   tag = "*",  -- recommended, use latest release instead of latest commit
