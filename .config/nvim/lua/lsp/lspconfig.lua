@@ -94,6 +94,8 @@ local root_dir = function()
 end
 
 local servers = {
+  "docker_compose_language_service",
+  "dockerls",
 	"bashls",
 	"cssls",
 	"html",
