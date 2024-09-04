@@ -68,7 +68,7 @@ export PYTHONPYCACHEPREFIX="$HOME/.cache/cpython/"
 # export HTTPS_PROXY=http://fdcproxy.1dc.com:8080
 # export NO_PROXY=http://localhost
 
-# export PYTHONDONTWRITEBYTECODE=1
+export PYTHONDONTWRITEBYTECODE=1
 
 # CONTAINERS
 #

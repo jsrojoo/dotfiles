@@ -44,7 +44,6 @@ map("", "<space>", "<leader>", { noremap = false })
 -- Convenience keymaps
 nmapleader("w", ":w!<cr>")
 nmapleader("q", ":q!<cr>")
-nmapleader(";", ":")
 nmapleader("ei", ":e $MYVIMRC<cr>")
 nmapleader("eo", ":e ~/dotfiles/.config/nvim/lua/core/options.lua<cr>")
 nmapleader("ek", ":e ~/dotfiles/.config/nvim/lua/core/keymaps.lua<cr>")

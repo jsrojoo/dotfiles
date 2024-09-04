@@ -63,3 +63,9 @@ colorscheme catppuccin-latte
 
 let g:fugitive_gitlab_domains = ['https://gitlab.scm-emea.aws.fisv.cloud']
 ]])
+
+require("bqf").setup({
+	preview = {
+		winblend = 0,
+	},
+})
