@@ -26,6 +26,8 @@ opt.diffopt:append("context:0")
 -----------------------------------------------------------
 -- Neovim UI
 -----------------------------------------------------------
+opt.winbar = "%f"
+opt.cmdheight = 0
 opt.background = "light"
 opt.number = true -- Show line number
 opt.relativenumber = true -- Show relative line numbers
@@ -39,7 +41,7 @@ opt.smartcase = true -- Ignore lowercase for the whole pattern
 opt.wrap = true
 opt.linebreak = true -- Wrap on word boundary
 opt.termguicolors = true -- Enable 24-bit RGB colors
-opt.laststatus = 3 -- Set global statusline
+opt.laststatus = 0 -- Set global statusline
 opt.signcolumn = "yes:1"
 opt.textwidth = 75
 opt.scrolloff = 999
@@ -123,4 +125,14 @@ end
 
 vim.cmd([[
 set diffopt+=context:0
+
+function CustomWinBar()
+  let content = join([mode(), expand('%f')])
+
+  redrawstatus
+
+  return content
+endfunction
+
+set winbar=%!CustomWinBar()
 ]])
