@@ -193,8 +193,6 @@ return packer.startup(function(use)
 
 	use("jbyuki/venn.nvim")
 
-	use({ "shortcuts/no-neck-pain.nvim", tag = "*" })
-
 	use({
 		"nvimtools/none-ls.nvim",
 		requires = {
@@ -225,6 +223,9 @@ return packer.startup(function(use)
 			})
 		end,
 	})
+
+	use("tpope/vim-obsession")
+	use("folke/zen-mode.nvim")
 	-- use({
 	--   "epwalsh/obsidian.nvim",
 	--   tag = "*",  -- recommended, use latest release instead of latest commit

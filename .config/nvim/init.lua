@@ -36,8 +36,8 @@ require("local-highlight").setup({
 
 local plugins = {
 	"coverage",
-	"no-neck-pain",
 	"hlslens",
+	"zen-mode",
 	"react-extract",
 }
 
