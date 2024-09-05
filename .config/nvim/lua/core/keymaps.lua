@@ -95,3 +95,29 @@ nmap("]d", "<cmd>lua vim.diagnostic.goto_prev()<cr>")
 nmap("[d", "<cmd>lua vim.diagnostic.goto_next()<cr>")
 
 nmapleader("dl", "<cmd>lua vim.diagnostic.setloclist()<cr>")
+
+-- vim.cmd([[
+--
+-- function! NavigateObsidianDailyNotes(day)
+--   let l:offset = 0
+--   let l:day = a:day
+--
+--   function! _NavigateObsidianDailyNotes()
+--     if l:day == "today"
+--       l:offset = 0
+--     elseif l:day == "yesterday"
+--       l:offset -= 1
+--     endif
+--
+--     return ':ObsidianToday ' ..  l:offset
+--   endfunction
+--
+--   return funcref("_NavigateObsidianDailyNotes")
+-- endfunction
+--
+-- ]])
+
+nmapleader("ot", ":ObsidianToday<cr>")
+nmapleader("op", ":ObsidianYesterday<cr>")
+nmapleader("on", ":ObsidianTomorrow<cr>")
+nmapleader("ofa", ":ObsidianQuickSwitch<cr>")

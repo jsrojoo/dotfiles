@@ -159,6 +159,7 @@ function gitLogAuthors {
     git log --all --format='%aN' | sort -u
 }
 
+# use tmux automatically
 tmuxAlias () {
     if [ -z "$TMUX" ]; then
         tmux attach -t home || tmux new -s home
@@ -167,7 +168,15 @@ tmuxAlias () {
     fi
 }
 
-# use tmux automatically
+function vimObsession() {
+  if test $# -gt 0; then
+    env nvim "$@"
+  elif test -f Session.vim; then
+    env nvim -S
+  else
+    env nvim -c Obsession
+  fi
+}
 
 # general use
 alias ls='eza'                                                         # ls
@@ -192,7 +201,7 @@ alias .....="cd ../../../.."
 
 alias src='exec zsh'
 alias trc='v ~/.tmux.conf'
-alias v='nvim'
+alias v='vimObsession'
 alias vrc='v ~/.config/nvim/init.lua'
 alias zrc='v ~/.zshrc'
 alias k='kubectl'

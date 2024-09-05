@@ -114,9 +114,6 @@ return packer.startup(function(use)
 	use("MunifTanjim/eslint.nvim")
 	use({
 		"andythigpen/nvim-coverage",
-		requires = {
-			"nvim-lua/plenary.nvim",
-		},
 	})
 	-- use "nvim-lua/plenary.nvim"
 
@@ -224,18 +221,15 @@ return packer.startup(function(use)
 		end,
 	})
 
-	use("tpope/vim-obsession")
 	use("folke/zen-mode.nvim")
-	-- use({
-	--   "epwalsh/obsidian.nvim",
-	--   tag = "*",  -- recommended, use latest release instead of latest commit
-	--   requires = {
-	--     -- Required.
-	--     "nvim-lua/plenary.nvim",
-	--
-	--     -- see below for full list of optional dependencies 👇
-	--   },
-	-- })
+	use({
+		"epwalsh/obsidian.nvim",
+		tag = "*",
+		requires = {
+			-- Required.
+			"nvim-lua/plenary.nvim",
+		},
+	})
 
 	-- Automatically set up your configuration after cloning packer.nvim
 	-- Put this at the end after all plugins

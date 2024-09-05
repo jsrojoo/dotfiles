@@ -17,7 +17,7 @@ require("plugins/firenvim")
 require("plugins/nvim-treesitter")
 -- require("plugins/oil")
 
--- require('plugins/obsidian')
+require('plugins/obsidian')
 
 -- plugins
 require("nvim_comment").setup()
