@@ -121,3 +121,5 @@ nmapleader("ot", ":ObsidianToday<cr>")
 nmapleader("op", ":ObsidianYesterday<cr>")
 nmapleader("on", ":ObsidianTomorrow<cr>")
 nmapleader("ofa", ":ObsidianQuickSwitch<cr>")
+
+nmapleader("mp", ":RenderMarkdown toggle<cr>")
