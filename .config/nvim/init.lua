@@ -15,7 +15,6 @@ require("plugins/gitsigns")
 require("plugins/luasnip")
 require("plugins/firenvim")
 require("plugins/nvim-treesitter")
--- require("plugins/oil")
 
 require('plugins/obsidian')
 
@@ -54,7 +53,7 @@ end, {})
 
 require("tint").setup({
 	tint = -20,
-	saturation = 0.3,
+	saturation = 0,
 })
 
 vim.cmd([[
