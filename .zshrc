@@ -17,6 +17,7 @@ setopt hist_ignore_all_dups
 fpath=(~/.zsh/completion $fpath)
 fpath=(~/.zsh/zsh-completions/src $fpath)
 fpath=(~/.zsh/_fnm $fpath)
+
 fpath+=$HOME/.zsh/pure
 
 autoload -Uz edit-command-line
@@ -32,7 +33,12 @@ autoload -U promptinit; promptinit
 [[ -e ~/.zsh/zsh-command-time/command-time.plugin.zsh ]] && source ~/.zsh/zsh-command-time/command-time.plugin.zsh
 [[ -e ~/.zsh/auto-notify.zsh ]] && source ~/.zsh/auto-notify.zsh
 [[ -e ~/.zsh/zsh-command-time/command-time.plugin.zsh ]] && source ~/.zsh/zsh-command-time/command-time.plugin.zsh
-# [[ -e ~/.zsh/zsh-notify/notify.plugin.zsh ]] && source ~/.zsh/zsh-notify/notify.plugin.zsh
+[[ -e ~/.zsh/zsh-notify/notify.plugin.zsh ]] && source ~/.zsh/zsh-notify/notify.plugin.zsh
+
+zstyle ':notify:*' error-title "Command failed (in #{time_elapsed} seconds)"
+zstyle ':notify:*' success-title "Command finished (in #{time_elapsed} seconds)"
+
+zstyle ':notify:*' command-complete-timeout 15
 
 if [[ "$(command -v nvim)" ]]; then
     export EDITOR='nvim'
@@ -46,50 +52,43 @@ export PATH="$HOME/.local/bin:$PATH"
 
 export FZF_DEFAULT_OPTS="
 --bind ctrl-x:toggle-all,ctrl-n:down,ctrl-e:up \
---color=bg+:#eff1f5,bg:#eff1f5,spinner:#dc8a78,hl:#d20f39 \
---color=fg:#4c4f69,header:#d20f39,info:#8839ef,pointer:#dc8a78 \
---color=marker:#7287fd,fg+:#4c4f69,prompt:#8839ef,hl+:#d20f39 \
---color=selected-bg:#bcc0cc \
---multi"
+    --color=bg+:#eff1f5,bg:#eff1f5,spinner:#dc8a78,hl:#d20f39 \
+    --color=fg:#4c4f69,header:#d20f39,info:#8839ef,pointer:#dc8a78 \
+    --color=marker:#7287fd,fg+:#4c4f69,prompt:#8839ef,hl+:#d20f39 \
+    --color=selected-bg:#bcc0cc \
+    --multi"
 
-## Python PIP zscaler
 export CERT_DIR=/etc/ssl/certs
 export CERT_PATH=/etc/ssl/cert.pem
-export NIX_SSL_CERT_FILE=${CERT_PATH}
-export SSL_CERT_FILE=${CERT_PATH}
-export SSL_CERT_DIR=${CERT_DIR}
-export REQUESTS_CA_BUNDLE=${CERT_PATH}
+
 export CURL_CA_BUNDLE=${CERT_PATH}
 export HTTPLIB2_CA_CERTS=${CERT_PATH}
+export NIX_SSL_CERT_FILE=${CERT_PATH}
+export REQUESTS_CA_BUNDLE=${CERT_PATH}
+export SSL_CERT_DIR=${CERT_DIR}
+export SSL_CERT_FILE=${CERT_PATH}
 
 export NODE_EXTRA_CA_CERTS=${CERT_DIR}/zscaler.crt
 export PYTHONPYCACHEPREFIX="$HOME/.cache/cpython/"
+
 # export HTTP_PROXY=http://fdcproxy.1dc.com:8080
 # export HTTPS_PROXY=http://fdcproxy.1dc.com:8080
 # export NO_PROXY=http://localhost
 
 export PYTHONDONTWRITEBYTECODE=1
 
-# CONTAINERS
-#
-# export DOCKER_HOST=unix:///var/run/docker.sock
 export DOCKER_HOST=unix:///Users/joseph.rojo/.colima/default/docker.sock
 
-# export KUBECONFIG="$HOME/.kube/config"
 export DOCKER_CLI_HINTS=false
 
 export PATH="/opt/homebrew/opt/openjdk/bin:$PATH"
 export PATH="/Applications/Fortify/Fortify_SCA_23.1.1/bin:$PATH"
 
 
-# for dump in ~/.zcompdump(N.mh+24)
-# do
-#   compinit
-# done
-#
-# compinit -C
 prompt pure
+
 select-word-style bash
+
 precmd() { vcs_info }
 
 zstyle ':completion:*' menu select
@@ -159,8 +158,14 @@ function gitLogAuthors {
     git log --all --format='%aN' | sort -u
 }
 
+
+function urlencode () {
+    printf %s $1 | jq -sRr @uri
+}
+
+
 # use tmux automatically
-tmuxAlias () {
+function tmuxAlias () {
     if [ -z "$TMUX" ]; then
         tmux attach -t home || tmux new -s home
     else
@@ -169,13 +174,13 @@ tmuxAlias () {
 }
 
 function vimObsession() {
-  if test $# -gt 0; then
-    env nvim "$@"
-  elif test -f Session.vim; then
-    env nvim -S
-  else
-    env nvim -c Obsession
-  fi
+    if test $# -gt 0; then
+        env nvim "$@"
+    elif test -f Session.vim; then
+        env nvim -S
+    else
+        env nvim -c Obsession
+    fi
 }
 
 # general use
@@ -218,16 +223,10 @@ source ~/.fzf.zsh
 
 source ~/dotfiles/scripts.sh
 
-urlencode () {
-    printf %s $1 | jq -sRr @uri
-}
-
 eval "$(direnv hook zsh)"
 
 export DIRENV_LOG_FORMAT=
 
 eval "$(zoxide init zsh)"
-
-test -e /Users/joseph.rojo/.iterm2_shell_integration.zsh && source /Users/joseph.rojo/.iterm2_shell_integration.zsh || true
 
 eval "$(mise activate zsh)"

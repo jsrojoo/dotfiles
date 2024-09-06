@@ -94,14 +94,14 @@ local root_dir = function()
 end
 
 local servers = {
-  "docker_compose_language_service",
-  "dockerls",
+	"docker_compose_language_service",
+	"dockerls",
 	"bashls",
 	"cssls",
 	"html",
 	"pyright",
 	"ruff_lsp",
-	"tsserver",
+	"ts_ls",
 	"yamlls",
 	"lua_ls",
 	"ruff",
