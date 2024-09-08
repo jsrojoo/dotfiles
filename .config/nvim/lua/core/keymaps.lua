@@ -59,7 +59,7 @@ nmap("<C-j>", "<C-w>j")
 nmap("<C-k>", "<C-w>k")
 nmap("<C-l>", "<C-w>l")
 
-nmap("<leader>z", ":Z ")
+nmap("<leader>z", ":Zmux<cr>")
 
 nmap("<C-w>v", "<C-w>v<C-w><C-w>")
 nmap("<C-w>s", "<C-w>s<C-w><C-w>")

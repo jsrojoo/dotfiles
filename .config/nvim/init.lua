@@ -15,6 +15,7 @@ require("plugins/gitsigns")
 require("plugins/luasnip")
 require("plugins/firenvim")
 require("plugins/nvim-treesitter")
+require("plugins/zmux")
 
 require("plugins/obsidian")
 
