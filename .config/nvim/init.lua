@@ -16,7 +16,7 @@ require("plugins/luasnip")
 require("plugins/firenvim")
 require("plugins/nvim-treesitter")
 
-require('plugins/obsidian')
+require("plugins/obsidian")
 
 -- plugins
 require("nvim_comment").setup()

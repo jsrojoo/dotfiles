@@ -179,7 +179,7 @@ function vimObsession() {
     elif test -f Session.vim; then
         env nvim -S
     else
-        env nvim -c Obsession
+        env nvim -c "Obsession"
     fi
 }
 
