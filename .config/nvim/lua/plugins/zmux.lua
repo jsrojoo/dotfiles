@@ -26,12 +26,12 @@ _G.zmux = function(opts)
       local create_new_session_cmd = string.format("tmux new -d -s %s %s", session_name, cd_cmd)
       local switch_session_cmd = string.format("tmux switch -t %s", session_name)
 
-      vim.fn.system(create_new_session_cmd .. " 'nvim -S '")
+      vim.fn.system(create_new_session_cmd .. " -n ''")
       vim.fn.system(switch_session_cmd)
     end,
   }
   -- fzf_lua.fzf_exec("zoxide query -l | xargs basename | tr '-' '_'", opts)
-  fzf_lua.fzf_exec("zoxide query -l", opts)
+  fzf_lua.fzf_exec("zoxide query -l | sed 's/\\/Users\\/joseph.rojo/~/'", opts)
 end
 
 vim.cmd([[command! -nargs=* Zmux lua _G.zmux()]])

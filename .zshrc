@@ -167,7 +167,7 @@ function urlencode () {
 # use tmux automatically
 function tmuxAlias () {
     if [ -z "$TMUX" ]; then
-        tmux attach -t home || tmux new -s home
+        tmux attach -t home || tmux new -s home -c $HOME -n 'home'
     else
         tmux switch -t $(tmux ls | awk '{ print $ 1}' | tr ':' ' ' | fzf)
     fi
@@ -218,6 +218,18 @@ alias code="~/Desktop/Visual\ Studio\ Code.app/Contents/Resources/app/bin/code"
 
 alias t="tmuxAlias"
 alias ts="tmux switch -t "
+
+
+zmux ()
+{
+  z_dir=$(zoxide query -l | fzf)
+
+  echo $z_dir | sed "s/\/Users\/joseph.rojo/~/" \
+        | xargs basename \
+        | xargs -I{} bash -c "tmux new -d -s \"{}\" -n \"\" -c '$z_dir'; tmux switch -t \"{}\""
+}
+
+alias z="zmux"
 
 source ~/.fzf.zsh
 

@@ -16,7 +16,7 @@ require("plugins/luasnip")
 require("plugins/firenvim")
 require("plugins/nvim-treesitter")
 require("plugins/zmux")
-
+require("plugins/markdown")
 require("plugins/obsidian")
 
 -- plugins

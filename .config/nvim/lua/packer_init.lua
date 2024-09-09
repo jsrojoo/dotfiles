@@ -208,6 +208,13 @@ return packer.startup(function(use)
 	})
 
 	use("napmn/react-extract.nvim")
+	use({
+		"pmizio/typescript-tools.nvim",
+		requires = { "nvim-lua/plenary.nvim", "neovim/nvim-lspconfig" },
+		config = function()
+			require("typescript-tools").setup({})
+		end,
+	})
 
 	use("tpope/vim-dadbod")
 	use("kristijanhusak/vim-dadbod-ui")
