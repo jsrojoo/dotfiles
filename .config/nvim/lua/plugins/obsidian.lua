@@ -1,6 +1,11 @@
 require("obsidian").setup({
 	ui = {
 		enable = false,
+		checkboxes = {
+			-- NOTE: the 'char' value has to be a single character, and the highlight groups are defined below.
+			[" "] = { char = "󰄱", hl_group = "ObsidianTodo" },
+			["x"] = { char = "", hl_group = "ObsidianDone" },
+		},
 	},
 	workspaces = {
 		{
