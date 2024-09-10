@@ -7,6 +7,9 @@ require("obsidian").setup({
 			["x"] = { char = "", hl_group = "ObsidianDone" },
 		},
 	},
+	note_id_func = function(title)
+		return title
+	end,
 	workspaces = {
 		{
 			name = "work",
