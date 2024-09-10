@@ -3,13 +3,12 @@ vim.loader.enable()
 require("core/options")
 require("core/keymaps")
 
-require("packer_init")
+require("plugins/packer")
 
 require("plugins/nvim-cmp")
 require("lsp/lspconfig")
 require("plugins/fzf-lua")
 require("plugins/indent-blankline")
-require("plugins/smalls")
 require("plugins/quick-scope")
 require("plugins/gitsigns")
 require("plugins/luasnip")
@@ -18,6 +17,8 @@ require("plugins/nvim-treesitter")
 require("plugins/zmux")
 require("plugins/markdown")
 require("plugins/obsidian")
+require("plugins/nvim-treesitter-textsubjects")
+require("plugins.motions")
 
 -- plugins
 require("nvim_comment").setup()
@@ -39,6 +40,7 @@ local plugins = {
 	"hlslens",
 	"zen-mode",
 	"react-extract",
+	"sentiment",
 }
 
 for _, plugin in ipairs(plugins) do

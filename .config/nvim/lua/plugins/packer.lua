@@ -20,7 +20,7 @@ end
 vim.cmd([[
   augroup packer_user_config
     autocmd!
-    autocmd BufWritePost packer_init.lua source <afile> | PackerSync
+    autocmd BufWritePost packer.lua source <afile> | PackerSync
   augroup end
 ]])
 
@@ -72,9 +72,9 @@ return packer.startup(function(use)
 		"theHamsta/nvim-treesitter-pairs",
 	})
 
-	-- use {
-	--   "RRethy/nvim-treesitter-textsubjects",
-	-- }
+	use({
+		"RRethy/nvim-treesitter-textsubjects",
+	})
 
 	-- Autocomplete
 	use({
@@ -111,7 +111,6 @@ return packer.startup(function(use)
 		"andythigpen/nvim-coverage",
 	})
 
-	use({ "andymass/vim-matchup", event = "VimEnter" })
 	use({
 		"windwp/nvim-autopairs",
 		event = "InsertEnter",
@@ -160,14 +159,7 @@ return packer.startup(function(use)
 	-- 	end,
 	-- })
 
-	use({
-		"epwalsh/obsidian.nvim",
-		tag = "*",
-		-- requires = {
-		-- 	-- Required.
-		-- 	"nvim-lua/plenary.nvim",
-		-- },
-	})
+	use("epwalsh/obsidian.nvim")
 
 	use("mfussenegger/nvim-dap")
 	use("mfussenegger/nvim-dap-python")
@@ -212,7 +204,14 @@ return packer.startup(function(use)
 		"pmizio/typescript-tools.nvim",
 		requires = { "nvim-lua/plenary.nvim", "neovim/nvim-lspconfig" },
 		config = function()
-			require("typescript-tools").setup({})
+			require("typescript-tools").setup({
+				on_attach = function(client, bufnr)
+					vim.keymap.set({ "n", "v" }, "<leader>ca", vim.lsp.buf.code_action, { buffer = bufnr })
+				end,
+				settings = {
+					separate_diagnostic_server = true,
+				},
+			})
 		end,
 	})
 
@@ -232,10 +231,10 @@ return packer.startup(function(use)
 	})
 
 	use("folke/zen-mode.nvim")
-
+	use("folke/twilight.nvim")
 	use("kkharji/sqlite.lua")
+	use("utilyre/sentiment.nvim")
 
-	use("mrjones2014/legendary.nvim")
 	-- Automatically set up your configuration after cloning packer.nvim
 	-- Put this at the end after all plugins
 	if packer_bootstrap then

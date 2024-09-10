@@ -2,31 +2,31 @@
 -- Define keymaps of Neovim and installed plugins.
 -----------------------------------------------------------
 local function map(mode, lhs, rhs, opts)
-	local options = { noremap = true, silent = true }
-	if opts then
-		options = vim.tbl_extend("force", options, opts)
-	end
-	vim.api.nvim_set_keymap(mode, lhs, rhs, options)
+  local options = { noremap = true, silent = true }
+  if opts then
+    options = vim.tbl_extend("force", options, opts)
+  end
+  vim.api.nvim_set_keymap(mode, lhs, rhs, options)
 end
 
 local function modemap(mode, lhs, rhs, opts)
-	return map(mode, lhs, rhs, opts)
+  return map(mode, lhs, rhs, opts)
 end
 
 local function nmap(lhs, rhs, opts)
-	return modemap("n", lhs, rhs, opts)
+  return modemap("n", lhs, rhs, opts)
 end
 
 local function tmap(lhs, rhs, opts)
-	return modemap("t", lhs, rhs, opts)
+  return modemap("t", lhs, rhs, opts)
 end
 
 local function tmapleader(lsh, rhs, opts)
-	return tmap("<space>" .. lsh, rhs, opts)
+  return tmap("<space>" .. lsh, rhs, opts)
 end
 
 local function nmapleader(lsh, rhs, opts)
-	return nmap("<leader>" .. lsh, rhs, opts)
+  return nmap("<leader>" .. lsh, rhs, opts)
 end
 -----------------------------------------------------------
 -- Neovim shortcuts
@@ -53,7 +53,6 @@ nmapleader("fi", ":set foldmethod=indent<CR>")
 
 tmapleader("<esc>", "<C-\\><C-n>")
 
-nmap(";", ":")
 nmap("<C-h>", "<C-w>h")
 nmap("<C-j>", "<C-w>j")
 nmap("<C-k>", "<C-w>k")
@@ -86,7 +85,7 @@ nmapleader("fo", ":Oil<cr>")
 
 nmapleader("gs", ":G <cr>")
 
--- Smalls
+-- Motions
 map("n", "s", "<Plug>(smalls)", { noremap = false })
 map("o", "s", "<Plug>(smalls)", { noremap = false })
 map("x", "s", "<Plug>(smalls)", { noremap = false })
