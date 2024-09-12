@@ -40,7 +40,6 @@ map("", "<right>", "<nop>")
 
 -- Map space to leader key
 map("", "<space>", "<leader>", { noremap = false })
-map("", ":", "q:", { noremap = false })
 
 -- Convenience keymaps
 nmapleader("w", ":w!<cr>")
