@@ -26,8 +26,6 @@ autoload -U add-zsh-hook
 autoload -U select-word-style
 autoload -U promptinit; promptinit
 
-# source <(kubectl completion zsh)
-
 [[ -e ~/.profile ]] && emulate sh -c 'source ~/.profile'
 [[ -e ~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh ]] && source ~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh
 [[ -e ~/.zsh/zsh-command-time/command-time.plugin.zsh ]] && source ~/.zsh/zsh-command-time/command-time.plugin.zsh
@@ -84,7 +82,6 @@ export DOCKER_CLI_HINTS=false
 export PATH="/opt/homebrew/opt/openjdk/bin:$PATH"
 export PATH="/Applications/Fortify/Fortify_SCA_23.1.1/bin:$PATH"
 
-
 prompt pure
 
 select-word-style bash
@@ -104,9 +101,6 @@ zstyle ':completion:*' matcher-list '' \
     'r:|?=** m:{a-z\-}={A-Z\_}'
 
 bindkey -v
-
-# fnm
-eval "`fnm env`"
 
 bindkey '^R' history-incremental-search-backward
 bindkey '^P' up-history
@@ -207,6 +201,7 @@ alias .....="cd ../../../.."
 alias src='exec zsh'
 alias trc='v ~/.tmux.conf'
 alias v='vimObsession'
+alias v.='vimObsession .'
 alias vrc='v ~/.config/nvim/init.lua'
 alias zrc='v ~/.zshrc'
 alias k='kubectl'
@@ -217,8 +212,6 @@ alias redis="iredis"
 alias code="~/Desktop/Visual\ Studio\ Code.app/Contents/Resources/app/bin/code"
 
 alias t="tmuxAlias"
-alias ts="tmux switch -t "
-
 
 zmux ()
 {
