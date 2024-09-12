@@ -233,6 +233,14 @@ return packer.startup(function(use)
     },
   })
 
+  use({
+    "ariel-frischer/bmessages.nvim",
+    config = function()
+      require("bmessages").setup({
+        -- config here or empty for defaults
+      })
+    end,
+  })
   -- Automatically set up your configuration after cloning packer.nvim
   -- Put this at the end after all plugins
   if packer_bootstrap then
