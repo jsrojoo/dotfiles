@@ -1,3 +1,3 @@
 vim.cmd([[
-autocmd CmdwinEnter * map <buffer> <F5> <CR>q:
+autocmd CmdwinEnter * map <buffer> <CR> <CR>q:
 ]])
