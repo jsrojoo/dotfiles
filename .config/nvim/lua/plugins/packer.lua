@@ -234,6 +234,13 @@ return packer.startup(function(use)
 	use("folke/twilight.nvim")
 	use("kkharji/sqlite.lua")
 	use("utilyre/sentiment.nvim")
+	use({
+		"quarto-dev/quarto-nvim",
+		requires = {
+			"jmbuhr/otter.nvim",
+			"nvim-treesitter/nvim-treesitter",
+		},
+	})
 
 	-- Automatically set up your configuration after cloning packer.nvim
 	-- Put this at the end after all plugins

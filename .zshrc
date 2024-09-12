@@ -235,10 +235,6 @@ source ~/.fzf.zsh
 
 source ~/dotfiles/scripts.sh
 
-eval "$(direnv hook zsh)"
-
-export DIRENV_LOG_FORMAT=
-
 eval "$(zoxide init zsh)"
 
 eval "$(mise activate zsh)"

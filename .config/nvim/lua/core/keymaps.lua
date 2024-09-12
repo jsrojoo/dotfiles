@@ -40,6 +40,7 @@ map("", "<right>", "<nop>")
 
 -- Map space to leader key
 map("", "<space>", "<leader>", { noremap = false })
+map("", ":", "q:", { noremap = false })
 
 -- Convenience keymaps
 nmapleader("w", ":w!<cr>")
@@ -83,8 +84,6 @@ nmapleader("fh", ":FzfLua helptags<cr>")
 
 nmapleader("fo", ":Oil<cr>")
 
-nmapleader("gs", ":G <cr>")
-
 -- Motions
 map("n", "s", "<Plug>(smalls)", { noremap = false })
 map("o", "s", "<Plug>(smalls)", { noremap = false })
@@ -93,7 +92,7 @@ map("x", "s", "<Plug>(smalls)", { noremap = false })
 nmap("]d", "<cmd>lua vim.diagnostic.goto_prev()<cr>")
 nmap("[d", "<cmd>lua vim.diagnostic.goto_next()<cr>")
 
-nmapleader("dl", "<cmd>lua vim.diagnostic.setloclist()<cr>")
+nmapleader("cd", "<cmd>lua vim.diagnostic.setloclist()<cr>")
 
 -- vim.cmd([[
 --
@@ -122,3 +121,11 @@ nmapleader("on", ":ObsidianTomorrow<cr>")
 nmapleader("ofa", ":ObsidianQuickSwitch<cr>")
 
 nmapleader("mp", ":MarkdownPreview<cr>")
+
+nmapleader("u", "<C-u>")
+nmapleader("d", "<C-d>")
+
+nmapleader("ft", ":set ft=")
+
+nmapleader("gs", ":G <cr>")
+nmapleader("gl", ":G log ")
