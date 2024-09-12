@@ -219,17 +219,7 @@ return packer.startup(function(use)
   use("kristijanhusak/vim-dadbod-ui")
   use("kristijanhusak/vim-dadbod-completion")
   use("shumphrey/fugitive-gitlab.vim")
-  use({
-    "stevearc/oil.nvim",
-    config = function()
-      require("oil").setup({
-        skip_confirm_for_simple_edits = true,
-        view_options = {
-          show_hidden = true,
-        },
-      })
-    end,
-  })
+  use("stevearc/oil.nvim")
 
   use("folke/zen-mode.nvim")
   use("folke/twilight.nvim")
