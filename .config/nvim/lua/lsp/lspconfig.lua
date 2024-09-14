@@ -119,17 +119,17 @@ for _, lsp in ipairs(servers) do
   })
 end
 
--- lspconfig.eslint.setup({
--- 	root_dir = root_dir,
--- 	capabilities = capabilities,
--- 	on_attach = function(client, bufnr)
--- 		on_attach(client, bufnr)
--- 		vim.api.nvim_create_autocmd("BufWritePre", {
--- 			buffer = bufnr,
--- 			command = "EslintFixAll",
--- 		})
--- 	end,
--- })
+lspconfig.eslint.setup({
+  root_dir = root_dir,
+  capabilities = capabilities,
+  on_attach = function(client, bufnr)
+    on_attach(client, bufnr)
+    vim.api.nvim_create_autocmd("BufWritePre", {
+      buffer = bufnr,
+      command = "EslintFixAll",
+    })
+  end,
+})
 
 lspconfig.lua_ls.setup({
   settings = {
