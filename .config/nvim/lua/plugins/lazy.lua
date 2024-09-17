@@ -34,9 +34,7 @@ lazy.setup({
   { "catppuccin/nvim",                  name = "catppuccin" },
   {
     "norcalli/nvim-colorizer.lua",
-    config = function()
-      require("colorizer").setup()
-    end,
+    opts = {},
   },
 
   { "williamboman/mason.nvim" },
@@ -101,7 +99,7 @@ lazy.setup({
   "christoomey/vim-tmux-navigator",
   "dhruvasagar/vim-table-mode",
   "jose-elias-alvarez/typescript.nvim",
-  "MunifTanjim/eslint.nvim",
+  -- "MunifTanjim/eslint.nvim",
   {
     "andythigpen/nvim-coverage",
   },
@@ -109,16 +107,12 @@ lazy.setup({
   {
     "windwp/nvim-autopairs",
     event = "InsertEnter",
-    config = function()
-      require("nvim-autopairs").setup({})
-    end,
+    opts = {},
   },
 
   {
     "windwp/nvim-ts-autotag",
-    config = function()
-      require("nvim-ts-autotag").setup({})
-    end,
+    opts = {},
   },
 
   "rafamadriz/friendly-snippets",
@@ -167,18 +161,14 @@ lazy.setup({
 
   {
     "kevinhwang91/nvim-hlslens",
-    config = function()
-      require("hlslens").setup({})
-    end,
+    opts = {},
   },
 
   { "kevinhwang91/nvim-bqf" },
 
   {
     "stevearc/quicker.nvim",
-    config = function()
-      require("quicker").setup()
-    end,
+    opts = {},
   },
 
   "jbyuki/venn.nvim",
@@ -201,16 +191,14 @@ lazy.setup({
   {
     "pmizio/typescript-tools.nvim",
     dependencies = { "nvim-lua/plenary.nvim", "neovim/nvim-lspconfig" },
-    config = function()
-      require("typescript-tools").setup({
-        on_attach = function(client, bufnr)
-          vim.keymap.set({ "n", "v" }, "<leader>ca", vim.lsp.buf.code_action, { buffer = bufnr })
-        end,
-        settings = {
-          separate_diagnostic_server = true,
-        },
-      })
-    end,
+    opts = {
+      on_attach = function(client, bufnr)
+        vim.keymap.set({ "n", "v" }, "<leader>ca", vim.lsp.buf.code_action, { buffer = bufnr })
+      end,
+      settings = {
+        separate_diagnostic_server = true,
+      },
+    },
   },
 
   "tpope/vim-dadbod",
@@ -233,11 +221,7 @@ lazy.setup({
 
   {
     "ariel-frischer/bmessages.nvim",
-    config = function()
-      require("bmessages").setup({
-        -- config here or empty for defaults
-      })
-    end,
+    opts = {},
   },
 
   checker = { enabled = true },

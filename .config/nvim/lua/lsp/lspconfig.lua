@@ -119,18 +119,6 @@ for _, lsp in ipairs(servers) do
   })
 end
 
--- lspconfig.eslint_d.setup({
---   root_dir = root_dir,
---   capabilities = capabilities,
---   on_attach = function(client, bufnr)
---     on_attach(client, bufnr)
---     vim.api.nvim_create_autocmd("BufWritePre", {
---       buffer = bufnr,
---       command = "EslintFixAll",
---     })
---   end,
--- })
-
 lspconfig.lua_ls.setup({
   settings = {
     Lua = {
@@ -184,7 +172,7 @@ null_ls.setup({
   sources = {
     null_ls.builtins.code_actions.gitsigns,
     null_ls.builtins.code_actions.refactoring,
-    null_ls.builtins.code_actions.eslint_d,
+    require("none-ls.code_actions.eslint"),
 
     -- null_ls.builtins.diagnostics.dotenv_linter,
     require("none-ls.diagnostics.eslint"),
@@ -193,12 +181,11 @@ null_ls.setup({
     null_ls.builtins.diagnostics.vint,
     null_ls.builtins.diagnostics.zsh,
 
-    null_ls.builtins.formatting.alejandra,
     require("none-ls.formatting.jq"),
     require("none-ls.formatting.beautysh"),
+    null_ls.builtins.formatting.alejandra,
     null_ls.builtins.formatting.prettier,
     null_ls.builtins.formatting.stylua,
-    null_ls.builtins.formatting.biome,
   },
 })
 
