@@ -94,18 +94,19 @@ local root_dir = function()
 end
 
 local servers = {
-  "docker_compose_language_service",
-  "dockerls",
   "bashls",
   "cssls",
+  "docker_compose_language_service",
+  "dockerls",
+  "eslint",
   "html",
-  "pyright",
-  "ruff_lsp",
-  "yamlls",
   "lua_ls",
+  "pyright",
   "ruff",
-  "vimls",
+  "ruff_lsp",
   "sqls",
+  "vimls",
+  "yamlls",
 }
 
 mason.setup()
@@ -120,6 +121,9 @@ for _, lsp in ipairs(servers) do
 end
 
 lspconfig.lua_ls.setup({
+  on_attach = on_attach,
+  root_dir = root_dir,
+  capabilities = capabilities,
   settings = {
     Lua = {
       runtime = {
@@ -144,51 +148,3 @@ lspconfig.lua_ls.setup({
     },
   },
 })
-
-mason_null_ls.setup({
-  automatic_installation = true,
-  ensure_installed = {
-    "gitsigns",
-    "refactoring",
-    -- "shellcheck",
-
-    "dotenv_linter",
-    "statix",
-    "trail_space",
-    "vint",
-    "zsh",
-    "eslint_d",
-
-    "alejandra",
-    "beautysh",
-    "jq",
-    "prettier",
-    "stylua",
-  },
-})
-
-null_ls.setup({
-  on_attach = on_attach,
-  sources = {
-    null_ls.builtins.code_actions.gitsigns,
-    null_ls.builtins.code_actions.refactoring,
-    require("none-ls.code_actions.eslint"),
-
-    -- null_ls.builtins.diagnostics.dotenv_linter,
-    require("none-ls.diagnostics.eslint"),
-    null_ls.builtins.diagnostics.statix,
-    null_ls.builtins.diagnostics.trail_space,
-    null_ls.builtins.diagnostics.vint,
-    null_ls.builtins.diagnostics.zsh,
-
-    require("none-ls.formatting.jq"),
-    require("none-ls.formatting.beautysh"),
-    null_ls.builtins.formatting.alejandra,
-    null_ls.builtins.formatting.prettier,
-    null_ls.builtins.formatting.stylua,
-  },
-})
-
-vim.cmd([[
-autocmd BufRead,BufNewFile .env lua vim.diagnostic.disable()
-]])

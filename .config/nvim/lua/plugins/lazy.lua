@@ -39,7 +39,6 @@ lazy.setup({
 
 	{ "williamboman/mason.nvim" },
 	{ "williamboman/mason-lspconfig.nvim" },
-	{ "jay-babu/mason-null-ls.nvim" },
 
 	"neovim/nvim-lspconfig",
 
@@ -173,12 +172,6 @@ lazy.setup({
 
 	"jbyuki/venn.nvim",
 
-	{
-		"nvimtools/none-ls.nvim",
-		dependencies = {
-			"nvimtools/none-ls-extras.nvim",
-		},
-	},
 	{
 		"ThePrimeagen/refactoring.nvim",
 		dependencies = {

@@ -231,3 +231,7 @@ source ~/dotfiles/scripts.sh
 eval "$(zoxide init zsh)"
 
 eval "$(mise activate zsh)"
+
+# Wasmer
+export WASMER_DIR="/Users/joseph.rojo/.wasmer"
+[ -s "$WASMER_DIR/wasmer.sh" ] && source "$WASMER_DIR/wasmer.sh"
