@@ -20,18 +20,19 @@ opt.swapfile = false                          -- Don't use swapfile
 opt.completeopt = "menuone,noinsert,noselect" -- Autocomplete options
 opt.pumheight = 4
 opt.diffopt:append("context:0")
+opt.jumpoptions:append("stack")
 
 -- g.python3_host_prog = home .. '/.pyenv/versions/nvim/bin/python'
 -- g.node_host_prog = home .. '/Library/Caches/fnm_multishells/12713_1683804398775/bin/node'
 -----------------------------------------------------------
 -- Neovim UI
 -----------------------------------------------------------
-opt.winbar = "%f"
+-- opt.winbar = "%f"
 opt.background = "light"
 opt.number = true         -- Show line number
 opt.relativenumber = true -- Show relative line numbers
 opt.showmatch = true      -- Highlight matching parenthesis
-opt.foldmethod = "marker"   -- Enable folding
+opt.foldmethod = "marker" -- Enable folding
 opt.foldexpr = "v:lua.vim.treesitter.foldexpr()"
 opt.colorcolumn = "80"    -- Line length marker at 80 columns
 opt.splitright = true     -- Vertical split to the right
@@ -126,13 +127,13 @@ end
 vim.cmd([[
 set diffopt+=context:0
 
-function CustomWinBar()
-  let content = join([mode(), expand('%f')])
+" function CustomWinBar()
+"   let content = join([mode(), expand('%f')])
+"
+"   redrawstatus
+"
+"   return content
+" endfunction
 
-  redrawstatus
-
-  return content
-endfunction
-
-set winbar=%!CustomWinBar()
+" set winbar=%!CustomWinBar()
 ]])

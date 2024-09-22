@@ -67,13 +67,13 @@ export SSL_CERT_DIR=${CERT_DIR}
 export SSL_CERT_FILE=${CERT_PATH}
 
 export NODE_EXTRA_CA_CERTS=${CERT_DIR}/zscaler.crt
-export PYTHONPYCACHEPREFIX="$HOME/.cache/cpython/"
 
 # export HTTP_PROXY=http://fdcproxy.1dc.com:8080
 # export HTTPS_PROXY=http://fdcproxy.1dc.com:8080
 # export NO_PROXY=http://localhost
 
 export PYTHONDONTWRITEBYTECODE=1
+export PYTHONPYCACHEPREFIX="$HOME/.cache/cpython/"
 
 export DOCKER_HOST=unix:///Users/joseph.rojo/.colima/default/docker.sock
 
@@ -167,15 +167,15 @@ function tmuxAlias () {
     fi
 }
 
-function vimObsession() {
-    if test $# -gt 0; then
-        env nvim "$@"
-    elif test -f Session.vim; then
-        env nvim -S
-    else
-        env nvim -c "Obsession"
-    fi
-}
+# function vimObsession() {
+#     if test $# -gt 0; then
+#         env nvim "$@"
+#     elif test -f Session.vim; then
+#         env nvim -S
+#     else
+#         env nvim -c "Obsession"
+#     fi
+# }
 
 # general use
 alias ls='eza'                                                         # ls
@@ -200,8 +200,8 @@ alias .....="cd ../../../.."
 
 alias src='exec zsh'
 alias trc='v ~/.tmux.conf'
-alias v='vimObsession'
-alias v.='vimObsession .'
+alias v='nvim'
+alias v.='nvim .'
 alias vrc='v ~/.config/nvim/init.lua'
 alias zrc='v ~/.zshrc'
 alias k='kubectl'

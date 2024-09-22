@@ -83,16 +83,18 @@ end
 
 local servers = {
   "bashls",
-  "cssls",
   "docker_compose_language_service",
   "dockerls",
   "eslint",
-  "html",
   "lua_ls",
+  "marksman",
   "pyright",
+  "quick_lint_js",
   "ruff",
   "ruff_lsp",
   "sqls",
+  "ts_ls",
+  -- "vale_ls",
   "vimls",
   "yamlls",
 }
@@ -136,3 +138,13 @@ lspconfig.lua_ls.setup({
     },
   },
 })
+
+-- local null_ls = require("null-ls")
+--
+-- null_ls.setup({
+--   sources = {
+--     null_ls.builtins.formatting.stylua,
+--     null_ls.builtins.completion.spell,
+--     require("none-ls.diagnostics.eslint"),         -- requires none-ls-extras.nvim
+--   },
+-- })
