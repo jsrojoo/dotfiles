@@ -47,6 +47,8 @@ fi
 export PATH="$HOME/.cargo/bin/:$PATH"
 export PATH="$HOME/.yarn/bin:$PATH"
 export PATH="$HOME/.local/bin:$PATH"
+export PATH="/opt/homebrew/opt/openjdk/bin:$PATH"
+export PATH="/Applications/Fortify/Fortify_SCA_23.1.1/bin:$PATH"
 
 export FZF_DEFAULT_OPTS="
 --bind ctrl-x:toggle-all,ctrl-n:down,ctrl-e:up \
@@ -79,8 +81,8 @@ export DOCKER_HOST=unix:///Users/joseph.rojo/.colima/default/docker.sock
 
 export DOCKER_CLI_HINTS=false
 
-export PATH="/opt/homebrew/opt/openjdk/bin:$PATH"
-export PATH="/Applications/Fortify/Fortify_SCA_23.1.1/bin:$PATH"
+export WASMER_DIR="/Users/joseph.rojo/.wasmer"
+
 
 prompt pure
 
@@ -152,11 +154,9 @@ function gitLogAuthors {
     git log --all --format='%aN' | sort -u
 }
 
-
 function urlencode () {
     printf %s $1 | jq -sRr @uri
 }
-
 
 # use tmux automatically
 function tmuxAlias () {
@@ -165,6 +165,15 @@ function tmuxAlias () {
     else
         tmux switch -t $(tmux ls | awk '{ print $ 1}' | tr ':' ' ' | fzf)
     fi
+}
+
+zmux ()
+{
+  z_dir=$(zoxide query -l | fzf)
+
+  echo $z_dir | sed "s/\/Users\/joseph.rojo/~/" \
+        | xargs basename \
+        | xargs -I{} bash -c "tmux new -d -s \"{}\" -n \"\" -c '$z_dir'; tmux switch -t \"{}\""
 }
 
 # function vimObsession() {
@@ -189,8 +198,6 @@ alias lx='eza -lbhHigUmuSa@ --time-style=long-iso --git --color-scale' # all + e
 alias lS='eza -1' # one column, just names
 alias lt='eza --tree --level=2' # tree
 
-alias arst="source ~/.xprofile"
-
 alias -- -="cd -"
 alias ~="cd ~"
 alias ..="cd .."
@@ -210,18 +217,8 @@ alias extract='xtract '
 alias xx='xrdb ~/.Xresources'
 alias redis="iredis"
 alias code="~/Desktop/Visual\ Studio\ Code.app/Contents/Resources/app/bin/code"
-
+alias glab="glab --repo gitlab.scm-emea.aws.fisv.cloud/f1wg9ea/scripts"
 alias t="tmuxAlias"
-
-zmux ()
-{
-  z_dir=$(zoxide query -l | fzf)
-
-  echo $z_dir | sed "s/\/Users\/joseph.rojo/~/" \
-        | xargs basename \
-        | xargs -I{} bash -c "tmux new -d -s \"{}\" -n \"\" -c '$z_dir'; tmux switch -t \"{}\""
-}
-
 alias z="zmux"
 
 source ~/.fzf.zsh
@@ -233,5 +230,4 @@ eval "$(zoxide init zsh)"
 eval "$(mise activate zsh)"
 
 # Wasmer
-export WASMER_DIR="/Users/joseph.rojo/.wasmer"
 [ -s "$WASMER_DIR/wasmer.sh" ] && source "$WASMER_DIR/wasmer.sh"
