@@ -1,9 +1,3 @@
--- Automatically install packer
-local fn = vim.fn
-local o = vim.o
-local install_path = fn.stdpath("data") .. "/site/pack/packer/start/packer.nvim"
-
--- Bootstrap lazy.nvim
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not (vim.uv or vim.loop).fs_stat(lazypath) then
   local lazyrepo = "https://github.com/folke/lazy.nvim.git"
@@ -20,18 +14,19 @@ if not (vim.uv or vim.loop).fs_stat(lazypath) then
 end
 vim.opt.rtp:prepend(lazypath)
 
--- Use a protected call so we don't error out on first use
 local status_ok, lazy = pcall(require, "lazy")
 
 if not status_ok then
   return
 end
 
--- Install plugins
 lazy.setup({
   "rose-pine/neovim",
 
-  { "catppuccin/nvim",                  name = "catppuccin" },
+  {
+    "catppuccin/nvim",
+    name = "catppuccin"
+  },
   {
     "norcalli/nvim-colorizer.lua",
     opts = {},
@@ -43,7 +38,11 @@ lazy.setup({
   "neovim/nvim-lspconfig",
 
   -- Indent line
-  { "lukas-reineke/indent-blankline.nvim",    main = "ibl", opts = {} },
+  {
+    "lukas-reineke/indent-blankline.nvim",
+    main = "ibl",
+    opts = {}
+  },
 
   -- Indent python
   "Vimjas/vim-python-pep8-indent",
@@ -204,6 +203,7 @@ lazy.setup({
   "folke/twilight.nvim",
   "kkharji/sqlite.lua",
   "utilyre/sentiment.nvim",
+
   {
     "quarto-dev/quarto-nvim",
     dependencies = {
@@ -227,8 +227,8 @@ lazy.setup({
       },
       codeRunner = {
         enabled = false,
-        default_method = nil, -- 'molten' or 'slime'
-        ft_runners = {},    -- filetype to runner, ie. `{ python = "molten" }`.
+        default_method = nil,   -- 'molten' or 'slime'
+        ft_runners = {},        -- filetype to runner, ie. `{ python = "molten" }`.
         -- Takes precedence over `default_method`
         never_run = { "yaml" }, -- filetypes which are never sent to a code runner
       },

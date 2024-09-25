@@ -19,27 +19,20 @@ end
 
 cmp.setup({
   snippet = {
-    keyword_length = 1,
     expand = function(args)
       luasnip.lsp_expand(args.body)
     end,
   },
   completion = {
     autocomplete = false,
-    keyword_length = 3,
   },
   window = {
     completion = cmp.config.window.bordered(),
     documentation = cmp.config.window.bordered(),
   },
   mapping = {
-    -- ["<C-n>"] = cmp.mapping.select_next_item(),
-    -- ["<C-p>"] = cmp.mapping.select_prev_item(),
-    -- ["<C-u>"] = cmp.mapping.scroll_docs(-4),
-    -- ["<C-d>"] = cmp.mapping.scroll_docs(4),
-    -- ["<C-Space>"] = cmp.mapping.complete(),
-    -- ["<C-e>"] = cmp.mapping.abort(),
-    -- -- Accept currently selected item. Set `select` to `false` to only confirm explicitly selected items.
+    ["<C-n>"] = cmp.mapping.select_next_item(),
+    ["<C-p>"] = cmp.mapping.select_prev_item(),
     -- ["<TAB>"] = cmp.mapping.confirm({ select = true }),
     ["<C-u>"] = cmp.mapping.scroll_docs(-4),
     ["<C-d>"] = cmp.mapping.scroll_docs(4),
@@ -49,8 +42,7 @@ cmp.setup({
   },
   sources = {
     { name = "nvim_lsp" },
-    { name = "nvim_lua" },
-    { name = "luasnip", keyword_length = 1 },
+    { name = "luasnip" },
     { name = "path" },
     { name = "buffer" },
   },
@@ -65,4 +57,5 @@ cmp.setup.cmdline({ "/", "?" }, {
 
 vim.cmd([[
 autocmd FileType sql,mysql,plsql lua require('cmp').setup.buffer({ sources = {{ name = 'vim-dadbod-completion' }} })
+autocmd FileType lua lua require('cmp').setup.buffer({ sources = {{ name = 'nvim_lua' }} })
 ]])
