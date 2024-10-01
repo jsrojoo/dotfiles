@@ -1,0 +1,10 @@
+[tools]
+node = "latest"
+python = "latest"
+yarn = "latest"
+go = "latest"
+rust = "latest"
+
+[env]
+LOCAL_DB="postgresql://postgres:root@localhost/enterprise_gpt_api"
+DB_UI_LOCAL="postgresql://postgres:root@localhost/enterprise_gpt_api"
