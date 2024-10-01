@@ -30,7 +30,6 @@ autoload -U promptinit; promptinit
 [[ -e ~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh ]] && source ~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh
 [[ -e ~/.zsh/zsh-command-time/command-time.plugin.zsh ]] && source ~/.zsh/zsh-command-time/command-time.plugin.zsh
 [[ -e ~/.zsh/auto-notify.zsh ]] && source ~/.zsh/auto-notify.zsh
-[[ -e ~/.zsh/zsh-command-time/command-time.plugin.zsh ]] && source ~/.zsh/zsh-command-time/command-time.plugin.zsh
 [[ -e ~/.zsh/zsh-notify/notify.plugin.zsh ]] && source ~/.zsh/zsh-notify/notify.plugin.zsh
 
 zstyle ':notify:*' error-title "Command failed (in #{time_elapsed} seconds)"
@@ -49,6 +48,7 @@ export PATH="$HOME/.yarn/bin:$PATH"
 export PATH="$HOME/.local/bin:$PATH"
 export PATH="/opt/homebrew/opt/openjdk/bin:$PATH"
 export PATH="/Applications/Fortify/Fortify_SCA_23.1.1/bin:$PATH"
+export PATH="/opt/homebrew/opt/libpq/bin:$PATH"
 
 export FZF_DEFAULT_OPTS="
 --bind ctrl-x:toggle-all,ctrl-n:down,ctrl-e:up \
@@ -60,6 +60,7 @@ export FZF_DEFAULT_OPTS="
 
 export CERT_DIR=/etc/ssl/certs
 export CERT_PATH=/etc/ssl/cert.pem
+# export CERT_PATH="$HOME/ca_certs/zscaler.crt"
 
 export CURL_CA_BUNDLE=${CERT_PATH}
 export HTTPLIB2_CA_CERTS=${CERT_PATH}
@@ -68,7 +69,7 @@ export REQUESTS_CA_BUNDLE=${CERT_PATH}
 export SSL_CERT_DIR=${CERT_DIR}
 export SSL_CERT_FILE=${CERT_PATH}
 
-export NODE_EXTRA_CA_CERTS=${CERT_DIR}/zscaler.crt
+export NODE_EXTRA_CA_CERTS="$HOME/ca_certs/zscaler.crt"
 
 # export HTTP_PROXY=http://fdcproxy.1dc.com:8080
 # export HTTPS_PROXY=http://fdcproxy.1dc.com:8080
@@ -77,7 +78,7 @@ export NODE_EXTRA_CA_CERTS=${CERT_DIR}/zscaler.crt
 export PYTHONDONTWRITEBYTECODE=1
 export PYTHONPYCACHEPREFIX="$HOME/.cache/cpython/"
 
-export DOCKER_HOST=unix:///Users/joseph.rojo/.colima/default/docker.sock
+export DOCKER_HOST="unix://$HOME/.colima/docker.sock"
 
 export DOCKER_CLI_HINTS=false
 
@@ -221,7 +222,8 @@ alias glab="glab --repo gitlab.scm-emea.aws.fisv.cloud/f1wg9ea/scripts"
 alias t="tmuxAlias"
 alias z="zmux"
 
-source ~/.fzf.zsh
+# https://github.com/junegunn/fzf/blob/master/shell/key-bindings.zsh
+[[ -e ~/.fzf.zsh ]] && source ~/.fzf.zsh
 
 source ~/dotfiles/scripts.sh
 
