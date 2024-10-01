@@ -93,14 +93,27 @@ local servers = {
   "ruff",
   "ruff_lsp",
   "sqls",
-  "ts_ls",
+  -- "ts_ls",
   -- "vale_ls",
   "vimls",
   "yamlls",
 }
 
 mason.setup()
-mason_lspconfig.setup()
+mason_lspconfig.setup({
+  ensure_installed = {
+    "sqls",
+    "dockerls",
+    "docker_compose_language_service",
+    "marksman",
+    "pyright",
+    "ruff",
+    "ruff_lsp",
+    "yamlls",
+    "lua_ls",
+    "rust_analyzer"
+  },
+})
 
 for _, lsp in ipairs(servers) do
   lspconfig[lsp].setup({

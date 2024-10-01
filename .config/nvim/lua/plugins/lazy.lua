@@ -57,7 +57,7 @@ lazy.setup({
     end,
   },
 
-  { "nvim-treesitter/nvim-treesitter-context" },
+  -- { "nvim-treesitter/nvim-treesitter-context" },
 
   {
     "theHamsta/nvim-treesitter-pairs",

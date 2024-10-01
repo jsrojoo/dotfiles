@@ -48,13 +48,6 @@ cmp.setup({
   },
 })
 
-cmp.setup.cmdline({ "/", "?" }, {
-  mapping = cmp.mapping.preset.cmdline(),
-  sources = {
-    { name = "buffer" },
-  },
-})
-
 vim.cmd([[
 autocmd FileType sql,mysql,plsql lua require('cmp').setup.buffer({ sources = {{ name = 'vim-dadbod-completion' }} })
 autocmd FileType lua lua require('cmp').setup.buffer({ sources = {{ name = 'nvim_lua' }} })
