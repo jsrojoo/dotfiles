@@ -45,4 +45,7 @@ require("obsidian").setup({
   follow_url_func = function(url)
     vim.fn.jobstart({ "open", url })
   end,
+  attachments = {
+    image_folder = "media"
+  }
 })

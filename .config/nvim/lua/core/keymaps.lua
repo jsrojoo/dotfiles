@@ -129,6 +129,15 @@ nmapleader("ft", ":set ft=")
 nmapleader("gs", ":G <cr>")
 nmapleader("gl", ":G log ")
 
+nmapleader("l", ":Cppath<cr>")
+
+vim.api.nvim_create_user_command("Cppath", function()
+  local path = vim.fn.expand("%:p")
+  local cursorPosition, _col = unpack(vim.api.nvim_win_get_cursor(0))
+  vim.fn.setreg("+", path .. ":" .. cursorPosition)
+  vim.notify('Copied "' .. path .. '" to the clipboard!')
+end, {})
+
 vim.cmd([[
 imap <silent><expr> <Tab> luasnip#expand_or_jumpable() ? '<Plug>luasnip-expand-or-jump' : '<Tab>'
 " -1 for jumping backwards.
