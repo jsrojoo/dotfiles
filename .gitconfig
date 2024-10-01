@@ -1,0 +1,7 @@
+[credential]
+	helper = store
+[user]
+	name = Joseph Rojo
+	email = joseph.rojo@fiserv.com
+[push]
+	autoSetupRemote = true
