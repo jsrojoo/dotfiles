@@ -222,6 +222,9 @@ alias glab="glab --repo gitlab.scm-emea.aws.fisv.cloud/f1wg9ea/scripts"
 alias t="tmuxAlias"
 alias z="zmux"
 
+alias gs="git status"
+alias gl="git log"
+
 # https://github.com/junegunn/fzf/blob/master/shell/key-bindings.zsh
 [[ -e ~/.fzf.zsh ]] && source ~/.fzf.zsh
 
