@@ -83,6 +83,7 @@ end
 
 local servers = {
   "bashls",
+  "cssls",
   "docker_compose_language_service",
   "dockerls",
   "eslint",
@@ -93,10 +94,10 @@ local servers = {
   "ruff",
   "ruff_lsp",
   "sqls",
-  -- "ts_ls",
-  -- "vale_ls",
   "vimls",
   "yamlls",
+  -- "ts_ls",
+  -- "vale_ls",
 }
 
 mason.setup()
