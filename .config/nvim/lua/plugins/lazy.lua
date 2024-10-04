@@ -89,7 +89,6 @@ lazy.setup({
   -- utilities
   "t9md/vim-smalls",
   "tpope/vim-fugitive",
-  "tpope/vim-obsession",
   "tpope/vim-repeat",
   "tpope/vim-surround",
   "unblevable/quick-scope",
