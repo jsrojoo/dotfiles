@@ -177,16 +177,6 @@ zmux ()
         | xargs -I{} bash -c "tmux new -d -s \"{}\" -n \"\" -c '$z_dir'; tmux switch -t \"{}\""
 }
 
-# function vimObsession() {
-#     if test $# -gt 0; then
-#         env nvim "$@"
-#     elif test -f Session.vim; then
-#         env nvim -S
-#     else
-#         env nvim -c "Obsession"
-#     fi
-# }
-
 # general use
 alias ls='eza'                                                         # ls
 alias l='eza -labF --git'                                              # list, size, type, git
