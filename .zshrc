@@ -172,7 +172,7 @@ zmux ()
 {
   z_dir=$(zoxide query -l | fzf)
 
-  echo $z_dir | sed "s/\/Users\/joseph.rojo/~/" \
+  echo $z_dir | sed "s/\/Users\/josephrojo/~/" \
         | xargs basename \
         | xargs -I{} bash -c "tmux new -d -s \"{}\" -n \"\" -c '$z_dir'; tmux switch -t \"{}\""
 }

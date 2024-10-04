@@ -31,7 +31,7 @@ _G.zmux = function(opts)
     end,
   }
   -- fzf_lua.fzf_exec("zoxide query -l | xargs basename | tr '-' '_'", opts)
-  fzf_lua.fzf_exec("zoxide query -l | sed 's/\\/Users\\/joseph.rojo/~/'", opts)
+  fzf_lua.fzf_exec("zoxide query -l | sed 's/\\/Users\\/josephrojo/~/'", opts)
 end
 
 vim.cmd([[command! -nargs=* Zmux lua _G.zmux()]])
