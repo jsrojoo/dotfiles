@@ -59,8 +59,8 @@ export FZF_DEFAULT_OPTS="
     --multi"
 
 export CERT_DIR=/etc/ssl/certs
-export CERT_PATH=/etc/ssl/cert.pem
-# export CERT_PATH="$HOME/ca_certs/zscaler.crt"
+# export CERT_PATH=/etc/ssl/cert.pem
+export CERT_PATH="$HOME/ca_certs/zscaler.crt"
 
 export CURL_CA_BUNDLE=${CERT_PATH}
 export HTTPLIB2_CA_CERTS=${CERT_PATH}
@@ -214,6 +214,7 @@ alias z="zmux"
 
 alias gs="git status"
 alias gl="git log"
+alias gcm="git commit -m"
 
 # https://github.com/junegunn/fzf/blob/master/shell/key-bindings.zsh
 [[ -e ~/.fzf.zsh ]] && source ~/.fzf.zsh
