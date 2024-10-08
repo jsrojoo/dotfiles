@@ -6,5 +6,6 @@ go = "latest"
 rust = "latest"
 
 [env]
+_.file = '~/.config/mise/secrets.env'
 LOCAL_DB="postgresql://postgres:root@localhost/enterprise_gpt_api"
 DB_UI_LOCAL="postgresql://postgres:root@localhost/enterprise_gpt_api"
