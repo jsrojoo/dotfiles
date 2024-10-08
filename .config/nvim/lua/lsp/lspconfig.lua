@@ -112,7 +112,8 @@ mason_lspconfig.setup({
     "ruff_lsp",
     "yamlls",
     "lua_ls",
-    "rust_analyzer"
+    "rust_analyzer",
+    "vimls",
   },
 })
 
