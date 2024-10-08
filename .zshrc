@@ -50,6 +50,7 @@ export PATH="/opt/homebrew/opt/openjdk/bin:$PATH"
 export PATH="/Applications/Fortify/Fortify_SCA_23.1.1/bin:$PATH"
 export PATH="/opt/homebrew/opt/libpq/bin:$PATH"
 
+export FZF_DEFAULT_COMMAND='fd --type file'
 export FZF_DEFAULT_OPTS="
 --bind ctrl-x:toggle-all,ctrl-n:down,ctrl-e:up \
     --color=bg+:#eff1f5,bg:#eff1f5,spinner:#dc8a78,hl:#d20f39 \
@@ -174,7 +175,7 @@ zmux ()
 
   echo $z_dir | sed "s/\/Users\/josephrojo/~/" \
         | xargs basename \
-        | xargs -I{} bash -c "tmux new -d -s \"{}\" -n \"\" -c '$z_dir'; tmux switch -t \"{}\""
+        | xargs -I{} bash -c "tmux new -d -s \"{}\" -n \"nvim\" -c '$z_dir'; tmux switch -t \"{}\""
 }
 
 # general use
