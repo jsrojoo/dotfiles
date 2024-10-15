@@ -33,10 +33,10 @@ end
 -----------------------------------------------------------
 
 -- Disable arrow keys
-map("", "<up>", "<nop>")
-map("", "<down>", "<nop>")
-map("", "<left>", "<nop>")
-map("", "<right>", "<nop>")
+-- map("", "<up>", "<nop>")
+-- map("", "<down>", "<nop>")
+-- map("", "<left>", "<nop>")
+-- map("", "<right>", "<nop>")
 
 -- Map space to leader key
 map("", "<space>", "<leader>", { noremap = false })
