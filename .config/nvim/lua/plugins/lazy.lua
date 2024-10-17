@@ -91,7 +91,6 @@ lazy.setup({
   "tpope/vim-fugitive",
   "tpope/vim-repeat",
   "tpope/vim-surround",
-  "unblevable/quick-scope",
   "wellle/targets.vim",
   "christoomey/vim-tmux-navigator",
   "dhruvasagar/vim-table-mode",
@@ -155,11 +154,6 @@ lazy.setup({
   "tzachar/local-highlight.nvim",
   "levouh/tint.nvim",
   "JoosepAlviste/nvim-ts-context-commentstring",
-
-  {
-    "kevinhwang91/nvim-hlslens",
-    opts = {},
-  },
 
   { "kevinhwang91/nvim-bqf" },
 
@@ -241,6 +235,14 @@ lazy.setup({
 
   {
     "nvimtools/none-ls.nvim"
+  },
+
+  {
+    "NStefan002/speedtyper.nvim",
+    cmd = "Speedtyper",
+    opts = {
+      -- your config
+    }
   },
 
   checker = { enabled = true },

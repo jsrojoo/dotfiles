@@ -21,7 +21,6 @@ require("plugins.nvim-treesitter")
 require("plugins.nvim-treesitter-textsubjects")
 require("plugins.obsidian")
 require("plugins.oil")
-require("plugins.quick-scope")
 require("plugins.zmux")
 
 -- plugins
@@ -41,7 +40,6 @@ require("local-highlight").setup({
 
 local plugins = {
   "coverage",
-  "hlslens",
   "zen-mode",
   "react-extract",
   "sentiment",

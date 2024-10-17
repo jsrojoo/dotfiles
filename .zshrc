@@ -212,10 +212,14 @@ alias code="~/Desktop/Visual\ Studio\ Code.app/Contents/Resources/app/bin/code"
 alias glab="glab --repo gitlab.scm-emea.aws.fisv.cloud/f1wg9ea/scripts"
 alias t="tmuxAlias"
 alias z="zmux"
+alias g="mise run g"
 
 alias gs="git status"
 alias gl="git log"
 alias gcm="git commit -m"
+
+alias cs="colima start"
+alias today="date '+%Y-%m-%d'"
 
 # https://github.com/junegunn/fzf/blob/master/shell/key-bindings.zsh
 [[ -e ~/.fzf.zsh ]] && source ~/.fzf.zsh
