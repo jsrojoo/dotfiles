@@ -5,3 +5,7 @@
 	email = joseph.rojo@fiserv.com
 [push]
 	autoSetupRemote = true
+[http]
+	postBuffer = 1048576000
+[https]
+	postBuffer = 1048576000

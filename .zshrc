@@ -208,7 +208,6 @@ alias kk='minikube kubectl --'
 alias extract='xtract '
 alias xx='xrdb ~/.Xresources'
 alias redis="iredis"
-alias code="~/Desktop/Visual\ Studio\ Code.app/Contents/Resources/app/bin/code"
 alias glab="glab --repo gitlab.scm-emea.aws.fisv.cloud/f1wg9ea/scripts"
 alias t="tmuxAlias"
 alias z="zmux"
