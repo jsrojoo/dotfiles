@@ -50,7 +50,8 @@ nmapleader("ek", ":e ~/dotfiles/.config/nvim/lua/core/keymaps.lua<cr>")
 
 nmapleader("fs", ":set foldmethod=syntax<CR>")
 nmapleader("fi", ":set foldmethod=indent<CR>")
-nmapleader("fx", ":set foldmethod=indent<CR>")
+nmapleader("fx", ":set foldmethod=expr<CR>")
+nmapleader("fl", ":set foldmethod=expr<CR>")
 
 tmapleader("<esc>", "<C-\\><C-n>")
 
