@@ -9,3 +9,7 @@
 	postBuffer = 1048576000
 [https]
 	postBuffer = 1048576000
+[core]
+	pager = nvim -R
+[color]
+	pager = no

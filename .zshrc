@@ -218,6 +218,7 @@ alias gl="git log"
 alias gcm="git commit -m"
 
 alias cs="colima start"
+alias dcu="docker-compose up -d"
 alias today="date '+%Y-%m-%d'"
 
 # https://github.com/junegunn/fzf/blob/master/shell/key-bindings.zsh
@@ -228,8 +229,3 @@ source ~/dotfiles/scripts.sh
 eval "$(zoxide init zsh)"
 
 eval "$(mise activate zsh)"
-
-eval "$(direnv hook zsh)"
-
-# Wasmer
-[ -s "$WASMER_DIR/wasmer.sh" ] && source "$WASMER_DIR/wasmer.sh"
