@@ -1,8 +1,9 @@
 -----------------------------------------------------------
 -- Define keymaps of Neovim and installed plugins.
 -----------------------------------------------------------
+local options = { noremap = true, silent = true }
+
 local function map(mode, lhs, rhs, opts)
-  local options = { noremap = true, silent = true }
   if opts then
     options = vim.tbl_extend("force", options, opts)
   end
@@ -123,13 +124,18 @@ nmapleader("ofa", ":ObsidianQuickSwitch<cr>")
 
 nmapleader("mp", ":MarkdownPreview<cr>")
 
-nmapleader("u", "<C-u>")
-nmapleader("d", "<C-d>")
+modemap("n", "<leader>u", "<C-u>", options)
+modemap("n", "<leader>d", "<C-d>", options)
+modemap("v", "<leader>u", "<C-u>", options)
+modemap("v", "<leader>d", "<C-d>", options)
 
 nmapleader("ft", ":set ft=")
 
 nmapleader("gs", ":G <cr>")
 nmapleader("gl", ":G log ")
+
+nmapleader("p", "<c-o>")
+nmapleader("n", "<c-i>")
 
 nmapleader("l", ":Cppath<cr>")
 

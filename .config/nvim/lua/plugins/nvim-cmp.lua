@@ -25,6 +25,7 @@ cmp.setup({
   },
   completion = {
     autocomplete = false,
+    completeopt = 'menu,menuone',
   },
   window = {
     completion = cmp.config.window.bordered(),

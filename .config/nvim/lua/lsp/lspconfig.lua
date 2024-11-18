@@ -163,3 +163,7 @@ lspconfig.lua_ls.setup({
 --     require("none-ls.diagnostics.eslint"),         -- requires none-ls-extras.nvim
 --   },
 -- })
+
+-- require 'lspconfig'.sqls.setup {
+--   cmd = { "path/to/command", "-config", "path/to/config.yml" },
+-- }
