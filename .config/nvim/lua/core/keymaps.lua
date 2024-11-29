@@ -34,10 +34,10 @@ end
 -----------------------------------------------------------
 
 -- Disable arrow keys
--- map("", "<up>", "<nop>")
--- map("", "<down>", "<nop>")
--- map("", "<left>", "<nop>")
--- map("", "<right>", "<nop>")
+map("", "<up>", "<nop>")
+map("", "<down>", "<nop>")
+map("", "<left>", "<nop>")
+map("", "<right>", "<nop>")
 
 -- Map space to leader key
 map("", "<space>", "<leader>", { noremap = false })
@@ -124,18 +124,10 @@ nmapleader("ofa", ":ObsidianQuickSwitch<cr>")
 
 nmapleader("mp", ":MarkdownPreview<cr>")
 
-modemap("n", "<leader>u", "<C-u>", options)
-modemap("n", "<leader>d", "<C-d>", options)
-modemap("v", "<leader>u", "<C-u>", options)
-modemap("v", "<leader>d", "<C-d>", options)
-
 nmapleader("ft", ":set ft=")
 
 nmapleader("gs", ":G <cr>")
 nmapleader("gl", ":G log ")
-
-nmapleader("p", "<c-o>")
-nmapleader("n", "<c-i>")
 
 nmapleader("l", ":Cppath<cr>")
 
