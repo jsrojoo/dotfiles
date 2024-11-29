@@ -26,17 +26,49 @@ autoload -U add-zsh-hook
 autoload -U select-word-style
 autoload -U promptinit; promptinit
 
-[[ -e ~/.profile ]] && emulate sh -c 'source ~/.profile'
-[[ -e ~/dotfiles/scripts.sh ]] && source ~/dotfiles/scripts.sh
-[[ -e ~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh ]] && source ~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh
-# https://github.com/junegunn/fzf/blob/master/shell/key-bindings.zsh
-[[ -e ~/.fzf.zsh ]] && source ~/.fzf.zsh
-
 if [[ "$(command -v nvim)" ]]; then
     export EDITOR='nvim'
     export MANPAGER='nvim +Man!'
     export MANWIDTH=999
 fi
+
+prompt pure
+
+select-word-style bash
+
+precmd() { vcs_info }
+
+zstyle ':completion:*' menu select
+zstyle ':vcs_info:git:*' formats '%b'
+
+# 0 -- vanilla completion (abc => abc)
+# 1 -- smart case completion (abc => Abc)
+# 2 -- word flex completion (abc => A-big-Car)
+# 3 -- full flex completion (abc => ABraCadabra)
+zstyle ':completion:*' matcher-list '' \
+    'm:{a-z\-}={A-Z\_}' \
+    'r:[^[:alpha:]]||[[:alpha:]]=** r:|=* m:{a-z\-}={A-Z\_}' \
+    'r:|?=** m:{a-z\-}={A-Z\_}'
+
+bindkey -v
+
+bindkey '^R' history-incremental-search-backward
+bindkey '^P' up-history
+bindkey '^N' down-history
+bindkey '^w' backward-kill-word
+bindkey '^a' beginning-of-line
+bindkey '^e' end-of-line
+bindkey '^ ' autosuggest-accept
+bindkey '^?' backward-delete-char
+
+zle -N edit-command-line
+
+bindkey -M vicmd 'v' edit-command-line
+bindkey -M vicmd 'n' down-line-or-history
+bindkey -M vicmd 'e' up-line-or-history
+
+KEYTIMEOUT=1
+
 
 export PATH="$HOME/.cargo/bin/:$PATH"
 export PATH="$HOME/.yarn/bin:$PATH"
@@ -80,43 +112,11 @@ export DOCKER_CLI_HINTS=false
 
 export WASMER_DIR="/Users/joseph.rojo/.wasmer"
 
+[[ -e ~/.profile ]] && emulate sh -c 'source ~/.profile'
+[[ -e ~/dotfiles/scripts.sh ]] && source ~/dotfiles/scripts.sh
+[[ -e ~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh ]] && source ~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh
+[[ -e ~/.fzf.zsh ]] && source ~/.fzf.zsh # https://github.com/junegunn/fzf/blob/master/shell/key-bindings.zsh
 
-prompt pure
-
-select-word-style bash
-
-precmd() { vcs_info }
-
-zstyle ':completion:*' menu select
-zstyle ':vcs_info:git:*' formats '%b'
-
-# 0 -- vanilla completion (abc => abc)
-# 1 -- smart case completion (abc => Abc)
-# 2 -- word flex completion (abc => A-big-Car)
-# 3 -- full flex completion (abc => ABraCadabra)
-zstyle ':completion:*' matcher-list '' \
-    'm:{a-z\-}={A-Z\_}' \
-    'r:[^[:alpha:]]||[[:alpha:]]=** r:|=* m:{a-z\-}={A-Z\_}' \
-    'r:|?=** m:{a-z\-}={A-Z\_}'
-
-bindkey -v
-
-bindkey '^R' history-incremental-search-backward
-bindkey '^P' up-history
-bindkey '^N' down-history
-bindkey '^w' backward-kill-word
-bindkey '^a' beginning-of-line
-bindkey '^e' end-of-line
-bindkey '^ ' autosuggest-accept
-bindkey '^?' backward-delete-char
-
-zle -N edit-command-line
-
-bindkey -M vicmd 'v' edit-command-line
-bindkey -M vicmd 'n' down-line-or-history
-bindkey -M vicmd 'e' up-line-or-history
-
-KEYTIMEOUT=1
 
 function xtract {
     if [ -z "$1" ]; then
