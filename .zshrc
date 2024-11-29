@@ -27,15 +27,10 @@ autoload -U select-word-style
 autoload -U promptinit; promptinit
 
 [[ -e ~/.profile ]] && emulate sh -c 'source ~/.profile'
+[[ -e ~/dotfiles/scripts.sh ]] && source ~/dotfiles/scripts.sh
 [[ -e ~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh ]] && source ~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh
-[[ -e ~/.zsh/zsh-command-time/command-time.plugin.zsh ]] && source ~/.zsh/zsh-command-time/command-time.plugin.zsh
-[[ -e ~/.zsh/auto-notify.zsh ]] && source ~/.zsh/auto-notify.zsh
-[[ -e ~/.zsh/zsh-notify/notify.plugin.zsh ]] && source ~/.zsh/zsh-notify/notify.plugin.zsh
-
-zstyle ':notify:*' error-title "Command failed (in #{time_elapsed} seconds)"
-zstyle ':notify:*' success-title "Command finished (in #{time_elapsed} seconds)"
-
-zstyle ':notify:*' command-complete-timeout 15
+# https://github.com/junegunn/fzf/blob/master/shell/key-bindings.zsh
+[[ -e ~/.fzf.zsh ]] && source ~/.fzf.zsh
 
 if [[ "$(command -v nvim)" ]]; then
     export EDITOR='nvim'
@@ -152,14 +147,6 @@ function xtract {
     fi
 }
 
-function gitLogAuthors {
-    git log --all --format='%aN' | sort -u
-}
-
-function urlencode () {
-    printf %s $1 | jq -sRr @uri
-}
-
 # use tmux automatically
 function tmuxAlias () {
     if [ -z "$TMUX" ]; then
@@ -174,8 +161,8 @@ zmux ()
   z_dir=$(zoxide query -l | fzf)
 
   echo $z_dir | sed "s/\/Users\/josephrojo/~/" \
-        | xargs basename \
-        | xargs -I{} bash -c "tmux new -d -s \"{}\" -n \"nvim\" -c '$z_dir'; tmux switch -t \"{}\""
+        | xargs basename | tr '.' '_' \
+        | xargs -I{} bash -c "tmux new -d -s \"{}\" -n nvim -c '$z_dir'; tmux switch -t \"{}\""
 }
 
 # general use
@@ -221,11 +208,5 @@ alias cs="colima start"
 alias dcu="docker-compose up -d"
 alias today="date '+%Y-%m-%d'"
 
-# https://github.com/junegunn/fzf/blob/master/shell/key-bindings.zsh
-[[ -e ~/.fzf.zsh ]] && source ~/.fzf.zsh
-
-source ~/dotfiles/scripts.sh
-
 eval "$(zoxide init zsh)"
-
 eval "$(mise activate zsh)"

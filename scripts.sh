@@ -13,3 +13,11 @@ function slugify() {
         | sed -r 's/^-+\|-+$//g' \
         | tr '[:upper:]' '[:lower:]'
 }
+
+function gitLogAuthors {
+    git log --all --format='%aN' | sort -u
+}
+
+function urlencode () {
+    printf %s $1 | jq -sRr @uri
+}
