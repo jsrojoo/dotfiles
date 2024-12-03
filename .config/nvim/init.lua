@@ -22,6 +22,8 @@ require("plugins.nvim-treesitter-textsubjects")
 require("plugins.obsidian")
 require("plugins.oil")
 require("plugins.zmux")
+require("plugins.image")
+require("plugins.image-clip")
 
 -- plugins
 require("nvim_comment").setup()
@@ -73,3 +75,8 @@ require("bqf").setup({
     winblend = 0,
   },
 })
+
+if vim.env.TERM == 'xterm-kitty' then
+  vim.cmd([[autocmd UIEnter * if v:event.chan ==# 0 | call chansend(v:stderr, "\x1b[>1u") | endif]])
+  vim.cmd([[autocmd UILeave * if v:event.chan ==# 0 | call chansend(v:stderr, "\x1b[<1u") | endif]])
+end

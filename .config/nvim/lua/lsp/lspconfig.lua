@@ -96,6 +96,7 @@ local servers = {
   "sqls",
   "vimls",
   "yamlls",
+  "lemminx",
   -- "ts_ls",
   -- "vale_ls",
 }
@@ -114,6 +115,7 @@ mason_lspconfig.setup({
     "lua_ls",
     "rust_analyzer",
     "vimls",
+    "lemminx",
   },
 })
 

@@ -148,6 +148,16 @@ lazy.setup({
   -- })
 
   "epwalsh/obsidian.nvim",
+  "3rd/image.nvim",
+  {
+    "HakonHarnes/img-clip.nvim",
+    event = "VeryLazy",
+    keys = {
+      -- suggested keymap
+      { "<leader>p", "<cmd>PasteImage<cr>", desc = "Paste image from system clipboard" },
+    },
+  },
+
 
   "mfussenegger/nvim-dap",
   "mfussenegger/nvim-dap-python",
