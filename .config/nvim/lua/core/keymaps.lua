@@ -66,9 +66,6 @@ nmap("<leader>z", ":Zmux<cr>")
 nmap("<C-w>v", "<C-w>v<C-w><C-w>")
 nmap("<C-w>s", "<C-w>s<C-w><C-w>")
 
--- Remap increment
-nmap("<C-s>", "<C-a>")
-
 -----------------------------------------------------------
 -- Plugin shortcuts
 -----------------------------------------------------------
@@ -128,6 +125,7 @@ nmapleader("ft", ":set ft=")
 
 nmapleader("gs", ":G <cr>")
 nmapleader("gl", ":G log ")
+nmapleader("gb", ":GBrowse!<cr>")
 
 nmapleader("l", ":Cppath<cr>")
 
