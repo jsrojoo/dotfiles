@@ -22,7 +22,7 @@ require("plugins.nvim-treesitter-textsubjects")
 require("plugins.obsidian")
 require("plugins.oil")
 require("plugins.zmux")
-require("plugins.image")
+-- require("plugins.image")
 require("plugins.image-clip")
 
 -- plugins
