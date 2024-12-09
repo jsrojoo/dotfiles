@@ -22,7 +22,16 @@ require("plugins.nvim-treesitter-textsubjects")
 require("plugins.obsidian")
 require("plugins.oil")
 require("plugins.zmux")
--- require("plugins.image")
+
+if vim.g.started_by_firenvim == false then
+  require("plugins.image")
+else
+  vim.g.firenvim_config.localSettings['.*'] = {
+    takeover = 'never',
+ selector = 'textarea' 
+  }
+end
+
 require("plugins.image-clip")
 
 -- plugins
