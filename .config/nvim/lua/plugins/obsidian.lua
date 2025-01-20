@@ -20,7 +20,16 @@ require("obsidian").setup({
     date_format = "%Y-%m-%d",
     time_format = "%H:%M",
     -- A map for custom variables, the key should be the variable and the value a function
-    substitutions = {},
+    substitutions = {
+      yesterday = function()
+        return os.date("%Y-%m-%d", os.time() - 86400)
+      end,
+      standup_yesterday = function()
+        local _yesterday = os.date("%Y-%m-%d", os.time() - 86400)
+
+        return _yesterday .. "#" .. _yesterday
+      end
+    },
   },
   daily_notes = {
     -- Optional, if you keep daily notes in a separate directory.

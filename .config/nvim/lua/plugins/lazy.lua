@@ -255,5 +255,7 @@ lazy.setup({
     }
   },
 
+  -- "github/copilot.vim",
+
   checker = { enabled = true },
 })

@@ -9,6 +9,7 @@ yarn = "1.22.22"
 _.file = '~/.config/mise/secrets.env'
 LOCAL_DB="postgresql://postgres:root@localhost/enterprise_gpt_api"
 DB_UI_LOCAL="postgresql://postgres:root@localhost/enterprise_gpt_api"
+LOCAL_AUTH="ZEhkTU5vZ0pweDYxZEs4cktLYTM6cDg3cXUwZHRZbVJRTTdCQnlCUnE="
 
 [settings]
 experimental = true
