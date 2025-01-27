@@ -7,12 +7,6 @@ if not lsp_status_ok then
   return
 end
 
-local cmp_status_ok, cmp_nvim_lsp = pcall(require, "cmp_nvim_lsp")
-
-if not cmp_status_ok then
-  return
-end
-
 local mason_ok, mason = pcall(require, "mason")
 
 if not mason_ok then
@@ -26,8 +20,6 @@ if not mason_lspconfig_ok then
 end
 
 local capabilities = vim.lsp.protocol.make_client_capabilities()
-
-capabilities = cmp_nvim_lsp.default_capabilities(capabilities)
 
 local on_attach = function(client, bufnr)
   if client.server_capabilities.documentHighlightProvider then
@@ -92,7 +84,6 @@ local servers = {
   "pyright",
   "quick_lint_js",
   "ruff",
-  "ruff_lsp",
   "sqls",
   "vimls",
   "yamlls",
@@ -110,10 +101,8 @@ mason_lspconfig.setup({
     "marksman",
     "pyright",
     "ruff",
-    "ruff_lsp",
     "yamlls",
     "lua_ls",
-    "rust_analyzer",
     "vimls",
     "lemminx",
   },
@@ -155,17 +144,3 @@ lspconfig.lua_ls.setup({
     },
   },
 })
-
--- local null_ls = require("null-ls")
---
--- null_ls.setup({
---   sources = {
---     null_ls.builtins.formatting.stylua,
---     null_ls.builtins.completion.spell,
---     require("none-ls.diagnostics.eslint"),         -- requires none-ls-extras.nvim
---   },
--- })
-
--- require 'lspconfig'.sqls.setup {
---   cmd = { "path/to/command", "-config", "path/to/config.yml" },
--- }

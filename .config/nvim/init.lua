@@ -28,7 +28,7 @@ if vim.g.started_by_firenvim == false then
 else
   vim.g.firenvim_config.localSettings['.*'] = {
     takeover = 'never',
- selector = 'textarea' 
+    selector = 'textarea'
   }
 end
 
