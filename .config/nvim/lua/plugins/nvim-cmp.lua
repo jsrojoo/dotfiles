@@ -24,7 +24,7 @@ cmp.setup({
     end,
   },
   completion = {
-    autocomplete = false,
+    -- autocomplete = false,
     completeopt = 'menu,menuone',
   },
   window = {
@@ -51,5 +51,5 @@ cmp.setup({
 
 vim.cmd([[
 autocmd FileType sql,mysql,plsql lua require('cmp').setup.buffer({ sources = {{ name = 'vim-dadbod-completion' }} })
-autocmd FileType lua lua require('cmp').setup.buffer({ sources = {{ name = 'nvim_lua' }} })
+" autocmd FileType lua lua require('cmp').setup.buffer({ sources = {{ name = 'nvim_lua' }} })
 ]])

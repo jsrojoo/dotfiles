@@ -19,7 +19,13 @@ if not mason_lspconfig_ok then
   return
 end
 
-local capabilities = vim.lsp.protocol.make_client_capabilities()
+local cmp_nvim_lsp_ok, cmp_nvim_lsp = pcall(require, "cmp_nvim_lsp")
+
+if not cmp_nvim_lsp_ok then
+  return
+end
+
+local cmp_capabilities = cmp_nvim_lsp.default_capabilities()
 
 local on_attach = function(client, bufnr)
   if client.server_capabilities.documentHighlightProvider then
@@ -63,7 +69,7 @@ vim.diagnostic.config({
     focusable = false,
     style = "minimal",
     border = "rounded",
-    source = "always",
+    source = 'if_many',
     header = "",
     prefix = "",
   },
@@ -112,14 +118,14 @@ for _, lsp in ipairs(servers) do
   lspconfig[lsp].setup({
     on_attach = on_attach,
     root_dir = root_dir,
-    capabilities = capabilities,
+    capabilities = cmp_capabilities,
   })
 end
 
 lspconfig.lua_ls.setup({
   on_attach = on_attach,
   root_dir = root_dir,
-  capabilities = capabilities,
+  capabilities = cmp_capabilities,
   settings = {
     Lua = {
       runtime = {

@@ -88,10 +88,10 @@ map("n", "s", "<Plug>(smalls)", { noremap = false })
 map("o", "s", "<Plug>(smalls)", { noremap = false })
 map("x", "s", "<Plug>(smalls)", { noremap = false })
 
-nmap("]d", "<cmd>lua vim.diagnostic.goto_prev()<cr>")
-nmap("[d", "<cmd>lua vim.diagnostic.goto_next()<cr>")
+nmapleader("dp", "<cmd>lua vim.diagnostic.goto_prev()<cr>")
+nmapleader("dn", "<cmd>lua vim.diagnostic.goto_next()<cr>")
 
-nmapleader("cd", "<cmd>lua vim.diagnostic.setloclist()<cr>")
+nmapleader("dl", "<cmd>lua vim.diagnostic.setloclist()<cr>")
 
 -- vim.cmd([[
 --
