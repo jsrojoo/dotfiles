@@ -150,3 +150,33 @@ lspconfig.lua_ls.setup({
     },
   },
 })
+
+
+vim.lsp.handlers["textDocument/hover"] = function(err, result, ctx, config)
+  -- If no documentation was returned, do nothing.
+  if err or not (result and result.contents) then
+    return
+  end
+
+  -- Convert the hover contents from the LSP into markdown lines.
+  local markdown_lines = vim.lsp.util.convert_input_to_markdown_lines(result.contents)
+  markdown_lines = vim.lsp.util.trim_empty_lines(markdown_lines)
+  if vim.tbl_isempty(markdown_lines) then
+    return
+  end
+
+  -- Option 1: Open a new vertical split window, create a new buffer, and set its content.
+  -- You can change 'vsplit' to 'split' for a horizontal split if you prefer.
+  vim.cmd("split")
+  local buf = vim.api.nvim_create_buf(false, true)  -- create a new unlisted buffer
+  vim.api.nvim_win_set_buf(0, buf)  -- place our new buffer in the current window
+
+  -- Set the buffer’s contents to the hover markdown.
+  vim.api.nvim_buf_set_lines(buf, 0, -1, false, markdown_lines)
+
+  -- Optionally, set the filetype to markdown for proper syntax highlighting.
+  vim.api.nvim_buf_set_option(buf, "filetype", "markdown")
+
+  -- You might also want to disable editing on this buffer:
+  vim.api.nvim_buf_set_option(buf, "modifiable", false)
+end

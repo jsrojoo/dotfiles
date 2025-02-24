@@ -42,15 +42,6 @@ nvim_treesitter.setup({
 		enable = true,
 		disable = {},
 	},
-	-- textsubjects = {
-	--   enable = true,
-	--   prev_selection = ',', -- (Optional) keymap to select the previous selection
-	--   keymaps = {
-	--     ['.'] = 'textsubjects-smart',
-	--     [';'] = 'textsubjects-container-outer',
-	--     ['i;'] = { 'textsubjects-container-inner', desc = "Select inside containers (classes, functions, etc.)" },
-	--   },
-	-- },
 	pairs = {
 		enable = true,
 		disable = {},

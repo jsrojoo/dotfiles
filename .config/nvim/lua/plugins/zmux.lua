@@ -26,7 +26,7 @@ _G.zmux = function(opts)
       local create_new_session_cmd = string.format("tmux new -d -s %s %s", session_name, cd_cmd)
       local switch_session_cmd = string.format("tmux switch -t %s", session_name)
 
-      vim.fn.system(create_new_session_cmd .. " -n ''")
+      vim.fn.system(create_new_session_cmd .. " -n 'nvim'")
       vim.fn.system(switch_session_cmd)
     end,
   }
