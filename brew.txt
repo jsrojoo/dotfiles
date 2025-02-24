@@ -15,11 +15,16 @@ jeffreywildman/virt-manager/virt-viewer
 jq
 jstkdng/programs/ueberzugpp
 llm
+lsusb
 meson
 mise
 neovim
 nlohmann-json
+nushell
+ollama
 pgcli
+pgformatter
+pgvector
 pngpaste
 pure
 qemu
@@ -31,7 +36,9 @@ stow
 terminal-notifier
 tmux
 toipe
+weasyprint
 wget
+xmlstarlet
 yq
 zegervdv/zathura/zathura-pdf-poppler
 zoxide

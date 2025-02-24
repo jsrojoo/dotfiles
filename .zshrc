@@ -92,11 +92,11 @@ export CERT_PATH="$HOME/ca_certs/zscaler.crt"
 
 export CURL_CA_BUNDLE=${CERT_PATH}
 export HTTPLIB2_CA_CERTS=${CERT_PATH}
-export NIX_SSL_CERT_FILE=${CERT_PATH}
 export REQUESTS_CA_BUNDLE=${CERT_PATH}
 export SSL_CERT_DIR=${CERT_DIR}
 export SSL_CERT_FILE=${CERT_PATH}
 
+export NIX_SSL_CERT_FILE=${CERT_PATH}
 export NODE_EXTRA_CA_CERTS="$HOME/ca_certs/zscaler.crt"
 
 # export HTTP_PROXY=http://fdcproxy.1dc.com:8080

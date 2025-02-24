@@ -1,9 +1,10 @@
 [tools]
 node = "latest"
-python = "latest"
+python = "3.11"
 go = "latest"
 rust = "latest"
 yarn = "1.22.22"
+lua = "latest"
 
 [env]
 _.file = '~/.config/mise/secrets.env'
