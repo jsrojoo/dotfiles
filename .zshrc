@@ -208,5 +208,9 @@ alias cs="colima start"
 alias dcu="docker-compose up -d"
 alias today="date '+%Y-%m-%d'"
 
+alias "json-to-yaml"="yq eval -P '.'"
+
+alias icat="kitty icat"
+
 eval "$(zoxide init zsh)"
 eval "$(mise activate zsh)"
