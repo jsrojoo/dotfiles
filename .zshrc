@@ -209,6 +209,9 @@ alias dcu="docker-compose up -d"
 alias today="date '+%Y-%m-%d'"
 
 alias "json-to-yaml"="yq eval -P '.'"
+alias "yaml-to-json"="yq eval -o json"
+
+alias "clipboard"="pbcopy"
 
 alias icat="kitty icat"
 
