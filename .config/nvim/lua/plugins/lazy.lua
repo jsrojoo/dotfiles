@@ -27,6 +27,13 @@ lazy.setup({
     "catppuccin/nvim",
     name = "catppuccin"
   },
+
+  {
+    "NStefan002/screenkey.nvim",
+    lazy = false,
+    version = "*", -- or branch = "dev", to use the latest commit
+  },
+
   {
     "norcalli/nvim-colorizer.lua",
     opts = {},
@@ -247,6 +254,8 @@ lazy.setup({
     "nvimtools/none-ls.nvim"
   },
 
+  { "savq/melange-nvim" },
+
   {
     "NStefan002/speedtyper.nvim",
     cmd = "Speedtyper",
@@ -256,6 +265,6 @@ lazy.setup({
   },
 
   -- "github/copilot.vim",
-
+  install = { colorscheme = { "melange" } },
   checker = { enabled = true },
 })

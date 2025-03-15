@@ -74,8 +74,7 @@ require("tint").setup({
 })
 
 vim.cmd([[
-" colorscheme rose-pine
-colorscheme catppuccin-latte
+colorscheme melange
 
 let g:fugitive_gitlab_domains = ['https://gitlab.scm-emea.aws.fisv.cloud']
 ]])
@@ -90,5 +89,3 @@ if vim.env.TERM == 'xterm-kitty' then
   vim.cmd([[autocmd UIEnter * if v:event.chan ==# 0 | call chansend(v:stderr, "\x1b[>1u") | endif]])
   vim.cmd([[autocmd UILeave * if v:event.chan ==# 0 | call chansend(v:stderr, "\x1b[<1u") | endif]])
 end
-
-

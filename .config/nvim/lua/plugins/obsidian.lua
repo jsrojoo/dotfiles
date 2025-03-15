@@ -46,7 +46,7 @@ require("obsidian").setup({
   picker = {
     name = "fzf-lua",
   },
-  preferred_link_style = "markdown",
+  preferred_link_style = "wiki",
   completion = {
     nvim_cmp = true,
     min_chars = 1,
@@ -55,6 +55,6 @@ require("obsidian").setup({
     vim.fn.jobstart({ "open", url })
   end,
   attachments = {
-    image_folder = "media"
+    img_folder = "media"
   }
 })
