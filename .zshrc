@@ -80,11 +80,15 @@ export PATH="/opt/homebrew/opt/libpq/bin:$PATH"
 export FZF_DEFAULT_COMMAND='fd --type file'
 export FZF_DEFAULT_OPTS="
 --bind ctrl-x:toggle-all,ctrl-n:down,ctrl-e:up \
-    --color=bg+:#eff1f5,bg:#eff1f5,spinner:#dc8a78,hl:#d20f39 \
-    --color=fg:#4c4f69,header:#d20f39,info:#8839ef,pointer:#dc8a78 \
-    --color=marker:#7287fd,fg+:#4c4f69,prompt:#8839ef,hl+:#d20f39 \
-    --color=selected-bg:#bcc0cc \
     --multi"
+
+# export FZF_DEFAULT_OPTS="
+# --bind ctrl-x:toggle-all,ctrl-n:down,ctrl-e:up \
+#     --color=bg+:#eff1f5,bg:#eff1f5,spinner:#dc8a78,hl:#d20f39 \
+#     --color=fg:#4c4f69,header:#d20f39,info:#8839ef,pointer:#dc8a78 \
+#     --color=marker:#7287fd,fg+:#4c4f69,prompt:#8839ef,hl+:#d20f39 \
+#     --color=selected-bg:#bcc0cc \
+#     --multi"
 
 export CERT_DIR=/etc/ssl/certs
 # export CERT_PATH=/etc/ssl/cert.pem
@@ -106,7 +110,7 @@ export NODE_EXTRA_CA_CERTS="$HOME/ca_certs/zscaler.crt"
 export PYTHONDONTWRITEBYTECODE=1
 export PYTHONPYCACHEPREFIX="$HOME/.cache/cpython/"
 
-export DOCKER_HOST="unix://$HOME/.colima/docker.sock"
+export DOCKER_HOST="unix://$HOME/.colima/default/docker.sock"
 
 export DOCKER_CLI_HINTS=false
 
@@ -163,6 +167,20 @@ zmux ()
   echo $z_dir | sed "s/\/Users\/josephrojo/~/" \
         | xargs basename | tr '.' '_' \
         | xargs -I{} bash -c "tmux new -d -s \"{}\" -n nvim -c '$z_dir'; tmux switch -t \"{}\""
+}
+
+s ()
+{
+  fullstring="$*"
+
+  llm "$fullstring"
+}
+
+c ()
+{
+  fullstring="$*"
+
+  llm -c "$fullstring"
 }
 
 # general use

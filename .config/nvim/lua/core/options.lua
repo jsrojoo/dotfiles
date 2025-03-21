@@ -28,7 +28,7 @@ opt.jumpoptions:append("stack")
 -- Neovim UI
 -----------------------------------------------------------
 -- opt.winbar = "%f"
-opt.background = "light"
+opt.background = "dark"
 opt.number = true         -- Show line number
 opt.relativenumber = true -- Show relative line numbers
 opt.showmatch = true      -- Highlight matching parenthesis

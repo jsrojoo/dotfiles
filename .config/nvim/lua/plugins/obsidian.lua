@@ -7,7 +7,7 @@ require("obsidian").setup({
     },
   },
   note_id_func = function(title)
-    return title
+    return title or 'Untitled'
   end,
   workspaces = {
     {

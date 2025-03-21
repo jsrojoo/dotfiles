@@ -22,6 +22,7 @@ end
 
 lazy.setup({
   "rose-pine/neovim",
+  "arcticicestudio/nord-vim",
 
   {
     "catppuccin/nvim",
@@ -265,6 +266,6 @@ lazy.setup({
   },
 
   -- "github/copilot.vim",
-  install = { colorscheme = { "melange" } },
+  install = { colorscheme = { "nord" } },
   checker = { enabled = true },
 })
