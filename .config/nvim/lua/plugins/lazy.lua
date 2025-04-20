@@ -100,7 +100,7 @@ lazy.setup({
   "tpope/vim-repeat",
   "tpope/vim-surround",
   "wellle/targets.vim",
-  "christoomey/vim-tmux-navigator",
+  -- "christoomey/vim-tmux-navigator",
   "dhruvasagar/vim-table-mode",
   "jose-elias-alvarez/typescript.nvim",
   -- "MunifTanjim/eslint.nvim",
@@ -169,7 +169,7 @@ lazy.setup({
 
   "mfussenegger/nvim-dap",
   "mfussenegger/nvim-dap-python",
-  "tzachar/local-highlight.nvim",
+  -- "tzachar/local-highlight.nvim",
   "levouh/tint.nvim",
   "JoosepAlviste/nvim-ts-context-commentstring",
 
@@ -258,14 +258,20 @@ lazy.setup({
   { "savq/melange-nvim" },
 
   {
-    "NStefan002/speedtyper.nvim",
-    cmd = "Speedtyper",
-    opts = {
-      -- your config
-    }
+    "zbirenbaum/copilot-cmp",
+    event = "InsertEnter",
+    config = function() require("copilot_cmp").setup() end,
+    dependencies = {
+      "zbirenbaum/copilot.lua",
+      cmd = "Copilot",
+      config = function()
+        require("copilot").setup({
+          suggestion = { enabled = false },
+          panel = { enabled = false },
+        })
+      end,
+    },
   },
-
-  -- "github/copilot.vim",
   install = { colorscheme = { "nord" } },
   checker = { enabled = true },
 })

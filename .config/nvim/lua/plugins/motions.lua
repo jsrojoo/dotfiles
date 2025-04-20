@@ -1,2 +1,2 @@
-require("plugins.smalls")
+-- require("plugins.smalls")
 

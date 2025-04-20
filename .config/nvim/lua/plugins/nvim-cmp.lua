@@ -42,6 +42,7 @@ cmp.setup({
     ["<tab>"] = cmp.mapping.confirm({ select = true }),
   },
   sources = {
+    { name = "copilot" },
     { name = "nvim_lsp" },
     { name = "luasnip" },
     { name = "path" },
