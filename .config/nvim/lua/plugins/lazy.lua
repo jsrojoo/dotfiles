@@ -71,9 +71,9 @@ lazy.setup({
     "theHamsta/nvim-treesitter-pairs",
   },
 
-  {
-    "RRethy/nvim-treesitter-textsubjects",
-  },
+  -- {
+  --   "RRethy/nvim-treesitter-textsubjects",
+  -- },
 
   -- Autocomplete
   {

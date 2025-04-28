@@ -90,7 +90,7 @@ local servers = {
   "pyright",
   "quick_lint_js",
   "ruff",
-  "sqls",
+  -- "sqls",
   "vimls",
   "yamlls",
   "lemminx",
@@ -101,7 +101,7 @@ local servers = {
 mason.setup()
 mason_lspconfig.setup({
   ensure_installed = {
-    "sqls",
+    -- "sqls",
     "dockerls",
     "docker_compose_language_service",
     "marksman",
