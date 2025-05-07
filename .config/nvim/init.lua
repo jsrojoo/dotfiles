@@ -38,22 +38,9 @@ require("plugins.image-clip")
 require("nvim_comment").setup()
 require("swagger-preview").setup({})
 
--- require("local-highlight").setup({
---   file_types = { "python", "cpp", "lua" },
---   disable_file_types = { "tex" },
---   hlgroup = "Search",
---   cw_hlgroup = nil,
---   insert_mode = false,
---   min_match_len = 1,
---   max_match_len = math.huge,
---   highlight_single_match = true,
--- })
-
 local plugins = {
   "coverage",
-  "zen-mode",
   "react-extract",
-  "sentiment",
   "colorizer",
 }
 
@@ -74,7 +61,7 @@ require("tint").setup({
 })
 
 vim.cmd([[
-colorscheme nord
+colorscheme warlock
 
 let g:fugitive_gitlab_domains = ['https://gitlab.scm-emea.aws.fisv.cloud']
 ]])

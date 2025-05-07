@@ -21,6 +21,7 @@ if not status_ok then
 end
 
 lazy.setup({
+  "https://github.com/hardselius/warlock",
   "rose-pine/neovim",
   "arcticicestudio/nord-vim",
 
@@ -65,15 +66,9 @@ lazy.setup({
     end,
   },
 
-  -- { "nvim-treesitter/nvim-treesitter-context" },
-
   {
     "theHamsta/nvim-treesitter-pairs",
   },
-
-  -- {
-  --   "RRethy/nvim-treesitter-textsubjects",
-  -- },
 
   -- Autocomplete
   {
@@ -100,10 +95,8 @@ lazy.setup({
   "tpope/vim-repeat",
   "tpope/vim-surround",
   "wellle/targets.vim",
-  -- "christoomey/vim-tmux-navigator",
   "dhruvasagar/vim-table-mode",
   "jose-elias-alvarez/typescript.nvim",
-  -- "MunifTanjim/eslint.nvim",
   {
     "andythigpen/nvim-coverage",
   },

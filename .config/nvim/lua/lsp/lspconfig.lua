@@ -100,17 +100,17 @@ local servers = {
 
 mason.setup()
 mason_lspconfig.setup({
-  ensure_installed = {
+  automatic_enable = {
     -- "sqls",
-    "dockerls",
-    "docker_compose_language_service",
-    "marksman",
-    "pyright",
-    "ruff",
-    "yamlls",
-    "lua_ls",
-    "vimls",
-    "lemminx",
+    -- "dockerls",
+    -- "docker_compose_language_service",
+    -- "marksman",
+    -- "pyright",
+    -- "ruff",
+    -- "yamlls",
+    -- "lua_ls",
+    -- "vimls",
+    -- "lemminx",
   },
 })
 
