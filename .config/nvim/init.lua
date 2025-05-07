@@ -56,7 +56,7 @@ vim.api.nvim_create_user_command("RefactorReact", function(opts)
 end, {})
 
 require("tint").setup({
-  tint = -20,
+  tint = -30,
   saturation = 0.0,
 })
 

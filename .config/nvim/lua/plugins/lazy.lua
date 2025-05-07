@@ -22,13 +22,6 @@ end
 
 lazy.setup({
   "https://github.com/hardselius/warlock",
-  "rose-pine/neovim",
-  "arcticicestudio/nord-vim",
-
-  {
-    "catppuccin/nvim",
-    name = "catppuccin"
-  },
 
   {
     "NStefan002/screenkey.nvim",
@@ -136,18 +129,6 @@ lazy.setup({
     ft = { "markdown" },
   },
 
-  -- use({
-  -- 	"MeanderingProgrammer/markdown.nvim",
-  -- 	name = "render-markdown", -- Only needed if you have another plugin named markdown.nvim
-  -- 	after = { "nvim-treesitter" },
-  -- 	-- dependencies = { "echasnovski/mini.nvim", opt = true }, -- if you use the mini.nvim suite
-  -- 	-- dependencies = { 'echasnovski/mini.icons', opt = true }, -- if you use standalone mini plugins
-  -- 	dependencies = { "nvim-tree/nvim-web-devicons", opt = true }, -- if you prefer nvim-web-devicons
-  -- 	config = function()
-  -- 		require("render-markdown").setup({})
-  -- 	end,
-  -- })
-
   "epwalsh/obsidian.nvim",
   "3rd/image.nvim",
   {
@@ -162,7 +143,6 @@ lazy.setup({
 
   "mfussenegger/nvim-dap",
   "mfussenegger/nvim-dap-python",
-  -- "tzachar/local-highlight.nvim",
   "levouh/tint.nvim",
   "JoosepAlviste/nvim-ts-context-commentstring",
 
@@ -203,10 +183,7 @@ lazy.setup({
   "shumphrey/fugitive-gitlab.vim",
   "stevearc/oil.nvim",
 
-  "folke/zen-mode.nvim",
-  "folke/twilight.nvim",
   "kkharji/sqlite.lua",
-  "utilyre/sentiment.nvim",
 
   {
     "quarto-dev/quarto-nvim",
@@ -248,8 +225,6 @@ lazy.setup({
     "nvimtools/none-ls.nvim"
   },
 
-  { "savq/melange-nvim" },
-
   {
     "zbirenbaum/copilot-cmp",
     event = "InsertEnter",
@@ -265,6 +240,6 @@ lazy.setup({
       end,
     },
   },
-  install = { colorscheme = { "nord" } },
+  install = { colorscheme = { "warlock" } },
   checker = { enabled = true },
 })
