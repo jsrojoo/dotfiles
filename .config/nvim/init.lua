@@ -22,6 +22,7 @@ require("plugins.nvim-treesitter-textsubjects")
 require("plugins.obsidian")
 require("plugins.oil")
 require("plugins.zmux")
+require("plugins.copilot")
 
 if vim.g.started_by_firenvim == false then
   require("plugins.image")

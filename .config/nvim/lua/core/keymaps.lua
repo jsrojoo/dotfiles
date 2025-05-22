@@ -66,6 +66,8 @@ nmap("<leader>z", ":Zmux<cr>")
 nmap("<C-w>v", "<C-w>v<C-w><C-w>")
 nmap("<C-w>s", "<C-w>s<C-w><C-w>")
 
+nmap("<Tab><Tab>", ":b#<cr>")
+
 modemap('v', '>', '>gv', options)
 modemap('v', '<', '<gv', options)
 -----------------------------------------------------------

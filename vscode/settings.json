@@ -1,0 +1,87 @@
+{
+    "extensions.experimental.affinity": {
+        "asvetliakov.vscode-neovim": 1
+    },
+    "vscode-neovim.NVIM_APPNAME": "minimal-nvim",
+    "workbench.editor.enablePreview": false,
+    "window.commandCenter": false,
+    "editor.minimap.renderCharacters": false,
+    "github.copilot.enable": {
+        "quarto": false,
+        "*": true
+    },
+    "github.copilot.editor.enableAutoCompletions": true,
+    "editor.lineNumbers": "relative",
+    "accessibility.voice.speechTimeout": 10000,
+    "editor.fontSize": 14,
+    "github.copilot.nextEditSuggestions.enabled": true,
+    "github.copilot.selectedCompletionModel": "",
+    "workbench.activityBar.location": "top",
+    "python.defaultInterpreterPath": "/Users/josephrojo/fiserv/aitrium/enterprise-gpt-data-models/.venv",
+    "excalidraw.theme": "dark",
+    "workbench.colorTheme": "Gray Matter Dark",
+    "editor.bracketPairColorization.enabled": false,
+    "editor.occurrencesHighlight": "off",
+    "workbench.colorCustomizations": {
+        "editorCursor.foreground": "#ffcc00",
+    },
+    "vim.useSystemClipboard": true,
+    "vim.normalModeKeyBindingsNonRecursive": [
+        {
+            "before": [
+                " ",
+                "w"
+            ],
+            "commands": [
+                "workbench.action.files.save"
+            ]
+        },
+        {
+            "before": [
+                " ",
+                "q"
+            ],
+            "commands": [
+                "workbench.action.closeActiveEditor"
+            ]
+        },
+        {
+            "before": [
+                " ",
+                "f",
+                "a"
+            ],
+            "commands": [
+                "workbench.action.quickOpen"
+            ]
+        },
+        {
+            "before": [
+                "<tab>",
+                "<tab>"
+            ],
+            "commands": [
+                "workbench.action.quickOpenPreviousRecentlyUsedEditor"
+            ]
+        },
+        {
+            "before": [
+                " ",
+                "f",
+                "c",
+            ],
+            "commands": [
+                "workbench.action.showCommands"
+            ]
+        },
+        {
+            "before": [
+                "K",
+            ],
+            "commands": [
+                "editor.action.showHover"
+            ]
+        }
+    ],
+    "workbench.editor.showTabs": "none",
+}
