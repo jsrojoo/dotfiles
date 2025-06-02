@@ -24,7 +24,7 @@ cmp.setup({
     end,
   },
   completion = {
-    -- autocomplete = false,
+    -- autocomplete = true,
     completeopt = 'menu,menuone',
   },
   window = {
@@ -34,15 +34,15 @@ cmp.setup({
   mapping = {
     ["<C-n>"] = cmp.mapping.select_next_item(),
     ["<C-p>"] = cmp.mapping.select_prev_item(),
-    -- ["<TAB>"] = cmp.mapping.confirm({ select = true }),
     ["<C-u>"] = cmp.mapping.scroll_docs(-4),
     ["<C-d>"] = cmp.mapping.scroll_docs(4),
-    ["<C-Space>"] = cmp.mapping.complete(),
+    ["<C-space>"] = cmp.mapping.complete(),
     ["<C-e>"] = cmp.mapping.abort(),
-    ["<tab>"] = cmp.mapping.confirm({ select = true }),
+    ["<Tab>"] = cmp.mapping.confirm({ select = true }),
   },
   sources = {
-    { name = "nvim_lsp" },
+    { name = "luasnip", priority = 1000 },
+    { name = "nvim_lsp", priority = 500 },
     { name = "copilot" },
     { name = "luasnip" },
     { name = "path" },

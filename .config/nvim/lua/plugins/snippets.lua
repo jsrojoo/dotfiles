@@ -1,12 +1,10 @@
 local ls = require("luasnip")
-
-ls.setup()
-
 local s = ls.snippet
 local sn = ls.snippet_node
 local isn = ls.indent_snippet_node
 local t = ls.text_node
 local i = ls.insert_node
+
 local f = ls.function_node
 local c = ls.choice_node
 local d = ls.dynamic_node
@@ -29,12 +27,20 @@ local parse = require("luasnip.util.parser").parse_snippet
 local ms = ls.multi_snippet
 local k = require("luasnip.nodes.key_indexer").new_key
 
-vim.keymap.set({"i"}, "<C-e>", function() ls.expand() end, {silent = true})
-vim.keymap.set({"i", "s"}, "<C-j>", function() ls.jump( 1) end, {silent = true})
-vim.keymap.set({"i", "s"}, "<C-k>", function() ls.jump(-1) end, {silent = true})
 
-vim.keymap.set({"i", "s"}, "<C-x>", function()
-	if ls.choice_active() then
-		ls.change_choice(1)
-	end
-end, {silent = true})
+require("luasnip.loaders.from_vscode").lazy_load()
+
+ls.add_snippets('markdown', {
+  s("details", {
+    t {
+      "<details>",
+      "  <summary>",
+      "  </summary>",
+      "</details>",
+    },
+  })
+})
+
+local javascript = require('snippets.javascript')
+
+ls.add_snippets('javascript', javascript)

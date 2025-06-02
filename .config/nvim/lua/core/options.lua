@@ -17,10 +17,12 @@ local home = os.getenv("HOME") -- Home directory
 opt.mouse = "a"                               -- Enable mouse support
 opt.clipboard = "unnamedplus"                 -- Copy/paste to system clipboard
 opt.swapfile = false                          -- Don't use swapfile
-opt.completeopt = "menuone,noinsert,noselect" -- Autocomplete options
+opt.completeopt = "menuone" -- Autocomplete options
 opt.pumheight = 4
 opt.diffopt:append("context:0")
 opt.jumpoptions:append("stack")
+
+g.syntax = "off"
 
 -- g.python3_host_prog = home .. '/.pyenv/versions/nvim/bin/python'
 -- g.node_host_prog = home .. '/Library/Caches/fnm_multishells/12713_1683804398775/bin/node'
@@ -40,7 +42,7 @@ opt.splitbelow = true     -- Horizontal split to the bottom
 opt.ignorecase = true     -- Ignore case letters when search
 opt.smartcase = true      -- Ignore lowercase for the whole pattern
 opt.wildignorecase = true
-opt.wrap = true
+opt.wrap = false
 opt.linebreak = true     -- Wrap on word boundary
 opt.termguicolors = true -- Enable 24-bit RGB colors
 opt.laststatus = 3       -- Set global statusline
