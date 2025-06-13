@@ -177,7 +177,7 @@ c ()
   llm -c "$fullstring"
 }
 
-source ./aliases.sh
+source ~/.aliases.sh
 
 eval "$(zoxide init zsh)"
 eval "$(mise activate zsh)"
