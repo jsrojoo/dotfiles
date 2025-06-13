@@ -67,6 +67,7 @@ lazy.setup({
   {
     "hrsh7th/nvim-cmp",
     dependencies = {
+      "https://github.com/SergioRibera/cmp-dotenv",
       "L3MON4D3/LuaSnip",
       "hrsh7th/cmp-buffer",
       "hrsh7th/cmp-cmdline",
