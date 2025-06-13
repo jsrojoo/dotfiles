@@ -81,14 +81,8 @@ export FZF_DEFAULT_COMMAND='fd --type file'
 export FZF_DEFAULT_OPTS="
 --bind ctrl-x:toggle-all,ctrl-n:down,ctrl-e:up \
     --multi"
-
-# export FZF_DEFAULT_OPTS="
-# --bind ctrl-x:toggle-all,ctrl-n:down,ctrl-e:up \
-#     --color=bg+:#eff1f5,bg:#eff1f5,spinner:#dc8a78,hl:#d20f39 \
-#     --color=fg:#4c4f69,header:#d20f39,info:#8839ef,pointer:#dc8a78 \
-#     --color=marker:#7287fd,fg+:#4c4f69,prompt:#8839ef,hl+:#d20f39 \
-#     --color=selected-bg:#bcc0cc \
-#     --multi"
+export EZA_COLORS='reset'
+export NO_COLOR='true'
 
 export CERT_DIR=/etc/ssl/certs
 # export CERT_PATH=/etc/ssl/cert.pem
@@ -188,8 +182,8 @@ alias ls='eza'                                                         # ls
 alias l='eza -labF --git'                                              # list, size, type, git
 alias ll='eza -lbGF --git'                                             # long list
 # alias llm='eza -lbGF --git --sort=modified'                            # long list, modified date sort
-alias la='eza -lbhHigUmuSa --time-style=long-iso --git --color-scale'  # all list
-alias lx='eza -lbhHigUmuSa@ --time-style=long-iso --git --color-scale' # all + extended list
+alias la='eza -lbhHigUmuSa --time-style=long-iso --git'  # all list
+alias lx='eza -lbhHigUmuSa@ --time-style=long-iso --git' # all + extended list
 
 # speciality views
 alias lS='eza -1' # one column, just names
