@@ -42,5 +42,16 @@ ls.add_snippets('markdown', {
 })
 
 local javascript = require('snippets.javascript')
-
 ls.add_snippets('javascript', javascript)
+
+local python = require('snippets.python')
+ls.add_snippets('python', python)
+
+local zsh = require('snippets.zsh')
+ls.add_snippets('zsh', zsh)
+
+local sh = require('snippets.sh')
+ls.add_snippets('sh', sh)
+
+-- local toml = require('snippets.toml')
+-- ls.add_snippets('toml', toml)

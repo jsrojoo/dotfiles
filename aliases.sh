@@ -30,6 +30,8 @@ alias xx='xrdb ~/.Xresources'
 alias redis="iredis"
 alias glab="glab --repo gitlab.scm-emea.aws.fisv.cloud/f1wg9ea/scripts"
 alias t="tmuxAlias"
+alias tserver="tmux new-window -n server;"
+alias tsql="tmux new-window -n pgcli;tmux new-window -n psql;"
 alias z="zmux"
 alias g="mise run g"
 
