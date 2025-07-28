@@ -13,10 +13,6 @@ _G.zmux = function(opts)
 
   opts = opts or {}
 
-  opts.fn_transform = function(x)
-    return fzf_lua.utils.ansi_codes.magenta(x)
-  end
-
   opts.actions = {
     ["default"] = function(selected)
       local path = selected[1]
@@ -30,7 +26,7 @@ _G.zmux = function(opts)
       vim.fn.system(switch_session_cmd)
     end,
   }
-  -- fzf_lua.fzf_exec("zoxide query -l | xargs basename | tr '-' '_'", opts)
+
   fzf_lua.fzf_exec("zoxide query -l | sed 's/\\/Users\\/josephrojo/~/'", opts)
 end
 
