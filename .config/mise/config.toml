@@ -1,12 +1,8 @@
 [tools]
 node = "latest"
-python = "3.13"
-go = "latest"
-rust = "latest"
 yarn = "1.22.22"
 lua = "5.1"
 watchexec = "latest"
-uv = "latest"
 
 [env]
 _.file = '~/.config/mise/secrets.env'

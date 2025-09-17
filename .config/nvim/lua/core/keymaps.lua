@@ -66,7 +66,7 @@ nmap("<leader>z", ":Zmux<cr>")
 nmap("<C-w>v", "<C-w>v<C-w><C-w>")
 nmap("<C-w>s", "<C-w>s<C-w><C-w>")
 
-nmap("<Tab><Tab>", ":b#<cr>")
+-- nmap("<Tab><Tab>", ":b#<cr>")
 
 modemap('v', '>', '>gv', options)
 modemap('v', '<', '<gv', options)
@@ -151,4 +151,7 @@ snoremap <silent> <S-Tab> <cmd>lua require('luasnip').jump(-1)<Cr>
 " For changing choices in choiceNodes (not strictly necessary for a basic setup).
 imap <silent><expr> <C-E> luasnip#choice_active() ? '<Plug>luasnip-next-choice' : '<C-E>'
 smap <silent><expr> <C-E> luasnip#choice_active() ? '<Plug>luasnip-next-choice' : '<C-E>'
+
+nnoremap <C-w>v :vsplit<CR><C-w>l
+nnoremap <C-w>s :split<CR><C-w>j
 ]])

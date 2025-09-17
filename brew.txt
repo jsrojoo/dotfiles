@@ -13,7 +13,9 @@ eza
 fd
 fzf
 gh
+glab
 gron
+helm
 htop
 jeffreywildman/virt-manager/virt-viewer
 jq
@@ -24,12 +26,14 @@ llm
 lsusb
 luarocks
 meson
+minikube
 mise
 neovim
 nim
 nlohmann-json
 nushell
 ollama
+openapi-generator
 pandoc
 pgcli
 pgformatter
@@ -43,9 +47,11 @@ ripgrep
 sphinx-doc
 stow
 terminal-notifier
+tldr
 tmux
 weasyprint
 wget
+xc
 xmlstarlet
 yq
 zegervdv/zathura/zathura-pdf-poppler

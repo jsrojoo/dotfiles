@@ -34,6 +34,7 @@ alias tserver="tmux new-window -n server;"
 alias tsql="tmux new-window -n pgcli;tmux new-window -n psql;"
 alias z="zmux"
 alias g="mise run g"
+alias x="mise run x"
 
 alias gs="git status"
 alias gl="git log"

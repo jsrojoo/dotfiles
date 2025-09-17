@@ -73,6 +73,13 @@ require("bqf").setup({
   },
 })
 
+require("swagger-preview").setup({
+    -- The port to run the preview server on
+    port = 1232,
+    -- The host to run the preview server on
+    host = "localhost",
+})
+
 if vim.env.TERM == 'xterm-kitty' then
   vim.cmd([[autocmd UIEnter * if v:event.chan ==# 0 | call chansend(v:stderr, "\x1b[>1u") | endif]])
   vim.cmd([[autocmd UILeave * if v:event.chan ==# 0 | call chansend(v:stderr, "\x1b[<1u") | endif]])

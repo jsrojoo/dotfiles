@@ -1,5 +1,3 @@
-[credential]
-	helper = store
 [user]
 	name = Joseph Rojo
 	email = joseph.rojo@fiserv.com
@@ -7,9 +5,12 @@
 	autoSetupRemote = true
 [http]
 	postBuffer = 1048576000
+	emptyAuth = true
 [https]
 	postBuffer = 1048576000
 [core]
 	pager = nvim -R
 [color]
 	pager = no
+[credential]
+	helper = cache
