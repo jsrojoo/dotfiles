@@ -42,7 +42,7 @@ opt.splitbelow = true     -- Horizontal split to the bottom
 opt.ignorecase = true     -- Ignore case letters when search
 opt.smartcase = true      -- Ignore lowercase for the whole pattern
 opt.wildignorecase = true
-opt.wrap = false
+opt.wrap = true
 opt.linebreak = false     -- Wrap on word boundary
 opt.termguicolors = true -- Enable 24-bit RGB colors
 opt.laststatus = 3       -- Set global statusline
@@ -78,6 +78,9 @@ opt.shiftwidth = 2     -- Shift 2 spaces when tab
 opt.softtabstop = 2    -- 1 tab == 2 spaces
 opt.tabstop = 2        -- 1 tab == 2 spaces
 opt.smartindent = true -- Autoindent new lines
+opt.breakindent = true -- Retain indents when during textwrap
+-- extra 2‑space indent; honour showbreak
+opt.breakindentopt = { "shift:2", "min:20", "sbr" }
 
 -----------------------------------------------------------
 -- Memory, CPU
