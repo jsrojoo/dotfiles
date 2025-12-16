@@ -1,0 +1,167 @@
+# =========================
+# Codex CLI config.toml
+# =========================
+# Rule: In each "CHOOSE ONE" block, uncomment EXACTLY ONE line.
+
+# -------------------------
+# Model (string)
+# -------------------------
+# CHOOSE ONE:
+model = "gpt-5.1-codex-max"
+# model = "o3"
+# model = "o4-mini"
+
+# -------------------------
+# Model provider (string)
+# -------------------------
+# CHOOSE ONE:
+# model_provider = "ollama"                     # local
+model_provider = "azure"                      # Azure OpenAI
+
+# -------------------------
+# Reasoning effort (string)
+# -------------------------
+# CHOOSE ONE:
+model_reasoning_effort = "medium"
+# model_reasoning_effort = "medium"
+# model_reasoning_effort = "low"
+# model_reasoning_effort = "minimal"
+
+# -------------------------
+# Reasoning summaries (string)
+# -------------------------
+# CHOOSE ONE:
+model_reasoning_summary = "auto"
+# model_reasoning_summary = "concise"
+# model_reasoning_summary = "detailed"
+# model_reasoning_summary = "none"
+
+# -------------------------
+# Verbosity (string)
+# -------------------------
+# CHOOSE ONE:
+model_verbosity = "medium"
+# model_verbosity = "low"
+# model_verbosity = "high"
+
+# -------------------------
+# Force reasoning summaries on non-default combos (bool)
+# -------------------------
+# CHOOSE ONE:
+model_supports_reasoning_summaries = true
+# model_supports_reasoning_summaries = false
+
+# -------------------------
+# Approval policy (string)
+# -------------------------
+# CHOOSE ONE:
+approval_policy = "on-request"
+# approval_policy = "untrusted"
+# approval_policy = "on-failure"
+# approval_policy = "never"
+
+# -------------------------
+# Sandbox mode (string)
+# -------------------------
+# CHOOSE ONE:
+sandbox_mode = "danger-full-access"   # no sandbox
+# sandbox_mode = "workspace-write"     # writes allowed in cwd/tmp only
+# sandbox_mode = "read-only"           # default in docs: no writes, no network
+
+# If you select "workspace-write", you may also configure:
+# [sandbox_workspace_write]
+# # Writable roots (bool/array) — CHOOSE ONE for each:
+# # exclude_tmpdir_env_var = true
+# exclude_tmpdir_env_var = false
+# # exclude_slash_tmp = true
+# exclude_slash_tmp = false
+# # Optional additional writable roots:
+# # writable_roots = ["/Users/YOU/.pyenv/shims"]
+# # Network inside sandbox — CHOOSE ONE:
+# # network_access = true
+# # network_access = false
+
+# -------------------------
+# Response storage (bool)
+# -------------------------
+# CHOOSE ONE:
+disable_response_storage = false
+# disable_response_storage = true   # use for ZDR / no caching
+
+# -------------------------
+# Shell environment policy
+# -------------------------
+[shell_environment_policy]
+# inherit — CHOOSE ONE:
+inherit = "core"
+# inherit = "all"
+# inherit = "none"
+
+# Keep default secret filtering?
+ignore_default_excludes = false
+
+# Drop patterns (array of globs); keep empty if not needed
+exclude = ["AWS_*", "AZURE_*"]
+# exclude = []
+
+# Force-set environment vars (table); keep empty if not needed
+set = { }
+# set = { CI = "1" }
+
+# Whitelist patterns (array of globs); empty means no whitelist
+include_only = []
+# include_only = ["PATH", "HOME"]
+
+[model_providers.azure]
+name = "Azure"
+base_url = "https://dev-atrium-eastus2-1.openai.azure.com/openai/deployments/gpt-5-standard-2025-08-07"
+env_key = "AZURE_OPENAI_API_KEY"
+query_params = { api-version = "2025-04-01-preview" }
+# wire_api = "responses"
+
+[model_providers.atlas]
+name = "Atlas"
+base_url = "https://apis.aitrium.app.atlas.gfs-emea-ai-platform.aws.fisv.cloud/v1/codex/deployments/gpt-5-2025-08-07"
+env_key = "AITRIUM_CODEX_PASSTHROUGH"
+query_params = { api-version = "2025-04-01-preview" }
+# wire_api = "chat"
+
+[model_providers.gemini]
+name = "gemini"
+base_url = "https://apis.egpt.app.gemini.aws.fisv.cloud/v1/codex/cat-aitrium-eastus2-1/deployments/gpt-5-standard-2025-08-07"
+env_key = "AITRIUM_GEMINI_OPENAI_API_KEY"
+query_params = { api-version = "2025-04-01-preview" }
+# wire_api = "chat"
+
+[model_providers.aitrium_gemini_reponses]
+name = "Gemini Responses"
+base_url = "https://apis.egpt.app.gemini.aws.fisv.cloud/v1/codex/cat-aitrium-eastus2-1"
+env_key = "AITRIUM_GEMINI_OPENAI_API_KEY"
+wire_api = "responses"
+query_params = { api-version = "2025-04-01-preview" }
+
+# -------------------------
+# Profiles (optional)
+# -------------------------
+[profiles.default]
+model = "gpt-5-codex-2025-09-15"
+model_provider = "azure"
+
+[profiles.azure]
+# model = "gpt-5.1-codex-max"
+# model_provider = "azure"
+model = "gpt-5-codex-2025-09-15"
+model_provider = "azure"
+model_reasoning_effort = "low"
+
+[profiles.gemini]
+model = "gpt-5-codex-2025-09-15"
+model_provider = "gemini"
+
+[profiles.atlas]
+model = "gpt-5-codex-2025-09-15"
+model_provider = "atlas"
+
+[notice]
+hide_gpt5_1_migration_prompt = true
+# "hide_gpt-5.1-codex-max_migration_prompt" = true
