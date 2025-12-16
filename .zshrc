@@ -82,7 +82,7 @@ export FZF_DEFAULT_OPTS="
 --bind ctrl-x:toggle-all,ctrl-n:down,ctrl-e:up \
     --multi"
 export EZA_COLORS='reset'
-export NO_COLOR='true'
+# export NO_COLOR='true'
 
 export CERT_DIR=/etc/ssl/certs
 # export CERT_PATH=/etc/ssl/cert.pem

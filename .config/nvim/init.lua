@@ -1,3 +1,7 @@
+-- Set leaders early so lazy.nvim and keymaps resolve <leader> correctly
+vim.g.mapleader = " "
+vim.g.maplocalleader = " "
+
 vim.loader.enable()
 
 require("core.options")
@@ -64,7 +68,7 @@ require("tint").setup({
 vim.cmd([[
 colorscheme warlock
 
-let g:fugitive_gitlab_domains = ['https://gitlab.scm-emea.aws.fisv.cloud']
+let g:fugitive_gitlab_domains = ['https://gitlab.gbsemea-scm-gitlab.aws.fisv.cloud', 'https://gitlab.scm-emea.aws.fisv.cloud/EMEA/GBS/EGPT/applications/apis/document-intelligence-api.git']
 ]])
 
 require("bqf").setup({
