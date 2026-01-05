@@ -284,25 +284,25 @@ lazy.setup({
     },
     keys = {
       {
-        "<C-\\>",
+        "<leader>cc",
         function() require("agentic").toggle() end,
-        mode = { "n", "v", "i" },
+        mode = { "n" },
         desc = "Toggle Agentic Chat"
       },
       {
-        "<C-'>",
+        "<leader>ca",
         function() require("agentic").add_selection_or_file_to_context() end,
         mode = { "n", "v" },
         desc = "Add file or selection to Agentic to Context"
       },
       {
-        "<C-n>",
+        "<leader>cn",
         function() require("agentic").new_session() end,
-        mode = { "n", "v", "i" },
+        mode = { "n" },
         desc = "New Agentic Session"
       },
       {
-        "<C-q>",
+        "<leader>cq",
         function() require("agentic").stop_generation() end,
         mode = { "n", },
         desc = "Stop generation"
