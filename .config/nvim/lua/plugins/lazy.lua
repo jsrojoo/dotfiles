@@ -69,17 +69,17 @@ lazy.setup({
     main = "treesitter-context",
     opts = {
       enable = true,
-      max_lines = 3,           -- limit context lines shown
-      trim_scope = "outer",    -- which scope to discard if too long
-      mode = "cursor",         -- update context based on cursor position
+      max_lines = 3,            -- limit context lines shown
+      trim_scope = "outer",     -- which scope to discard if too long
+      mode = "cursor",          -- update context based on cursor position
       multiline_threshold = 20, -- max lines for a single context chunk
       min_window_height = 0,    -- 0 disables the check
       zindex = 20,
       on_attach = nil,          -- nil => enable for all filetypes
     },
     keys = {
-      { "[c", function() require("treesitter-context").go_to_context() end, desc = "Go to Treesitter context" },
-      { "<leader>tc", "<cmd>TSContextToggle<CR>", desc = "Toggle Treesitter Context" },
+      { "[c",         function() require("treesitter-context").go_to_context() end, desc = "Go to Treesitter context" },
+      { "<leader>tc", "<cmd>TSContextToggle<CR>",                                   desc = "Toggle Treesitter Context" },
     },
   },
 
@@ -99,7 +99,6 @@ lazy.setup({
     },
   },
 
-  "jiangmiao/auto-pairs",
   "terrortylor/nvim-comment",
   "lewis6991/gitsigns.nvim",
 
@@ -256,6 +255,48 @@ lazy.setup({
       require("tune").setup({})
     end,
     ft = { "chat" }
+  },
+  {
+    "carlos-algms/agentic.nvim",
+
+    event = "VeryLazy",
+
+    opts = {
+      provider = "codex-acp",
+      acp_providers = {
+        ["codex-acp"] = {
+          env = { NODE_NO_WARNINGS = "1", IS_AI_TERMINAL = "1", AZURE_OPENAI_API_KEY = os.getenv("AZURE_OPENAI_API_KEY") },
+          default_mode = "bypassPermissions",
+        },
+      },
+      windows = { width = "100%" },
+    },
+    keys = {
+      {
+        "<C-\\>",
+        function() require("agentic").toggle() end,
+        mode = { "n", "v", "i" },
+        desc = "Toggle Agentic Chat"
+      },
+      {
+        "<C-'>",
+        function() require("agentic").add_selection_or_file_to_context() end,
+        mode = { "n", "v" },
+        desc = "Add file or selection to Agentic to Context"
+      },
+      {
+        "<C-n>",
+        function() require("agentic").new_session() end,
+        mode = { "n", "v", "i" },
+        desc = "New Agentic Session"
+      },
+      {
+        "<C-q>",
+        function() require("agentic").stop_generation() end,
+        mode = { "n", },
+        desc = "Stop generation"
+      }
+    },
   },
   install = { colorscheme = { "warlock" } },
   checker = { enabled = true },
