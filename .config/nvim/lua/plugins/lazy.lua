@@ -277,7 +277,7 @@ lazy.setup({
           submit = {
             "<CR>",
             { "<C-s>", mode = { "i", "n", "v" } },
-            { "<leader>w", mode = { "i", "n" } },
+            { "<leader>w", mode = { "n" } },
           },
         },
       },
