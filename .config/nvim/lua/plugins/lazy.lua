@@ -270,6 +270,17 @@ lazy.setup({
         },
       },
       windows = { width = "100%" },
+      -- Add <leader>w as a submit key in Agentic's Prompt buffer
+      -- Keep <CR> and <C-s> so existing behavior remains
+      keymaps = {
+        prompt = {
+          submit = {
+            "<CR>",
+            { "<C-s>", mode = { "i", "n", "v" } },
+            { "<leader>w", mode = { "i", "n" } },
+          },
+        },
+      },
     },
     keys = {
       {
