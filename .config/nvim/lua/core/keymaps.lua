@@ -39,9 +39,6 @@ map("", "<down>", "<nop>")
 map("", "<left>", "<nop>")
 map("", "<right>", "<nop>")
 
--- Map space to leader key
-map("", "<space>", "<leader>", { noremap = false })
-
 -- Convenience keymaps
 nmapleader("w", ":w!<cr>")
 nmapleader("q", ":q!<cr>")
@@ -96,6 +93,11 @@ nmapleader("dp", "<cmd>lua vim.diagnostic.goto_prev()<cr>")
 nmapleader("dn", "<cmd>lua vim.diagnostic.goto_next()<cr>")
 
 nmapleader("dl", "<cmd>lua vim.diagnostic.setloclist()<cr>")
+
+nmapleader("at", "<cmd>lua require('agentic').toggle()<cr>")
+nmapleader("an", "<cmd>lua require('agentic').new_session()<cr>")
+nmapleader("aq", "<cmd>lua require('agentic').stop_generation()<cr>")
+modemap("v", "<leader>aa", "<cmd>lua require('agentic').add_selection_or_file_to_context()<cr>")
 
 -- vim.cmd([[
 --

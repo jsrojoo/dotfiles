@@ -276,37 +276,11 @@ lazy.setup({
         prompt = {
           submit = {
             "<CR>",
-            { "<C-s>", mode = { "i", "n", "v" } },
+            -- { "<C-s>",     mode = { "i", "n", "v" } },
             { "<leader>w", mode = { "n" } },
           },
         },
       },
-    },
-    keys = {
-      {
-        "<leader>cc",
-        function() require("agentic").toggle() end,
-        mode = { "n" },
-        desc = "Toggle Agentic Chat"
-      },
-      {
-        "<leader>ca",
-        function() require("agentic").add_selection_or_file_to_context() end,
-        mode = { "n", "v" },
-        desc = "Add file or selection to Agentic to Context"
-      },
-      {
-        "<leader>cn",
-        function() require("agentic").new_session() end,
-        mode = { "n" },
-        desc = "New Agentic Session"
-      },
-      {
-        "<leader>cq",
-        function() require("agentic").stop_generation() end,
-        mode = { "n", },
-        desc = "Stop generation"
-      }
     },
   },
   install = { colorscheme = { "warlock" } },
