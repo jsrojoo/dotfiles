@@ -1,11 +1,8 @@
 -----------------------------------------------------------
 -- Neovim LSP configuration file
 -----------------------------------------------------------
-local lsp_status_ok, lspconfig = pcall(require, "lspconfig")
-
-if not lsp_status_ok then
-  return
-end
+-- Migrate away from deprecated require('lspconfig') to vim.lsp.config/vim.lsp.enable
+-- See :help lspconfig-nvim-0.11
 
 local mason_ok, mason = pcall(require, "mason")
 
@@ -73,7 +70,6 @@ local servers = {
   "docker_compose_language_service",
   "dockerls",
   "eslint",
-  "lua_ls",
   "marksman",
   "pyright",
   "quick_lint_js",
@@ -103,14 +99,17 @@ mason_lspconfig.setup({
 })
 
 for _, lsp in ipairs(servers) do
-  lspconfig[lsp].setup({
+  -- Configure defaults for each server, then enable filetype-based activation
+  vim.lsp.config(lsp, {
     on_attach = on_attach,
     root_dir = root_dir,
     capabilities = cmp_capabilities,
   })
+  vim.lsp.enable(lsp)
 end
 
-lspconfig.lua_ls.setup({
+-- lua_ls has extra settings; configure separately and enable
+vim.lsp.config('lua_ls', {
   on_attach = on_attach,
   root_dir = root_dir,
   capabilities = cmp_capabilities,
@@ -138,6 +137,7 @@ lspconfig.lua_ls.setup({
     },
   },
 })
+vim.lsp.enable('lua_ls')
 
 
 vim.lsp.handlers["textDocument/hover"] = function(err, result, ctx, config)
