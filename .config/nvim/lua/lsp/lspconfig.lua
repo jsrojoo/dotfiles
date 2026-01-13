@@ -10,12 +10,6 @@ if not mason_ok then
   return
 end
 
-local mason_lspconfig_ok, mason_lspconfig = pcall(require, "mason-lspconfig")
-
-if not mason_lspconfig_ok then
-  return
-end
-
 local cmp_nvim_lsp_ok, cmp_nvim_lsp = pcall(require, "cmp_nvim_lsp")
 
 if not cmp_nvim_lsp_ok then
@@ -60,6 +54,26 @@ vim.diagnostic.config({
   },
 })
 
+-- Ensure LSP-only keymaps on attach, regardless of server/plugin
+local lsp_keymaps_group = vim.api.nvim_create_augroup("user_lsp_keymaps", { clear = true })
+vim.api.nvim_create_autocmd("LspAttach", {
+  group = lsp_keymaps_group,
+  callback = function(args)
+    local bufnr = args.buf
+    local opts = { buffer = bufnr, noremap = true, silent = true }
+    vim.keymap.set("n", "gD", vim.lsp.buf.declaration, opts)
+    vim.keymap.set("n", "gd", vim.lsp.buf.definition, opts)
+    vim.keymap.set("n", "K", vim.lsp.buf.hover, opts)
+    vim.keymap.set("n", "gi", vim.lsp.buf.implementation, opts)
+    vim.keymap.set("n", "<C-k>", vim.lsp.buf.signature_help, opts)
+    vim.keymap.set("n", "<leader>D", vim.lsp.buf.type_definition, opts)
+    vim.keymap.set("n", "<leader>rn", vim.lsp.buf.rename, opts)
+    vim.keymap.set("n", "<leader>ca", vim.lsp.buf.code_action, opts)
+    vim.keymap.set("n", "gr", vim.lsp.buf.references, opts)
+    vim.keymap.set("n", "<leader>fe", function() vim.lsp.buf.format({ async = true }) end, opts)
+  end,
+})
+
 local root_dir = function()
   return vim.fn.getcwd()
 end
@@ -83,30 +97,55 @@ local servers = {
 }
 
 mason.setup()
-mason_lspconfig.setup({
-  automatic_enable = {
-    -- "sqls",
-    -- "dockerls",
-    -- "docker_compose_language_service",
-    -- "marksman",
-    -- "pyright",
-    -- "ruff",
-    -- "yamlls",
-    -- "lua_ls",
-    -- "vimls",
-    -- "lemminx",
-  },
-})
 
 for _, lsp in ipairs(servers) do
   -- Configure defaults for each server, then enable filetype-based activation
-  vim.lsp.config(lsp, {
+  local base = {
     on_attach = on_attach,
     root_dir = root_dir,
     capabilities = cmp_capabilities,
-  })
+    autostart = true,
+  }
+
+  -- Ensure filetypes are set for servers that need them to autostart
+  if lsp == 'pyright' then
+    base.filetypes = { 'python' }
+    -- Explicitly point to mason-installed pyright-langserver to avoid PATH issues
+    local mason_bin = vim.fn.stdpath('data') .. '/mason/bin/pyright-langserver'
+    base.cmd = { mason_bin, '--stdio' }
+  elseif lsp == 'ruff' then
+    base.filetypes = { 'python' }
+    -- Use mason-installed ruff-lsp
+    local mason_bin = vim.fn.stdpath('data') .. '/mason/bin/ruff-lsp'
+    base.cmd = { mason_bin }
+  elseif lsp == 'eslint' then
+    base.filetypes = { 'javascript', 'javascriptreact', 'typescript', 'typescriptreact', 'vue', 'svelte' }
+  elseif lsp == 'quick_lint_js' then
+    base.filetypes = { 'javascript', 'javascriptreact' }
+  end
+
+  vim.lsp.config(lsp, base)
   vim.lsp.enable(lsp)
 end
+
+-- Fallback: explicitly start Python LSPs on FileType if autostart doesn't trigger
+local python_lsp_group = vim.api.nvim_create_augroup("user_python_lsp_start", { clear = true })
+vim.api.nvim_create_autocmd({ "FileType" }, {
+  group = python_lsp_group,
+  pattern = "python",
+  callback = function()
+    vim.cmd("LspStart pyright")
+    vim.cmd("LspStart ruff")
+  end,
+})
+vim.api.nvim_create_autocmd({ "BufReadPost", "BufNewFile" }, {
+  group = python_lsp_group,
+  pattern = "*.py",
+  callback = function()
+    vim.cmd("LspStart pyright")
+    vim.cmd("LspStart ruff")
+  end,
+})
 
 -- lua_ls has extra settings; configure separately and enable
 vim.lsp.config('lua_ls', {

@@ -35,9 +35,6 @@ lazy.setup({
   },
 
   { "williamboman/mason.nvim" },
-  { "williamboman/mason-lspconfig.nvim" },
-
-  "neovim/nvim-lspconfig",
 
   -- Indent line
   {
@@ -184,18 +181,6 @@ lazy.setup({
   },
 
   "napmn/react-extract.nvim",
-  {
-    "pmizio/typescript-tools.nvim",
-    dependencies = { "nvim-lua/plenary.nvim", "neovim/nvim-lspconfig" },
-    opts = {
-      on_attach = function(client, bufnr)
-        vim.keymap.set({ "n", "v" }, "<leader>ca", vim.lsp.buf.code_action, { buffer = bufnr })
-      end,
-      settings = {
-        separate_diagnostic_server = true,
-      },
-    },
-  },
 
   "tpope/vim-dadbod",
   "kristijanhusak/vim-dadbod-ui",
