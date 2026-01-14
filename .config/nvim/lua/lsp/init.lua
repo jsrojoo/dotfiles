@@ -5,7 +5,7 @@ vim.lsp.enable({
   "nil_ls",
   "nixd",
   -- python
-  "pyright",
+  "pylsp",
   "ruff",
   -- markdown
   "ltex",
@@ -16,3 +16,4 @@ vim.lsp.enable({
   -- bash
   "bashls"
 })
+

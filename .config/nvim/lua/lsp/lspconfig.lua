@@ -85,7 +85,7 @@ local servers = {
   "dockerls",
   "eslint",
   "marksman",
-  "pyright",
+  "pylsp",
   "quick_lint_js",
   "ruff",
   -- "sqls",

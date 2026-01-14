@@ -148,14 +148,14 @@ lazy.setup({
 
   "epwalsh/obsidian.nvim",
   "3rd/image.nvim",
-  {
-    "HakonHarnes/img-clip.nvim",
-    event = "VeryLazy",
-    keys = {
-      -- suggested keymap
-      { "<leader>p", "<cmd>PasteImage<cr>", desc = "Paste image from system clipboard" },
-    },
-  },
+  -- {
+  --   "HakonHarnes/img-clip.nvim",
+  --   event = "VeryLazy",
+  --   keys = {
+  --     -- suggested keymap
+  --     { "<leader>p", "<cmd>PasteImage<cr>", desc = "Paste image from system clipboard", mode = "n" },
+  --   },
+  -- },
 
 
   "mfussenegger/nvim-dap",
@@ -264,6 +264,8 @@ lazy.setup({
             -- { "<C-s>",     mode = { "i", "n", "v" } },
             { "<leader>w", mode = { "n" } },
           },
+          -- Use a string to fully override defaults (normal-mode only for paste)
+          paste_image = "<localleader>p",
         },
       },
     },

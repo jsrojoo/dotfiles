@@ -12,8 +12,7 @@ require("plugins.lazy")
 
 require("plugins.nvim-cmp")
 
--- require("lsp.lspconfig")
-vim.lsp.enable('luals')
+require("lsp")
 
 require("plugins.firenvim")
 require("plugins.fzf-lua")
