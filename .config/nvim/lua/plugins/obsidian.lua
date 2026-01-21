@@ -1,10 +1,11 @@
 require("obsidian").setup({
+  legacy_commands = false,
   ui = {
     enable = false,
-    checkboxes = {
-      [" "] = { char = "󰄱", hl_group = "ObsidianTodo" },
-      ["x"] = { char = "", hl_group = "ObsidianDone" },
-    },
+    -- checkboxes = {
+    --   [" "] = { char = "󰄱", hl_group = "ObsidianTodo" },
+    --   ["x"] = { char = "", hl_group = "ObsidianDone" },
+    -- },
   },
   note_id_func = function(title)
     return title or 'Untitled'
@@ -51,10 +52,10 @@ require("obsidian").setup({
     nvim_cmp = true,
     min_chars = 1,
   },
-  follow_url_func = function(url)
-    vim.fn.jobstart({ "open", url })
-  end,
-  attachments = {
-    img_folder = "media"
-  }
+  -- follow_url_func = function(url)
+  --   vim.fn.jobstart({ "open", url })
+  -- end,
+  -- attachments = {
+  --   img_folder = "media"
+  -- }
 })

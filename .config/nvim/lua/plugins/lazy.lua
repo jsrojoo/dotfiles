@@ -146,7 +146,7 @@ lazy.setup({
     ft = { "markdown" },
   },
 
-  "epwalsh/obsidian.nvim",
+  "obsidian-nvim/obsidian.nvim",
   "3rd/image.nvim",
   -- {
   --   "HakonHarnes/img-clip.nvim",
@@ -250,7 +250,12 @@ lazy.setup({
       provider = "codex-acp",
       acp_providers = {
         ["codex-acp"] = {
-          env = { NODE_NO_WARNINGS = "1", IS_AI_TERMINAL = "1", AZURE_OPENAI_API_KEY = os.getenv("AZURE_OPENAI_API_KEY") },
+          env = {
+            NODE_NO_WARNINGS = "1",
+            IS_AI_TERMINAL = "1",
+            AZURE_OPENAI_API_KEY = os.getenv("AZURE_OPENAI_API_KEY"),
+            AZURE_DEV_OPENAI_API_KEY = os.getenv("AZURE_DEV_OPENAI_API_KEY"),
+          },
           default_mode = "bypassPermissions",
         },
       },

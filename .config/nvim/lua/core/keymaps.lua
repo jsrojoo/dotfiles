@@ -120,10 +120,10 @@ modemap("v", "<leader>aa", "<cmd>lua require('agentic').add_selection_or_file_to
 --
 -- ]])
 
-nmapleader("ot", ":ObsidianToday<cr>")
-nmapleader("op", ":ObsidianYesterday<cr>")
-nmapleader("on", ":ObsidianTomorrow<cr>")
-nmapleader("ofa", ":ObsidianQuickSwitch<cr>")
+nmapleader("ot", ":Obsidian today<cr>")
+nmapleader("op", ":Obsidian yesterday<cr>")
+nmapleader("on", ":Obsidian tomorrow<cr>")
+nmapleader("ofa", ":Obsidian quick_switch<cr>")
 
 nmapleader("mp", ":MarkdownPreview<cr>")
 

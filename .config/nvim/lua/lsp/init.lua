@@ -1,9 +1,6 @@
 vim.lsp.enable({
   -- lua
   "luals",
-  -- nix
-  "nil_ls",
-  "nixd",
   -- python
   "pylsp",
   "ruff",
@@ -14,6 +11,7 @@ vim.lsp.enable({
   -- yaml
   "yamlls",
   -- bash
-  "bashls"
+  "bashls",
+  "ts_ls",
 })
 
