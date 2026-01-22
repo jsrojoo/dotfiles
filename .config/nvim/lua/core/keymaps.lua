@@ -125,6 +125,17 @@ nmapleader("op", ":Obsidian yesterday<cr>")
 nmapleader("on", ":Obsidian tomorrow<cr>")
 nmapleader("ofa", ":Obsidian quick_switch<cr>")
 
+vim.keymap.set("n", "gf", function()
+  if require("obsidian").util.cursor_link() then
+    return "<cmd>Obsidian follow_link<cr>"
+  else
+    return "gf"
+  end
+end, {
+    expr = true,
+    desc = "[g]o to [f]ile under cursor (Obsidian)",
+  })
+
 nmapleader("mp", ":MarkdownPreview<cr>")
 
 nmapleader("ft", ":set ft=")

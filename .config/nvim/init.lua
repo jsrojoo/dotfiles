@@ -22,7 +22,7 @@ require("plugins.snippets")
 require("plugins.markdown")
 require("plugins.motions")
 require("plugins.nvim-treesitter")
-require("plugins.nvim-treesitter-textsubjects")
+-- require("plugins.nvim-treesitter-textsubjects")
 require("plugins.obsidian")
 require("plugins.oil")
 require("plugins.zmux")
@@ -44,7 +44,6 @@ require("nvim_comment").setup()
 require("swagger-preview").setup({})
 
 local plugins = {
-  "coverage",
   "react-extract",
   "colorizer",
 }

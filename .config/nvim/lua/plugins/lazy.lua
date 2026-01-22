@@ -56,10 +56,6 @@ lazy.setup({
     end,
   },
 
-  {
-    "theHamsta/nvim-treesitter-pairs",
-  },
-
   -- Show the current Treesitter context (e.g., function/class) at the top
   {
     "nvim-treesitter/nvim-treesitter-context",
@@ -107,9 +103,6 @@ lazy.setup({
   "wellle/targets.vim",
   "dhruvasagar/vim-table-mode",
   "jose-elias-alvarez/typescript.nvim",
-  {
-    "andythigpen/nvim-coverage",
-  },
 
   {
     "windwp/nvim-autopairs",
@@ -147,21 +140,10 @@ lazy.setup({
   },
 
   "obsidian-nvim/obsidian.nvim",
-  "3rd/image.nvim",
-  -- {
-  --   "HakonHarnes/img-clip.nvim",
-  --   event = "VeryLazy",
-  --   keys = {
-  --     -- suggested keymap
-  --     { "<leader>p", "<cmd>PasteImage<cr>", desc = "Paste image from system clipboard", mode = "n" },
-  --   },
-  -- },
-
 
   "mfussenegger/nvim-dap",
   "mfussenegger/nvim-dap-python",
   "levouh/tint.nvim",
-  "JoosepAlviste/nvim-ts-context-commentstring",
 
   { "kevinhwang91/nvim-bqf" },
 
@@ -171,14 +153,6 @@ lazy.setup({
   },
 
   "jbyuki/venn.nvim",
-
-  {
-    "ThePrimeagen/refactoring.nvim",
-    dependencies = {
-      { "nvim-lua/plenary.nvim" },
-      { "nvim-treesitter/nvim-treesitter" },
-    },
-  },
 
   "napmn/react-extract.nvim",
 
@@ -191,37 +165,6 @@ lazy.setup({
   "kkharji/sqlite.lua",
 
   {
-    "quarto-dev/quarto-nvim",
-    dependencies = {
-      "jmbuhr/otter.nvim",
-      "nvim-treesitter/nvim-treesitter",
-    },
-    opts = {
-      debug = false,
-      closePreviewOnExit = true,
-      lspFeatures = {
-        enabled = true,
-        chunks = "curly",
-        languages = { "r", "python", "julia", "bash", "html" },
-        diagnostics = {
-          enabled = true,
-          triggers = { "BufWritePost" },
-        },
-        completion = {
-          enabled = true,
-        },
-      },
-      codeRunner = {
-        enabled = false,
-        default_method = nil,   -- 'molten' or 'slime'
-        ft_runners = {},        -- filetype to runner, ie. `{ python = "molten" }`.
-        -- Takes precedence over `default_method`
-        never_run = { "yaml" }, -- filetypes which are never sent to a code runner
-      },
-    }
-  },
-
-  {
     "ariel-frischer/bmessages.nvim",
     opts = {},
   },
@@ -230,17 +173,6 @@ lazy.setup({
     "nvimtools/none-ls.nvim"
   },
 
-  {
-    "iovdin/tune.nvim",
-    dependencies = {
-      'iovdin/tree-sitter-chat',
-      'nvim-treesitter/nvim-treesitter'
-    },
-    config = function()
-      require("tune").setup({})
-    end,
-    ft = { "chat" }
-  },
   {
     "carlos-algms/agentic.nvim",
 

@@ -7,3 +7,5 @@
 .codex/skills/
 .codex/update-check.json
 .codex/version.json
+.codex/shell_snapshots/
+.codex/tmp/

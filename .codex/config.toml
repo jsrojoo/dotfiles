@@ -29,3 +29,7 @@ base_url = "https://dev-atrium-eastus2-1.openai.azure.com/openai/v1"
 env_key = "AZURE_DEV_OPENAI_API_KEY"
 wire_api = "responses"
 
+[features]
+shell_snapshot = true
+unified_exec = true
+
