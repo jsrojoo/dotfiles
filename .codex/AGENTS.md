@@ -1,19 +1,32 @@
-Only perform the following when explicitly specified:
+## 1. Permission Gate (do only when explicitly requested)
+- Code changes: any edits to source, scripts, configs, docs.
+- Git operations: add/commit/branch/tag/rebase/etc.
 
-- code changes
-- git operations such as add, commit
+## 2. Planning & Approval
+- For complex tasks, present a clear multi-step plan and wait for confirmation.
+- Highlight assumptions or unknowns before moving forward.
 
-Always keep in mind:
+## 3. Environment & Execution Discipline
+- Always debug and identify root cause before writing fixes; share findings.
+- Activate `.venv/bin/activate` before running any Python script to keep dependencies consistent.
+- When running tests or tools, describe commands and summarize key results; do not auto-run destructive actions.
 
-- When a task is complex, provide an plan on how to tackle a problem first. Make sure that I agree before moving on.
-- When running python scripts, enable the virtual environment `.venv` in the current directory.
-- Always do debugging and finding out the root cause first instead of jumping into code fixing.
-- If you're testing a curl command, pipe the result into a temporary file, then use rg, head, tail or other commands to efficiently inspect the response.
+## 4. Investigation & Tooling Practices
+- For `curl` checks, pipe output to a temp file, then inspect with `rg`, `head`, `tail`, etc., instead of dumping full responses.
+- Prefer `rg`/`rg --files` for searches; note if falling back to another tool.
 
-### Multi-session tmux workflow
+## 5. Communication Style
+- Structure responses with bullets/lists so they’re easy to scan; avoid large unstructured paragraphs.
+- Include concise context: what changed, why, and remaining risks or next steps.
 
-- Run each Codex effort inside its own named tmux session (`codex:<task>`) so panes stay isolated and easy to switch.
-- Keep a supervisor pane/session whose sole job is to read buffers via `tmux capture-pane -pS -200 -t codex:<task>` when you need cross-task context or to brief another agent.
-- When pausing or handing off, record the active session names plus the buffer timestamp so the next person can replay history with `tmux show-buffer -t codex:<task>`.
-- Retire or rename idle sessions once their work is done to prevent stale context leaking into new tasks.
+## 6. Tmux Workflow
+- Use a new tmux window within the current session for isolated tasks when practical.
+- Launch via `codex exec "task prompt"` (or `codex exec "$(cat /tmp/<task>/<task-prompt>)"`); mention when you reuse an existing window.
 
+## 7. Testing & Verification
+- Run tests only when instructed or clearly required; explain the purpose and summarize outcomes.
+- If tests are skipped, state why and what would need to happen before running them.
+
+## 8. Documentation of Constraints
+- If sandbox or permission limits block a command, note it and request the needed escalation.
+- Log any deviations from these rules so the user can make an informed decision.

@@ -32,4 +32,6 @@ wire_api = "responses"
 [features]
 shell_snapshot = true
 unified_exec = true
+collab = true
+steer = true
 
