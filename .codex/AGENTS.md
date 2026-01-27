@@ -19,14 +19,10 @@
 - Structure responses with bullets/lists so they’re easy to scan; avoid large unstructured paragraphs.
 - Include concise context: what changed, why, and remaining risks or next steps.
 
-## 6. Tmux Workflow
-- Use a new tmux window within the current session for isolated tasks when practical.
-- Launch via `codex exec "task prompt"` (or `codex exec "$(cat /tmp/<task>/<task-prompt>)"`); mention when you reuse an existing window.
-
-## 7. Testing & Verification
+## 6. Testing & Verification
 - Run tests only when instructed or clearly required; explain the purpose and summarize outcomes.
 - If tests are skipped, state why and what would need to happen before running them.
 
-## 8. Documentation of Constraints
+## 7. Documentation of Constraints
 - If sandbox or permission limits block a command, note it and request the needed escalation.
 - Log any deviations from these rules so the user can make an informed decision.
