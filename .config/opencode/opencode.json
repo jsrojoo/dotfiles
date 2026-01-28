@@ -1,0 +1,19 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "provider": {
+    "azure": {
+      "name": "Aitrium Dev Azure",
+      "npm": "@ai-sdk/azure",
+      "options": {
+        "apiKey": "{env:AZURE_DEV_OPENAI_API_KEY}",
+        "resourceName": "dev-atrium-eastus2-1"
+      },
+      "models": {
+        "gpt-5.1-codex-2025-11-13": {
+          "id": "gpt-5.1-codex-2025-11-13"
+        }
+      }
+    }
+  },
+  "model": "azure/gpt-5.1-codex-2025-11-13"
+}
