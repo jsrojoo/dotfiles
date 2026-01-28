@@ -1,3 +1,4 @@
+anomalyco/tap/opencode
 awscli
 bat
 cli11
@@ -11,12 +12,14 @@ doitlive
 dsq
 eza
 fd
+fswatch
 fzf
 gh
 glab
 gron
 helm
 htop
+iredis
 jeffreywildman/virt-manager/virt-viewer
 jq
 jstkdng/programs/ueberzugpp
@@ -24,13 +27,17 @@ libffi
 litecli
 llm
 lsusb
+lua-language-server
 luarocks
 meson
 minikube
 mise
+mosh
+mutagen-io/mutagen/mutagen
 neovim
 nim
 nlohmann-json
+node
 nushell
 ollama
 openapi-generator
@@ -43,7 +50,7 @@ pure
 qemu
 qmk/qmk/qmk
 range-v3
-ripgrep
+rclone
 sphinx-doc
 stow
 terminal-notifier
