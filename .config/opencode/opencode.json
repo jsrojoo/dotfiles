@@ -15,5 +15,9 @@
       }
     }
   },
-  "model": "azure/gpt-5.1-codex-2025-11-13"
+  "model": "azure/gpt-5.1-codex-2025-11-13",
+  "keybinds": {
+    "editor_open": "ctrl+g"
+  },
+  "instructions": ["~/dotfiles/.codex/AGENTS.md"]
 }
