@@ -31,7 +31,7 @@ nvim_treesitter.setup({
 		"yaml",
 		"markdown",
 		"markdown_inline",
-		"chat",
+		"regex",
 	},
 	-- Install parsers synchronously (only applied to `ensure_installed`)
 	sync_install = false,
