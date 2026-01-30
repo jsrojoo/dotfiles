@@ -51,5 +51,3 @@ alias "yaml-to-json"="yq eval -o json"
 alias "clipboard"="pbcopy"
 
 alias icat="kitty icat"
-
-
