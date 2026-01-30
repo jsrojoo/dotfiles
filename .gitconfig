@@ -14,3 +14,5 @@
 	pager = no
 [credential]
 	helper = cache
+[includeIf "gitdir:~/fiserv/"]
+    path = ~/.gitconfig-work
