@@ -37,7 +37,7 @@ nvim_treesitter.setup({
 	sync_install = false,
 	highlight = {
 		-- `false` will disable the whole extension
-		enable = true,
+		enable = false,
 	},
 	indent = {
 		enable = true,
