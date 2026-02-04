@@ -29,8 +29,8 @@ nvim_treesitter.setup({
 		"vimdoc",
 		"query",
 		"yaml",
-		"markdown",
-		"markdown_inline",
+		-- "markdown",
+		-- "markdown_inline",
 		"regex",
 	},
 	-- Install parsers synchronously (only applied to `ensure_installed`)

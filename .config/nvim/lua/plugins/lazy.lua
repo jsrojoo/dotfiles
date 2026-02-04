@@ -71,8 +71,8 @@ lazy.setup({
       on_attach = nil,          -- nil => enable for all filetypes
     },
     keys = {
-      { "[c",         function() require("treesitter-context").go_to_context() end, desc = "Go to Treesitter context" },
-      { "<leader>tc", "<cmd>TSContextToggle<CR>",                                   desc = "Toggle Treesitter Context" },
+      { "[c", function() require("treesitter-context").go_to_context() end, desc = "Go to Treesitter context" },
+      { "<leader>tc", "<cmd>TSContext toggle<CR>", desc = "Toggle Treesitter Context" },
     },
   },
 
@@ -173,40 +173,6 @@ lazy.setup({
     "nvimtools/none-ls.nvim"
   },
 
-  {
-    "carlos-algms/agentic.nvim",
-
-    event = "VeryLazy",
-
-    opts = {
-      provider = "codex-acp",
-      acp_providers = {
-        ["codex-acp"] = {
-          env = {
-            NODE_NO_WARNINGS = "1",
-            IS_AI_TERMINAL = "1",
-            AZURE_OPENAI_API_KEY = os.getenv("AZURE_OPENAI_API_KEY"),
-            AZURE_DEV_OPENAI_API_KEY = os.getenv("AZURE_DEV_OPENAI_API_KEY"),
-          },
-          default_mode = "bypassPermissions",
-        },
-      },
-      windows = { width = "100%" },
-      -- Add <leader>w as a submit key in Agentic's Prompt buffer
-      -- Keep <CR> and <C-s> so existing behavior remains
-      keymaps = {
-        prompt = {
-          submit = {
-            "<CR>",
-            -- { "<C-s>",     mode = { "i", "n", "v" } },
-            { "<leader>w", mode = { "n" } },
-          },
-          -- Use a string to fully override defaults (normal-mode only for paste)
-          paste_image = "<localleader>p",
-        },
-      },
-    },
-  },
   install = { colorscheme = { "warlock" } },
   checker = { enabled = true },
 })

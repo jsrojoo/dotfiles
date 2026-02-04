@@ -22,7 +22,7 @@ opt.pumheight = 4
 opt.diffopt:append("context:0")
 opt.jumpoptions:append("stack")
 
-vim.cmd("syntax off")
+vim.cmd("syntax on")
 
 -- g.python3_host_prog = home .. '/.pyenv/versions/nvim/bin/python'
 -- g.node_host_prog = home .. '/Library/Caches/fnm_multishells/12713_1683804398775/bin/node'
