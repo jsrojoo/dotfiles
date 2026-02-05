@@ -14,6 +14,8 @@
 ## 3. Environment & Execution Discipline
 
 - Always debug and identify root cause before writing fixes; share findings.
+- When debugging, do not assume the inputs and output.
+    - capture the input / output data, extract the code snippet into a testable function and do an isolated test to help with debugging.
 - When running tests or tools, describe commands and summarize key results; do not auto-run destructive actions.
 
 ### Python
