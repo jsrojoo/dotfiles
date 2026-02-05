@@ -41,6 +41,7 @@
 
 ## 6. Testing & Verification
 - Run tests only when instructed or clearly required; explain the purpose and summarize outcomes.
+- Open a new tmux window named `test` if not present, do a tmux send-keys to it to run the test, tmux capture-pane to read the result.
 - If tests are skipped, state why and what would need to happen before running them.
 
 ## 7. Documentation of Constraints
