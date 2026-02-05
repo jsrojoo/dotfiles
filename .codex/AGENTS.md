@@ -1,54 +1,45 @@
-**You will always be succint with your responses.**
+## Response Style
+- Always reply succinctly.
+- Phrase explanations so an average engineer can understand them quickly.
 
-**I am a software engineer but I am not smart so respond to me in a way an average person would understand.**
-
-## 1. Permission Gate (do only when explicitly requested)
-- Code changes: any edits to source, scripts, configs, docs.
-- Git operations: add/commit/branch/tag/rebase/etc.
+## 1. Permission Gate (only when explicitly requested)
+- Code changes: editing source, scripts, configs, or docs.
+- Git operations: add, commit, branch, tag, rebase, or similar.
 
 ## 2. Planning & Approval
-- For complex tasks, present a clear multi-step plan and wait for confirmation.
-- If I respond with `g`, that means go ahead.
-- Highlight assumptions or unknowns before moving forward.
+- Provide a multi-step plan for complex tasks and wait for confirmation.
+- A reply of `g` means go ahead.
+- Call out assumptions and unknowns before continuing.
 
 ## 3. Environment & Execution Discipline
-
-- Always debug and identify root cause before writing fixes; share findings.
-- When debugging, do not assume the inputs and output.
-    - capture the input / output data, extract the code snippet into a testable function and do an isolated test to help with debugging.
-- When running tests or tools, describe commands and summarize key results; do not auto-run destructive actions.
-
-### Python
-- Activate `.venv/bin/activate` before running any Python script to keep dependencies consistent.
+- Debug first and document the root cause before implementing fixes.
+- When debugging, capture actual inputs/outputs and isolate logic into testable functions for focused tests.
+- When running tools or scripts, describe the command and summarize key results; avoid destructive commands unless requested.
+- Python: activate `.venv/bin/activate` before executing any Python script to keep dependencies consistent.
 
 ## 4. Investigation & Tooling Practices
-- For `curl` checks, pipe output to a temp file, then inspect with `rg`, `head`, `tail`, etc., instead of dumping full responses.
-- Prefer `rg`/`rg --files` for searches; note if falling back to another tool.
+- For `curl` checks, pipe output to a temp file and inspect it with `rg`, `head`, `tail`, etc., instead of printing everything.
+- Prefer `rg`/`rg --files` for searches and note when another tool is used.
 
 ## 5. Communication Style
-- Structure responses with bullets/lists so they’re easy to scan; avoid large unstructured paragraphs.
-- Include concise context: what changed, why, and remaining risks or next steps.
-- I prefer markdown lists with 1 sentence per line. Use sub lists for additional details
-- Group related responses under a markdown header
+- Use markdown lists with one sentence per line; add sub-lists only when needed for details.
+- Keep responses structured under short headers and include context about what changed, why, and remaining risks or next steps.
 
 ## 6. Testing & Verification
-- Run tests only when instructed or clearly required; explain the purpose and summarize outcomes.
-- Open or Reuse a tmux window named `test`, do a tmux send-keys to it to run the test, tmux capture-pane to read the result.
-- If tests are skipped, state why and what would need to happen before running them.
+- Run tests only when asked or clearly required; explain why the test is needed and summarize the outcome.
+- Use or create a tmux window named `test`, send the command with `tmux send-keys`, then capture results via `tmux capture-pane`.
+- If tests are skipped, explicitly state why and what is needed before running them.
 
 ## 7. Documentation of Constraints
-- If sandbox or permission limits block a command, note it and request the needed escalation.
-- Log any deviations from these rules so the user can make an informed decision.
+- If sandbox or permission limits block a command, document it and request the necessary escalation.
+- Log any deviations from these rules so the user stays informed.
 
 ## 8. Code Guide
+- Keep the user in control of implementation details for each function.
+- Name functions by intent, keep them modular, deterministic, and easy to test; pass arguments explicitly.
+- Prefer functional patterns, avoid globals and side effects, and always handle errors with appropriate log levels (info, debug, warn, error, fatal).
+- Follow TDD: write a failing test first, then iterate until it passes.
 
-- I want to be in control of how the code is implemented down to each function.
-- I want my functions to be named by its intent, modular, easy to reason about and easy to test. Always be explicit when passing function arguments/parameters.
-- Prefer functional programming, deterministic functions, avoid globals and side effects whenever possible.
-- Properly handle errors by providing appropriately leveled logs (info, debug, warn, error, fatal). Never ignore errors.
-- Use TDD approach, write test first, make it fail, then start iterating to get it to work.
-
-## 8. Git
-
-- Always create atomic git commits, using conventional commit message convention (chore, feat, fix, etc).
-- Commits should tell the story of what happened throughout the changes.
+## 9. Git Practices
+- Create atomic commits that follow conventional commit prefixes (chore, feat, fix, etc.).
+- Each commit should clearly explain the story of the changes made.
