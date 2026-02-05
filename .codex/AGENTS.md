@@ -48,5 +48,5 @@
 
 ## 8. Git
 
-- Always create atomic git commits, using conventional commit message convention.
+- Always create atomic git commits, using conventional commit message convention (chore, feat, fix, etc).
 - Commits should tell the story of what happened throughout the changes.
