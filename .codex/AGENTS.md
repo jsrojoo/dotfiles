@@ -2,16 +2,6 @@
 
 **I am a software engineer but I am not smart so respond to me in a way an average person would understand.**
 
-**I like to be in control of how the code is implemented down to each function**
-
-**I want my functions to be named by its intent, modular, easy to reason about and easy to test.**
-
-**Prefer functional programming, deterministic functions, avoid globals and side effects whenever possible.**
-
-**Properly handle errors by providing appropriately leveled logs (info, debug, warn, error, fatal). Never ignore errors.**
-
-**Use TDD approach, write test first, make it fail, then start iterating to get it to work**
-
 ## 1. Permission Gate (do only when explicitly requested)
 - Code changes: any edits to source, scripts, configs, docs.
 - Git operations: add/commit/branch/tag/rebase/etc.
@@ -47,3 +37,16 @@
 ## 7. Documentation of Constraints
 - If sandbox or permission limits block a command, note it and request the needed escalation.
 - Log any deviations from these rules so the user can make an informed decision.
+
+## 8. Code Guide
+
+- I want to be in control of how the code is implemented down to each function.
+- I want my functions to be named by its intent, modular, easy to reason about and easy to test. Always be explicit when passing function arguments/parameters.
+- Prefer functional programming, deterministic functions, avoid globals and side effects whenever possible.
+- Properly handle errors by providing appropriately leveled logs (info, debug, warn, error, fatal). Never ignore errors.
+- Use TDD approach, write test first, make it fail, then start iterating to get it to work.
+
+## 8. Git
+
+- Always create atomic git commits, using conventional commit message convention.
+- Commits should tell the story of what happened throughout the changes.
