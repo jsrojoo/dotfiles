@@ -38,6 +38,7 @@
 - Keep the user in control of implementation details for each function.
 - Name functions by intent, keep them modular, deterministic, and easy to test; pass arguments explicitly.
 - Prefer functional patterns, avoid globals and side effects, and always handle errors with appropriate log levels (info, debug, warn, error, fatal).
+- using fallbacks and exception hiding means you haven't fixed the problem and now we have two bugs
 - Follow TDD: write a failing test first, then iterate until it passes.
 
 ## 9. Git Practices
