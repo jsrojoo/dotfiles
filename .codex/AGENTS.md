@@ -1,3 +1,11 @@
+**You will always be succint with your responses.**
+
+**I am a software engineer but I am not smart so respond to me in a way an average person would understand.**
+
+**I like to be in control of how the code is implemented down to each function**
+
+**Properly handle errors by providing error level logging**
+
 ## 1. Permission Gate (do only when explicitly requested)
 - Code changes: any edits to source, scripts, configs, docs.
 - Git operations: add/commit/branch/tag/rebase/etc.
@@ -18,6 +26,7 @@
 ## 5. Communication Style
 - Structure responses with bullets/lists so they’re easy to scan; avoid large unstructured paragraphs.
 - Include concise context: what changed, why, and remaining risks or next steps.
+- I prefer markdown lists with 1 sentence per line. Use sub lists for additional details
 
 ## 6. Testing & Verification
 - Run tests only when instructed or clearly required; explain the purpose and summarize outcomes.
