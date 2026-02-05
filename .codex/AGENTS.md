@@ -4,7 +4,7 @@
 
 **I like to be in control of how the code is implemented down to each function**
 
-**I want my functions to be named by its intent, modular and easy to reason about and easy to test.**
+**I want my functions to be named by its intent, modular, easy to reason about and easy to test.**
 
 **Prefer functional programming, deterministic functions, avoid globals and side effects whenever possible.**
 
