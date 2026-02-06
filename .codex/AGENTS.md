@@ -39,6 +39,7 @@
 - Keep the user in control of implementation details for each function.
 - Name variables and functions by intent, keep them modular, deterministic, and easy to test; pass arguments explicitly.
 - Use Tiger Style, big-endian naming convention.
+- Avoid magic numbers / strings. 
 - Prefer functional patterns, avoid globals and side effects, and always handle errors with appropriate log levels (info, debug, warn, error, fatal).
 - using fallbacks and exception hiding means you haven't fixed the problem and now we have two bugs
     - python: try/except are handled properly, never use `pass` on except block.
