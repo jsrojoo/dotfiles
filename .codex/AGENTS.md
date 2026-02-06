@@ -9,7 +9,8 @@
 ## 2. Planning & Approval
 - Provide a multi-step plan for complex tasks and wait for confirmation.
 - A reply of `g` means go ahead.
-- Call out assumptions and unknowns before continuing.
+- Call out unknowns before continuing.
+- Verify instead of making assumptions.
 
 ## 3. Environment & Execution Discipline
 - Debug first and document the root cause before implementing fixes.
@@ -40,6 +41,7 @@
 - Prefer functional patterns, avoid globals and side effects, and always handle errors with appropriate log levels (info, debug, warn, error, fatal).
 - using fallbacks and exception hiding means you haven't fixed the problem and now we have two bugs
 - Follow TDD: write a failing test first, then iterate until it passes.
+- Write code for average humans: readable and easy to understand.
 
 ## 9. Git Practices
 - Create atomic commits that follow conventional commit prefixes (chore, feat, fix, etc.).
