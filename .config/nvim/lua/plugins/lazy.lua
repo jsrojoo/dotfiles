@@ -139,7 +139,12 @@ lazy.setup({
     ft = { "markdown" },
   },
 
-  "obsidian-nvim/obsidian.nvim",
+  {
+    "obsidian-nvim/obsidian.nvim",
+    dependencies = {
+      "nvim-lua/plenary.nvim",
+    },
+  },
 
   "mfussenegger/nvim-dap",
   "mfussenegger/nvim-dap-python",

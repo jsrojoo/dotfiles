@@ -28,7 +28,10 @@
 
 ## 6. Testing & Verification
 - Run tests only when asked or clearly required; explain why the test is needed and summarize the outcome.
-- Use or create a tmux window named `test` in the current tmux session `tmux list-windows -F '#S:#W'`, send the command with `tmux send-keys`, then capture results via `tmux capture-pane`.
+- Use or create a tmux window named `test` in the current tmux session.
+    - see current windows with `tmux list-windows -F '#S:#W'`
+    - send the command with `tmux send-keys`, then capture results via `tmux capture-pane`.
+    - you don't need to enable the python venv in this tmux session, mise already handled that.
 - If tests are skipped, explicitly state why and what is needed before running them.
 
 ## 7. Documentation of Constraints
@@ -52,5 +55,5 @@
 
 ## 9. Git Practices
 - Create atomic commits that follow conventional commit prefixes (chore, feat, fix, etc.).
-    - Prefer surgical commits using `git add -p`.
+    - Prefer surgical commits using `git add -p`, add changes that are related, and commit them atomically.
 - Each commit should clearly explain the story of the changes made.

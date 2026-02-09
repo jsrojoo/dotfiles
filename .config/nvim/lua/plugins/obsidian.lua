@@ -50,7 +50,7 @@ require("obsidian").setup({
   preferred_link_style = "wiki",
   completion = {
     nvim_cmp = true,
-    min_chars = 3,
+    min_chars = 1,
   },
   footer = {
     enabled = false, -- turn it off
