@@ -55,6 +55,7 @@
     - python: try/except are handled properly, never use `pass` on except block.
 - Follow TDD: write a failing test first, then iterate until it passes.
 - Write code for average humans: readable and easy to understand.
+- When proposing architecture and system and database design items, utilize mermaid diagrams and markdown tables.
 
 ## 9. Git Practices
 - Create atomic commits that follow conventional commit prefixes (chore, feat, fix, etc.).
