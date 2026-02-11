@@ -52,9 +52,12 @@
 - Avoid magic numbers / strings. 
 - Prefer functional patterns, avoid globals and side effects, and always handle errors with appropriate log levels (info, debug, warn, error, fatal).
 - using fallbacks and exception hiding means you haven't fixed the problem and now we have two bugs
-    - python: try/except are handled properly, never use `pass` on except block.
+    - python: try/except are handled properly by adding logging, never use `pass` on `except` block.
 - Follow TDD: write a failing test first, then iterate until it passes.
 - Write code for average humans: readable and easy to understand.
+- Code implementation should be progressively done, not in go.
+    - implement the smallest actionable item, write a test for it, make the test fail, add the implementation, iterate until it to works.
+    - once we have a working code, generate an atomic git commit for it.
 - When proposing architecture and system and database design items, utilize mermaid diagrams and markdown tables.
 
 ## 9. Git Practices
