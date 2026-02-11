@@ -181,3 +181,4 @@ source ~/.aliases.sh
 
 eval "$(zoxide init zsh)"
 eval "$(mise activate zsh)"
+eval "$(fnox activate zsh)"

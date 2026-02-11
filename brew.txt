@@ -1,8 +1,10 @@
+age
 anomalyco/tap/opencode
 awscli
 bat
 cli11
 coder/coder/coder
+codesnap
 colima
 direnv
 docker
@@ -16,6 +18,7 @@ fswatch
 fzf
 gh
 glab
+glow
 gron
 helm
 htop
@@ -51,6 +54,7 @@ qemu
 qmk/qmk/qmk
 range-v3
 rclone
+rust
 sphinx-doc
 stow
 terminal-notifier

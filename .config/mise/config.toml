@@ -5,6 +5,7 @@ lua = "5.1"
 watchexec = "latest"
 python = "latest"
 pipx = "latest"
+fnox = "latest"
 
 [env]
 _.file = '~/.config/mise/secrets.env'
