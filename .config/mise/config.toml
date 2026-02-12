@@ -9,9 +9,13 @@ fnox = "latest"
 
 [env]
 _.file = '~/.config/mise/secrets.env'
+_.source = '~/.config/mise/secrets.sh'
 LOCAL_DB="postgresql://postgres:root@localhost/enterprise_gpt_api"
 DB_UI_LOCAL="postgresql://postgres:root@localhost/enterprise_gpt_api"
 
 [settings]
 experimental = true
 idiomatic_version_file_enable_tools = ["python"]
+
+[shell_alias]
+pybritive = "REQUESTS_CA_BUNDLE=$HOME/ca_certs/zscaler_intermediate_root_ca.crt pybritive"

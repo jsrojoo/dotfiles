@@ -9,13 +9,13 @@
         "resourceName": "dev-atrium-eastus2-1"
       },
       "models": {
-        "gpt-5.1-codex-2025-11-13": {
-          "id": "gpt-5.1-codex-2025-11-13"
+        "gpt-5.2-codex-2026-02-09": {
+          "id": "gpt-5.2-codex-2026-02-09"
         }
       }
     }
   },
-  "model": "azure/gpt-5.1-codex-2025-11-13",
+  "model": "azure/gpt-5.2-codex-2026-02-09",
   "keybinds": {
     "leader": "ctrl+a",
     "session_export": "<leader>e",

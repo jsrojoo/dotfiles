@@ -15,8 +15,12 @@
 ## 3. Environment & Execution Discipline
 - Debug first and document the root cause before implementing fixes.
 - When debugging, capture actual inputs/outputs and isolate logic into testable functions for focused tests.
-- When running tools or scripts, describe the command and summarize key results; avoid destructive commands unless requested.
 - Python: activate `.venv/bin/activate` before executing any Python script to keep dependencies consistent.
+- When running tools or scripts, describe the command and summarize key results; avoid destructive commands unless requested.
+    - Use or create a tmux window named `codex-cli` in the current tmux session when executing commands.
+        - see current windows with `tmux list-windows -F '#S:#W'`
+        - send the command with `tmux send-keys`, then capture results via `tmux capture-pane`.
+        - you don't need to enable the python venv in this tmux session, mise already handled that.
 
 ## 4. Investigation & Tooling Practices
 - For `curl` checks, pipe output to a temp file and inspect it with `rg`, `head`, `tail`, etc., instead of printing everything.
@@ -31,10 +35,7 @@
     - To efficiently do so, create a unit testable function that can be run independently.
     - Provide the bare minimum, essential input data, execute the unit test, then verify the output adheres to the expectation.
 - Run tests only when asked or clearly required; explain why the test is needed and summarize the outcome.
-- Use or create a tmux window named `test` in the current tmux session.
-    - see current windows with `tmux list-windows -F '#S:#W'`
-    - send the command with `tmux send-keys`, then capture results via `tmux capture-pane`.
-    - you don't need to enable the python venv in this tmux session, mise already handled that.
+- Use or create a tmux window named `test` in the current tmux session when running tests, refer to #3 Execution Discipline.
 - If tests are skipped, explicitly state why and what is needed before running them.
 
 ## 7. Documentation of Constraints
@@ -55,7 +56,7 @@
     - python: try/except are handled properly by adding logging, never use `pass` on `except` block.
 - Follow TDD: write a failing test first, then iterate until it passes.
 - Write code for average humans: readable and easy to understand.
-- Code implementation should be progressively done, not in go.
+- Once a plan is good and we proceed with code implementation, it should be progressively done, not in go.
     - implement the smallest actionable item, write a test for it, make the test fail, add the implementation, iterate until it to works.
     - once we have a working code, generate an atomic git commit for it.
 - When proposing architecture and system and database design items, utilize mermaid diagrams and markdown tables.
