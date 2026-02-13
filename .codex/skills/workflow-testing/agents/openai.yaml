@@ -1,0 +1,4 @@
+interface:
+  display_name: Workflow Testing
+  short_description: Testing and verification behavior.
+  default_prompt: Use this skill for testing and verification behavior.

@@ -1,0 +1,4 @@
+interface:
+  display_name: Workflow Git
+  short_description: Git practices and commit rules.
+  default_prompt: Use this skill for git practices and commit rules.
