@@ -1,13 +1,13 @@
 ---
 name: plan-mode-tasks
-description: Create and maintain agent/tasks/task-name/plan.md and tasks.md for Plan Mode plans.
+description: Create and maintain agents/tasks/task-name/plan.md and tasks.md for Plan Mode plans.
 ---
 
 # Plan Mode Tasks
 
 ## Intent
 
-- Create plan artifacts in `agent/tasks/<task>/` whenever a Plan Mode plan is produced.
+- Create plan artifacts in `./agents/tasks/<task>/` whenever a Plan Mode plan is produced.
 
 ## Permission Gate
 
@@ -62,4 +62,4 @@ Use this template and fill it with the final plan content.
 
 ## Collisions
 
-- If `agent/tasks/<task>/` already exists, reuse it and update `plan.md` and `tasks.md`.
+- If `./agent/tasks/<task>/` already exists, reuse it and update `plan.md` and `tasks.md`.
