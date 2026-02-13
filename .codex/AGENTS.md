@@ -25,6 +25,9 @@
 ## 4. Investigation & Tooling Practices
 - For `curl` checks, pipe output to a temp file and inspect it with `rg`, `head`, `tail`, etc., instead of printing everything.
 - Prefer `rg`/`rg --files` for searches and note when another tool is used.
+- `ast-grep` tool is available to you
+    - it is a code tool for structural search and replace.
+    - It is like syntax-aware grep/sed!
 
 ## 5. Communication Style
 - Use markdown lists with one sentence per line; add sub-lists only when needed for details.
