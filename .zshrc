@@ -158,9 +158,17 @@ zmux ()
 {
   z_dir=$(zoxide query -l | fzf)
 
-  echo $z_dir | sed "s/\/Users\/josephrojo/~/" \
-        | xargs basename | tr '.' '_' \
-        | xargs -I{} bash -c "tmux new -d -s \"{}\" -n nvim -c '$z_dir'; tmux switch -t \"{}\""
+  session_name=$(echo $z_dir | sed "s/\/Users\/josephrojo/~/" \
+        | xargs basename | tr '.' '_')
+
+  if [ -z "$TMUX" ]; then
+    tmux new-session -d -s home -c "$HOME" -n 'home' \; \
+      new-session -d -s "$session_name" -n nvim -c "$z_dir" \; \
+      attach-session -t "$session_name"
+  else
+    tmux new -d -s "$session_name" -n nvim -c "$z_dir"
+    tmux switch -t "$session_name"
+  fi
 }
 
 s ()
