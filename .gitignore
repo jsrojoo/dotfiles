@@ -4,7 +4,7 @@
 .codex/history.jsonl
 .codex/log/
 .codex/sessions/
-.codex/skills/
+.codex/skills/.system
 .codex/update-check.json
 .codex/version.json
 .codex/shell_snapshots/

@@ -2,6 +2,9 @@
 - Always reply succinctly.
 - Phrase explanations so an average engineer can understand them quickly.
 
+## Skills
+- Use `plan-mode-tasks` when the Plan Mode plan is approved before proceeding to implementation.
+
 ## 1. Permission Gate (only when explicitly requested)
 - Code changes: editing source, scripts, configs, or docs.
 - Git operations: add, commit, branch, tag, rebase, or similar.

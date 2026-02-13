@@ -1,0 +1,4 @@
+interface:
+  display_name: "Plan Mode Tasks"
+  short_description: "Create plan.md and tasks.md for plan-mode plans."
+  default_prompt: "Use this skill to create and update plan.md and tasks.md under agent/tasks/<task> during Plan Mode."
