@@ -1,5 +1,6 @@
 age
 anomalyco/tap/opencode
+ast-grep
 awscli
 bat
 cli11
@@ -22,6 +23,7 @@ glow
 gron
 helm
 htop
+httpie
 iredis
 jeffreywildman/virt-manager/virt-viewer
 jq
