@@ -1,3 +1,8 @@
+---
+name: workflow-code
+description: Coding conventions, naming, and TDD guidelines.
+---
+
 ## Code Guide
 - Keep the user in control of implementation details for each function.
 - Name variables and functions by intent, keep them modular, deterministic, and easy to test; pass arguments explicitly.

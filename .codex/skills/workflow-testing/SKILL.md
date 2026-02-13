@@ -1,3 +1,8 @@
+---
+name: workflow-testing
+description: Testing and verification practices.
+---
+
 ## Testing & Verification
 - Ensure that code changes are tested.
 - To efficiently do so, create a unit testable function that can be run independently.

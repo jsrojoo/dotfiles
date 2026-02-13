@@ -13,9 +13,9 @@
 - Verify instead of making assumptions.
 
 ## Skills
+- Mandatory: Always use workflow-execution for any command execution (environtment, tmux usage and command-running discipline).
+- Mandatory: Always use workflow-communication for response structure and formatting rules.
 - Use plan-mode-tasks when a Plan Mode plan is approved before proceeding to implementation.
-- Use workflow-communication for response structure and formatting rules.
-- Use workflow-execution for environment, tmux usage, and command-running discipline.
 - Use workflow-investigation for search and inspection tooling practices.
 - Use workflow-testing for testing and verification behavior.
 - Use workflow-code for coding conventions, TDD, naming, and error handling.

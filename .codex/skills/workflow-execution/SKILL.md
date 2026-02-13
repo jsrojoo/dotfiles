@@ -1,3 +1,8 @@
+---
+name: workflow-execution
+description: Environment setup and command execution discipline.
+---
+
 ## Environment & Execution Discipline
 - Debug first and document the root cause before implementing fixes.
 - When debugging, capture actual inputs and outputs and isolate logic into testable functions for focused tests.
