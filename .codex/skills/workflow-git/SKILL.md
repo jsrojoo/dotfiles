@@ -9,8 +9,33 @@ description: Git workflow and commit practices.
 - Before doing any git operations, ensure that you use `--no-pager` flag.
 - Prefer surgical commits
     - perform a `git diff` then identify related changes
-    - then use `git add -p`, add chunks of changes that are related
+    - generate grouped patches with `skills/workflow-git/group-patches.sh`
+    - use line ranges to keep only the related hunks for each group
+    - review the curated patch for correctness and scope
+    - stage it non-interactively with `git apply --cached <patch>`
     - then commit them atomically.
+- Example: grouped patch files with line ranges
+    - create grouped patches with line ranges, then stage the group you want.
+```bash
+./skills/workflow-git/group-patches.sh -o /tmp/patches api=src/a.py:10-30,src/b.py:5-9
+git apply --check /tmp/patches/api.patch
+git apply --cached /tmp/patches/api.patch
+```
+- Curation checklist
+    - keep only the file sections and hunks that match the intended change
+    - remove any unrelated file headers and hunks
+    - ensure each hunk has its leading `diff --git`, `index`, and `---/+++` headers intact
+    - never edit the `@@ -a,b +c,d @@` hunk headers without understanding the line counts
+- Tip: adjust a group quickly
+    - use excludes to drop a bad range without regenerating the full diff.
+```bash
+./skills/workflow-git/group-patches.sh -o /tmp/patches api=src/a.py:10-30,!src/a.py:15-18
+```
+- Tip: validate ranges without writing patches
+    - use `--dry-run` to see which hunks are kept or excluded.
+```bash
+./skills/workflow-git/group-patches.sh --dry-run api=src/a.py:10-30,!src/a.py:15-18
+```
 - Each commit message must include a subject and a concise body.
     - use a multi-line message with a blank line between subject and body.
     - keep the body to 1-2 short sentences describing what changed and why.
