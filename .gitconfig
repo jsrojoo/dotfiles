@@ -9,10 +9,16 @@
 [https]
 	postBuffer = 1048576000
 [core]
-	pager = nvim -R
+	pager = delta
 [color]
 	pager = no
 [credential]
 	helper = cache
 [includeIf "gitdir:~/fiserv/"]
     path = ~/.gitconfig-work
+[interactive]
+	diffFilter = delta --color-only
+[delta]
+	navigate = true
+[merge]
+	conflictStyle = zdiff3

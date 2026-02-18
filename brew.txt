@@ -18,6 +18,7 @@ fd
 fswatch
 fzf
 gh
+git-delta
 glab
 glow
 gron
