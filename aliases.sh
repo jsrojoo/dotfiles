@@ -50,3 +50,6 @@ alias "yaml-to-json"="yq eval -o json"
 alias "clipboard"="pbcopy"
 
 alias icat="kitty icat"
+
+# ensure pybritive uses a CA bundle that validates finact.britive-app.com
+alias pybritive='REQUESTS_CA_BUNDLE=$HOME/ca_certs/finact_server_chain.pem SSL_CERT_FILE=$HOME/ca_certs/finact_server_chain.pem /Users/josephrojo/.local/bin/pybritive'

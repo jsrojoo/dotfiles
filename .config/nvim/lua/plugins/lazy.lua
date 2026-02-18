@@ -34,7 +34,12 @@ lazy.setup({
     opts = {},
   },
 
-  { "williamboman/mason.nvim" },
+  {
+    "williamboman/mason.nvim",
+    cmd = "Mason",
+    event = "VeryLazy",
+    opts = {},
+  },
 
   -- Indent line
   {

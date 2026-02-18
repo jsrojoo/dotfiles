@@ -10,7 +10,8 @@ description: Environment setup and command execution discipline.
 - When running tools or scripts, describe the command and summarize key results; avoid destructive commands unless requested.
 - Use or create a tmux window named codex-cli in the current tmux session when executing commands.
 - See current windows with tmux list-windows -F '#S:#W'.
-- Send the command with tmux send-keys, then capture results via tmux capture-pane.
+- Use a temp file for test scripts instead of using multiple send-keys for multi line code.
+- Send the execute command with `tmux send-keys`, then send the output into a temp file.
 - You don't need to enable the python venv in this tmux session, mise already handled that.
 - If sandbox or permission limits block a command, document it and request the necessary escalation.
 - Log any deviations from these rules so the user stays informed.

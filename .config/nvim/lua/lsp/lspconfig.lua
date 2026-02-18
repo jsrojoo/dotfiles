@@ -4,12 +4,6 @@
 -- Migrate away from deprecated require('lspconfig') to vim.lsp.config/vim.lsp.enable
 -- See :help lspconfig-nvim-0.11
 
-local mason_ok, mason = pcall(require, "mason")
-
-if not mason_ok then
-  return
-end
-
 local cmp_nvim_lsp_ok, cmp_nvim_lsp = pcall(require, "cmp_nvim_lsp")
 
 if not cmp_nvim_lsp_ok then
@@ -78,8 +72,39 @@ local root_dir = function()
   return vim.fn.getcwd()
 end
 
+vim.lsp.config("basedpyright", {
+  on_attach = on_attach,
+  root_dir = root_dir,
+  capabilities = cmp_capabilities,
+  cmd = { "basedpyright-langserver", "--stdio" },
+  filetypes = { "python" },
+  root_markers = { ".git", "pyproject.toml", "setup.cfg", "setup.py", "requirements.txt" },
+  offset_encoding = "utf-16",
+  settings = {
+    basedpyright = {
+      analysis = {
+        autoSearchPaths = true,
+        useLibraryCodeForTypes = true,
+      },
+    },
+  },
+})
+
+vim.lsp.config("ruff", {
+  on_attach = on_attach,
+  root_dir = root_dir,
+  capabilities = cmp_capabilities,
+  cmd = { "ruff", "server" },
+  filetypes = { "python" },
+  root_markers = { ".git", "pyproject.toml", "setup.cfg", "setup.py", "requirements.txt" },
+  offset_encoding = "utf-16",
+})
+
+vim.lsp.enable({ "basedpyright", "ruff" })
+
 local servers = {
   "bashls",
+  "basedpyright",
   "cssls",
   "docker_compose_language_service",
   "dockerls",
@@ -96,36 +121,28 @@ local servers = {
   -- "vale_ls",
 }
 
-mason.setup()
+-- Mason is configured in the plugin spec so LSP config doesn't hard-depend on it here.
 
 for _, lsp in ipairs(servers) do
-  -- Configure defaults for each server, then enable filetype-based activation
-  local base = {
-    on_attach = on_attach,
-    root_dir = root_dir,
-    capabilities = cmp_capabilities,
-    autostart = true,
-  }
+  if lsp ~= "basedpyright" and lsp ~= "ruff" then
+    -- Configure defaults for each server, then enable filetype-based activation
+    local base = {
+      on_attach = on_attach,
+      root_dir = root_dir,
+      capabilities = cmp_capabilities,
+      autostart = true,
+    }
 
-  -- Ensure filetypes are set for servers that need them to autostart
-  if lsp == 'pyright' then
-    base.filetypes = { 'python' }
-    -- Explicitly point to mason-installed pyright-langserver to avoid PATH issues
-    local mason_bin = vim.fn.stdpath('data') .. '/mason/bin/pyright-langserver'
-    base.cmd = { mason_bin, '--stdio' }
-  elseif lsp == 'ruff' then
-    base.filetypes = { 'python' }
-    -- Use mason-installed ruff-lsp
-    local mason_bin = vim.fn.stdpath('data') .. '/mason/bin/ruff-lsp'
-    base.cmd = { mason_bin }
-  elseif lsp == 'eslint' then
-    base.filetypes = { 'javascript', 'javascriptreact', 'typescript', 'typescriptreact', 'vue', 'svelte' }
-  elseif lsp == 'quick_lint_js' then
-    base.filetypes = { 'javascript', 'javascriptreact' }
+    -- Ensure filetypes are set for servers that need them to autostart
+    if lsp == 'eslint' then
+      base.filetypes = { 'javascript', 'javascriptreact', 'typescript', 'typescriptreact', 'vue', 'svelte' }
+    elseif lsp == 'quick_lint_js' then
+      base.filetypes = { 'javascript', 'javascriptreact' }
+    end
+
+    vim.lsp.config(lsp, base)
+    vim.lsp.enable(lsp)
   end
-
-  vim.lsp.config(lsp, base)
-  vim.lsp.enable(lsp)
 end
 
 -- Fallback: explicitly start Python LSPs on FileType if autostart doesn't trigger
@@ -134,7 +151,7 @@ vim.api.nvim_create_autocmd({ "FileType" }, {
   group = python_lsp_group,
   pattern = "python",
   callback = function()
-    vim.cmd("LspStart pyright")
+    vim.cmd("LspStart basedpyright")
     vim.cmd("LspStart ruff")
   end,
 })
@@ -142,7 +159,7 @@ vim.api.nvim_create_autocmd({ "BufReadPost", "BufNewFile" }, {
   group = python_lsp_group,
   pattern = "*.py",
   callback = function()
-    vim.cmd("LspStart pyright")
+    vim.cmd("LspStart basedpyright")
     vim.cmd("LspStart ruff")
   end,
 })
