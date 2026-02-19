@@ -1,0 +1,3 @@
+[submodule ".codex/codex-shared"]
+	path = .codex/codex-shared
+	url = https://gitlab.gbsemea-scm-gitlab.aws.fisv.cloud/EMEA/GBS/EGPT/agent-tools/agent-skills
