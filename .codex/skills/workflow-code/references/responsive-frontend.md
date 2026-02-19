@@ -39,7 +39,6 @@
 ## Sidebar/Content Pattern
 - Structure the main layout as a parent with two children: sidebar and main content.
 - Give the main content `flex-grow: 1` so it fills remaining space.
-- On small screens, take the sidebar out of flow and overlay it with padding and background.
 - When toggling a sidebar, prefer `display: none` on small screens to avoid layout shifts.
 
 ## Process Checklist
@@ -48,3 +47,28 @@
 - Validate behavior at phone, tablet, and desktop sizes.
 - Apply media queries only where flex or grid cannot express the behavior cleanly.
 - Consider theme toggles or `prefers-color-scheme` early because it is cheap and high-impact.
+
+## Best Practices
+- Prefer relative units (`%`, `vw`, `vh`, `em`, `rem`) over fixed pixels so layouts scale naturally.
+- Avoid fixed heights; use `min-height` or `height: auto` to prevent overflow on smaller screens.
+- Optimize performance with lazy-loaded, compressed images (prefer WebP where supported).
+- Keep touch targets large and comfortable; aim for at least `48x48` logical pixels.
+
+```css
+.container {
+  width: 80vw;
+  font-size: 1.2em;
+}
+
+.section {
+  min-height: 50vh;
+}
+```
+
+```html
+<img src="image.webp" loading="lazy" alt="Optimized image">
+```
+
+```html
+<button class="px-4 py-2 text-lg">Click Me</button>
+```
