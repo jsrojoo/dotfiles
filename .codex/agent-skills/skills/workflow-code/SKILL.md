@@ -19,7 +19,7 @@ description: Coding conventions, naming, and TDD guidelines.
 - Write code for average humans: readable and easy to understand.
 - Once a plan is good and we proceed with code implementation, it should be progressive, not done in one go.
 - Implement the smallest actionable item, write a test for it, make the test fail, add the implementation, and iterate until it works.
-- Once we have working code, generate an atomic git commit for it.
+- Once we have working code, generate an atomic git commit for it and follow `workflow-git` skill for commit hygiene and grouping guidance.
 - Validate code updates before moving on, preferring the current project's dev dependencies (formatters/linters/test commands) over ad hoc tooling.
 - When proposing architecture and system and database design items, utilize mermaid diagrams and markdown tables.
 - For responsive frontend layout guidance, read `references/responsive-frontend.md`.
