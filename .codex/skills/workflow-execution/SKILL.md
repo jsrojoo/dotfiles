@@ -12,7 +12,8 @@ description: Environment setup and command execution discipline.
 - See current windows with tmux list-windows -F '#S:#W'.
 - Use a temp file for test scripts instead of using multiple send-keys for multi line code.
 - Send the execute command with `tmux send-keys`, then send the output into a temp file.
-- Remove temp files after use and report cleanup failures with a warn-level note.
+- Check temp file size with `wc -l`; if it exceeds 50 lines, prefer `sed`, `head`, or `tail` over `cat`.
+- Remove temp files as the last step after the task is completed and report cleanup failures with a warn-level note.
 - You don't need to enable the python venv in this tmux session, mise already handled that.
 - If sandbox or permission limits block a command, document it and request the necessary escalation.
 - Log any deviations from these rules so the user stays informed.
