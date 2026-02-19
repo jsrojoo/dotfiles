@@ -1,0 +1,4 @@
+interface:
+  display_name: Workflow Execution
+  short_description: Environment, tmux usage, and command-running discipline.
+  default_prompt: Use this skill for environment setup and command execution discipline.

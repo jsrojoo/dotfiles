@@ -1,0 +1,4 @@
+interface:
+  display_name: Workflow Communication
+  short_description: Response structure and formatting rules.
+  default_prompt: Use this skill for response structure and formatting rules.

@@ -1,0 +1,4 @@
+interface:
+  display_name: Workflow Code
+  short_description: Coding conventions, TDD, naming, and error handling.
+  default_prompt: Use this skill for code conventions, TDD, and naming rules.
