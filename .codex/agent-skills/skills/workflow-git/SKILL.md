@@ -39,7 +39,7 @@ git apply --cached /tmp/patches/api.patch
 - Each commit message must include a subject and a concise body.
     - use a multi-line message with a blank line between subject and body.
     - keep the body to 1-2 short sentences describing what changed and why.
-    - when running `git commit` via `tmux send-keys`, wrap each `-m` argument in single quotes or escape spaces so the message is not collapsed.
+    - if `tmux send-keys` is explicitly requested, wrap each `-m` argument in single quotes or escape spaces so the message is not collapsed.
 - Default to conventional, atomic commits without asking; only ask when the user explicitly requests a different approach.
 - Prefer many small commits while iterating, then group related work using `fixup!`/`squash!` and `git rebase -i --autosquash` before sharing.
 - Use `git commit --amend` only for the most recent local commit; otherwise use `fixup!` commits intended for autosquash.
