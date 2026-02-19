@@ -1,1 +1,0 @@
-codex-shared/AGENTS.md
