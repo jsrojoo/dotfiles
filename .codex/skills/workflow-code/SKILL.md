@@ -21,3 +21,4 @@ description: Coding conventions, naming, and TDD guidelines.
 - Implement the smallest actionable item, write a test for it, make the test fail, add the implementation, and iterate until it works.
 - Once we have working code, generate an atomic git commit for it.
 - When proposing architecture and system and database design items, utilize mermaid diagrams and markdown tables.
+- For responsive frontend layout guidance, read `references/responsive-frontend.md`.
