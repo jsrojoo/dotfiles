@@ -7,7 +7,7 @@ description: Create and maintain agents/tasks/task-name/plan.md and tasks.md for
 
 ## Intent
 
-- Create plan artifacts in `./agents/tasks/<task>/` whenever a Plan Mode plan is produced.
+- Create plan artifacts in the directory the user requests; default to `./.agents/tasks/<task>/` whenever a Plan Mode plan is produced.
 
 ## Permission Gate
 
@@ -22,6 +22,7 @@ description: Create and maintain agents/tasks/task-name/plan.md and tasks.md for
 - Remove non-alphanumeric characters except hyphens.
 - Trim leading and trailing hyphens.
 - If no clear task title exists, ask the user for a short task name before proceeding.
+- For plans involving code changes, follow `workflow-code` for guidance.
 
 ## Files
 
@@ -62,4 +63,4 @@ Use this template and fill it with the final plan content.
 
 ## Collisions
 
-- If `./agent/tasks/<task>/` already exists, reuse it and update `plan.md` and `tasks.md`.
+- If `./.agents/tasks/<task>/` already exists, reuse it and update `plan.md` and `tasks.md`.

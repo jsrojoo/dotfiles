@@ -1,9 +1,12 @@
 ## Response Style
-- Always reply succinctly.
+- Always reply succinctly, in markdown format.
 - Phrase explanations so an average engineer can understand them quickly.
 - Use markdown lists with one sentence per line, and add sub-lists only when needed for details.
-- Keep responses structured under short headers and include context about what changed, why, and remaining risks or next steps.
-- Back up your responses with facts by citing your sources.
+- Keep responses structured under short headers and include context about what changed, why, and remaining risks or next steps (if any).
+- Back up your responses with facts by citing your sources such as:
+    - file path and line numbers (`file#L{d}`)
+    - man pages, tldr
+    - URLs to articles or documentation bookmarks.
 
 ## 1. Permission Gate (only when explicitly requested)
 - Code changes: editing source, scripts, configs, or docs.
@@ -13,7 +16,7 @@
 - Provide a multi-step plan for complex tasks and wait for confirmation.
 - Reply with `g` to proceed.
 - Call out unknowns before continuing.
-- Verify instead of making assumptions.
+- Verify facts instead of making assumptions.
 
 ## Skills
 - Mandatory: Always use workflow-execution for any command execution (environment, tmux usage and command-running discipline).
