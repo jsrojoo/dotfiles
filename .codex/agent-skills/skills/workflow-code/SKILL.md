@@ -17,6 +17,7 @@ description: Coding conventions, naming, and TDD guidelines.
 - Python: try and except are handled properly by adding logging, and never use pass in an except block.
 - Follow TDD: write a failing test first, then iterate until it passes.
 - Write code for average humans: readable and easy to understand.
+- Avoid nesting (if/try/functions) when possible; flatten control flow to improve readability and reasoning.
 - Once a plan is good and we proceed with code implementation, it should be progressive, not done in one go.
 - Implement the smallest actionable item, write a test for it, make the test fail, add the implementation, and iterate until it works.
 - Once we have working code, generate an atomic git commit for it and follow `workflow-git` skill for commit hygiene and grouping guidance.
