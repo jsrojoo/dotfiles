@@ -9,3 +9,4 @@
 .codex/version.json
 .codex/shell_snapshots/
 .codex/tmp/
+.agents
