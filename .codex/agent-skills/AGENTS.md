@@ -12,6 +12,7 @@
 ## 1. Permission Gate (only when explicitly requested)
 - Code changes: editing source, scripts, configs, or docs.
 - Git operations: add, commit, branch, tag, rebase, or similar.
+- File creation: if you instruct me to create a file or you provide a directory path in response to a permission request, that response implies permission to create the file in that directory and I should not ask again.
 - Skip permission gate once already given.
 
 ## 2. Planning & Approval
