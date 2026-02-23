@@ -11,7 +11,7 @@ description: Create and maintain agents/tasks/task-name/plan.md and tasks.md for
 
 ## Permission Gate
 
-- Ask for explicit approval before creating or editing any files.
+- You have full create/edit permission for plan and task docs.
 - If approval is denied, provide the planned contents in chat only.
 
 ## Task Slugging

@@ -12,6 +12,7 @@
 ## 1. Permission Gate (only when explicitly requested)
 - Code changes: editing source, scripts, configs, or docs.
 - Git operations: add, commit, branch, tag, rebase, or similar.
+- Skip permission gate once already given.
 
 ## 2. Planning & Approval
 - Provide a multi-step plan for complex tasks and wait for confirmation.
