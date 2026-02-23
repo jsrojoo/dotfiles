@@ -5,6 +5,7 @@
 .codex/log/
 .codex/sessions/
 .codex/skills/.system
+.codex/agent-skills/skills/.system
 .codex/update-check.json
 .codex/version.json
 .codex/shell_snapshots/
