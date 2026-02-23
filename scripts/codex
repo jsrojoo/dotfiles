@@ -1,0 +1,37 @@
+#!/usr/bin/env zsh
+# Codex CLI wrapper: ensure a tmux window named "codex-cli" exists, then run codex.
+
+win="codex-cli"
+
+if [[ -n "${TMUX:-}" ]] && command -v tmux >/dev/null 2>&1; then
+  if ! tmux list-windows -F '#W' | grep -Fxq "$win"; then
+    tmux new-window -d -n "$win"
+  fi
+fi
+
+script_dir="${0:A:h}"
+found=""
+
+if [[ -n "${CODEX_REAL:-}" ]] && [[ -x "$CODEX_REAL" ]] && [[ "$CODEX_REAL" != "$script_dir/codex" ]]; then
+  exec "$CODEX_REAL" "$@"
+fi
+
+IFS=':'
+for p in $PATH; do
+  if [[ "$p" == "$script_dir" ]]; then
+    continue
+  fi
+
+  if [[ -x "$p/codex" ]]; then
+    found="$p/codex"
+    break
+  fi
+done
+unset IFS
+
+if [[ -z "$found" ]]; then
+  echo "codex: real binary not found in PATH (excluding $script_dir)" >&2
+  exit 127
+fi
+
+exec "$found" "$@"
