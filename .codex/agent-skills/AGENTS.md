@@ -1,4 +1,5 @@
 ## Response Style
+- Start with a tldr
 - Always reply succinctly, in markdown format.
 - Phrase explanations so an average engineer can understand them quickly.
 - Use markdown lists with one sentence per line, and add sub-lists only when needed for details.
@@ -17,6 +18,7 @@
 - Reply with `g` to proceed.
 - Call out unknowns before continuing.
 - Verify facts instead of making assumptions.
+- Once the plan is approved, use `workflow-execution`.
 
 ## Skills
 - Mandatory: Always use workflow-execution for any command execution (environment, tmux usage and command-running discipline).
