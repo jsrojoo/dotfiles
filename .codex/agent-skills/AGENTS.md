@@ -17,7 +17,7 @@
 
 ## 2. Planning & Approval
 - Provide a multi-step plan for complex tasks and wait for confirmation.
-- Reply with `g` to proceed.
+- Reply with `g` means you have permissions and good to proceed.
 - Call out unknowns before continuing.
 - Verify facts instead of making assumptions.
 - Once the plan is approved, use `workflow-execution`.
