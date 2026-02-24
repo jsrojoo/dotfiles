@@ -31,6 +31,11 @@ def parse_script_arguments() -> argparse.Namespace:
             dest='session_current_only',
             help='Limit the list to the current session.',
             )
+    argument_parser.add_argument(
+            '--window-name',
+            dest='window_name_filter',
+            help='Limit the list to an exact window name match.',
+            )
 
     return argument_parser.parse_args()
 
@@ -106,9 +111,17 @@ def list_tmux_windows_current_session(list_format: str) -> List[str]:
     return list_tmux_windows_target(list_format, session_name_current)
 
 
-def build_existing_sessions_argument(session_current_only: bool) -> str:
+def build_existing_sessions_argument(
+        session_current_only: bool,
+        window_name_filter: str | None,
+        ) -> str:
     window_lines = list_tmux_windows_current_session(list_window_format) \
             if session_current_only else list_tmux_windows(list_window_format)
+    if window_name_filter:
+        window_lines = [
+                line for line in window_lines
+                if line.split(':', 3)[1] == window_name_filter
+                ]
 
     return '\n'.join(window_lines)
 
@@ -116,6 +129,7 @@ def build_existing_sessions_argument(session_current_only: bool) -> str:
 script_arguments = parse_script_arguments()
 existing_sessions = build_existing_sessions_argument(
         session_current_only=script_arguments.session_current_only,
+        window_name_filter=script_arguments.window_name_filter,
         )
 
 os.system(f'echo "{existing_sessions}" | fzf --reverse > {fzf_file_output.name}')
