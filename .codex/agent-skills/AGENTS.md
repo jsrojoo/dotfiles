@@ -15,6 +15,14 @@
     - URLs to articles or documentation bookmarks.
 - Cite sources directly under the relevant explanation bullet as a nested markdown sub-list.
 - Do not group citations into a separate section header like `## Sources`.
+- Bad example:
+    - `- The implementation updates input validation and keeps backward compatibility.`
+    - `- Source: path/to/file.md`
+    - `- Source: path/to/file.md:10`
+    - `- Source: path/to/file.md:11`
+- Good example:
+    - `- The implementation updates input validation and keeps backward compatibility.`
+        - `- Source: path/to/file.md:10-11`
 
 ## 1. Permission Gate (only when explicitly requested)
 - Code changes: editing source, scripts, configs, or docs.
