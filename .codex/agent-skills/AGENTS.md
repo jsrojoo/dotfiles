@@ -13,7 +13,8 @@
         - line range: `path/to/file:12-18`
     - man pages, tldr
     - URLs to articles or documentation bookmarks.
-- Format sources as a markdown list.
+- Cite sources directly under the relevant explanation bullet as a nested markdown sub-list.
+- Do not group citations into a separate section header like `## Sources`.
 
 ## 1. Permission Gate (only when explicitly requested)
 - Code changes: editing source, scripts, configs, or docs.
