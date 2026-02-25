@@ -4,7 +4,7 @@ notify = [
   "-sound", "Bell"
 ]
 
-model = "gpt-5.2-codex-2026-02-09" 
+model = "gpt-5.3-codex" 
 model_provider = "azure"
 model_reasoning_effort = "medium"
 model_reasoning_summary = "auto"
