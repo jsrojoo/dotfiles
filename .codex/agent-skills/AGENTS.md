@@ -15,6 +15,8 @@
     - URLs to articles or documentation bookmarks.
 - Cite sources directly under the relevant explanation bullet as a nested markdown sub-list.
 - Do not group citations into a separate section header like `## Sources`.
+- Do not repeat the same source citation multiple times in the same response when one citation already supports the relevant statement.
+- Prefer the fewest citations needed for clarity, using compact line ranges where applicable.
 - Bad example:
     - `- The implementation updates input validation and keeps backward compatibility.`
     - `- Source: path/to/file.md`
