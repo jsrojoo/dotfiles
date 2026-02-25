@@ -3,11 +3,17 @@
 - Always reply succinctly, in markdown format.
 - Phrase explanations so an average engineer can understand them quickly.
 - Use markdown lists with one sentence per line, and add sub-lists only when needed for details.
+- When there are multiple items or options, write them as markdown lists.
+- The goal is to make the generated content easy to consume by the reader.
 - Keep responses structured under short headers and include context about what changed, why, and remaining risks or next steps (if any).
 - Back up your responses with facts by citing your sources such as:
-    - file path and line numbers (`file#L{d}`)
+    - file paths, adding line numbers only when referencing a specific line or line range; omit line numbers for whole-file references
+    - use Vim `gF`-compatible examples like:
+        - specific line: `path/to/file:12`
+        - line range: `path/to/file:12-18`
     - man pages, tldr
     - URLs to articles or documentation bookmarks.
+- Format sources as a markdown list.
 
 ## 1. Permission Gate (only when explicitly requested)
 - Code changes: editing source, scripts, configs, or docs.
