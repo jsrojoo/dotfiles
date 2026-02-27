@@ -36,4 +36,4 @@ unified_exec = true
 steer = true
 personality = true
 multi_agent = true
-
+prevent_idle_sleep = true

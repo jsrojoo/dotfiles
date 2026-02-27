@@ -1,0 +1,111 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+usage() {
+  cat <<'USAGE'
+Usage:
+  worktree-add-local -- --path <worktree-path> [--ref <branch-or-commit>] [--branch <new-branch>] --copy <file-or-dir> [--copy <file-or-dir> ...]
+
+Examples:
+  worktree-add-local -- --path ../repo-feature --copy .env.local --copy .vscode
+  worktree-add-local -- --path ../repo-feature --ref feature/my-branch --copy .env.local --copy .vscode
+  worktree-add-local -- --path ../repo-feature --ref develop --branch feature/my-branch --copy .env.local --copy .vscode
+  worktree-add-local -- --path ../repo-hotfix --ref HEAD~1 --copy .backend.env --copy config/local
+USAGE
+}
+
+copy_items=()
+worktree_destination=""
+worktree_ref=""
+worktree_branch=""
+
+while [[ "$#" -gt 0 ]]; do
+  case "$1" in
+    --path)
+      worktree_destination="${2:-}"
+      shift 2
+      ;;
+    --ref)
+      worktree_ref="${2:-}"
+      shift 2
+      ;;
+    -b|--branch)
+      worktree_branch="${2:-}"
+      shift 2
+      ;;
+    --copy)
+      copy_items+=("${2:-}")
+      shift 2
+      ;;
+    -h|--help)
+      usage
+      exit 0
+      ;;
+    *)
+      usage
+      echo "error: unknown argument: $1" >&2
+      exit 1
+      ;;
+  esac
+done
+
+if [[ -z "$worktree_destination" ]]; then
+  usage
+  echo "error: --path is required" >&2
+  exit 1
+fi
+
+if [[ -z "$worktree_ref" ]]; then
+  worktree_ref="$(git branch --show-current 2>/dev/null || true)"
+  if [[ -z "$worktree_ref" ]]; then
+    usage
+    echo "error: --ref not provided and current branch could not be determined (detached HEAD?)" >&2
+    exit 1
+  fi
+fi
+
+if [[ "${#copy_items[@]}" -eq 0 ]]; then
+  usage
+  echo "error: at least one --copy item is required" >&2
+  exit 1
+fi
+
+source_root="$(pwd)"
+
+if [[ -e "$worktree_destination" ]]; then
+  echo "error: destination already exists: $worktree_destination" >&2
+  exit 1
+fi
+
+echo "Creating worktree at '$worktree_destination' from '$worktree_ref'..."
+git_worktree_args=(worktree add)
+if [[ -n "$worktree_branch" ]]; then
+  git_worktree_args+=(-b "$worktree_branch")
+fi
+git_worktree_args+=("$worktree_destination" "$worktree_ref")
+git "${git_worktree_args[@]}"
+
+for copy_item in "${copy_items[@]}"; do
+  if [[ -z "$copy_item" ]]; then
+    echo "error: --copy value cannot be empty" >&2
+    exit 1
+  fi
+
+  if [[ "$copy_item" == "." || "$copy_item" == ".." ]]; then
+    echo "error: refusing unsafe path '$copy_item'" >&2
+    exit 1
+  fi
+
+  source_path="$source_root/$copy_item"
+  if [[ ! -e "$source_path" ]]; then
+    echo "error: source path not found: $copy_item" >&2
+    exit 1
+  fi
+
+  destination_parent="$worktree_destination/$(dirname "$copy_item")"
+  mkdir -p "$destination_parent"
+  cp -R "$source_path" "$destination_parent/"
+  echo "Copied '$copy_item'"
+done
+
+echo "Done. Worktree created and local paths copied."

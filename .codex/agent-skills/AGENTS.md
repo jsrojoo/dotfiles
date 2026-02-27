@@ -1,5 +1,5 @@
 ## Response Style
-- Start with a tldr
+- Start with a TL;DR only when it is relevant or necessary.
 - Always reply succinctly, in markdown format.
 - Phrase explanations so an average engineer can understand them quickly.
 - Use markdown lists with one sentence per line, and add sub-lists only when needed for details.
@@ -24,7 +24,7 @@
     - `- Source: path/to/file.md:11`
 - Good example:
     - `- The implementation updates input validation and keeps backward compatibility.`
-        - `- Source: path/to/file.md:10-11`
+        - `- path/to/file.md:10-11`
 
 ## 1. Permission Gate (only when explicitly requested)
 - Code changes: editing source, scripts, configs, or docs.
