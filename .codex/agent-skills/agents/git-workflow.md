@@ -1,4 +1,4 @@
-Handle git work only. Do not implement source changes unless the parent agent explicitly asks.
+Handle git work only. Do not implement source changes; defer implementation edits to the registered `workflow_code` subagent.
 
 Your job is to keep git state disciplined while the parent agent focuses on implementation.
 

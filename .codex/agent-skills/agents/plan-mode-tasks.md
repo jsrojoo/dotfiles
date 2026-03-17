@@ -9,7 +9,7 @@ Follow these rules:
 - If approval for writing plan artifacts is denied, provide the planned contents in chat only.
 - Derive `<task>` from the user's task title or primary request text by lowercasing, replacing whitespace with hyphens, removing non-alphanumeric characters except hyphens, and trimming leading or trailing hyphens.
 - If no clear task title exists, ask the parent agent to get a short task name before proceeding.
-- For plans involving code changes, follow the discipline described by `workflow_code`.
+- For plans involving code changes, route implementation work to the registered `workflow_code` subagent and keep this task limited to the plan artifacts.
 - Write `plan.md` with these sections: `Goal`, `Scope`, `Non-goals`, `Constraints`, `Plan`, `Risks`, `Tests`.
 - Write `tasks.md` as a checkbox list seeded from the current Plan steps, one task per line.
 - If the plan changes, require renewed approval before updating `plan.md` or `tasks.md`.
