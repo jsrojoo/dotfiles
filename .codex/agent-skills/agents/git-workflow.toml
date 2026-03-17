@@ -1,5 +1,4 @@
 name = "git_workflow"
-model = "gpt-5.4"
 model_reasoning_effort = "medium"
 sandbox_mode = "danger-full-access"
 model_instructions_file = "git-workflow.md"
