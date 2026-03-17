@@ -1,0 +1,4 @@
+interface:
+  display_name: "Agent Context Retriever"
+  short_description: "Invoke the context retrieval subagent."
+  default_prompt: "Use $agent-context-retriever to gather the minimum repo context and evidence needed before broad local inspection."

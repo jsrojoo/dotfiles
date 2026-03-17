@@ -10,6 +10,9 @@
 .codex/version.json
 .codex/shell_snapshots/
 .codex/tmp/
+.codex/*.sqlite
+.codex/*.sqlite-shm
+.codex/*.sqlite-wal
 .codex/state_*.sqlite
 .codex/state_*.sqlite-shm
 .codex/state_*.sqlite-wal
