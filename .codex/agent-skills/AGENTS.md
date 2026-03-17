@@ -37,13 +37,15 @@
 - Reply with `g` means you have permissions and good to proceed.
 - Call out unknowns before continuing.
 - Verify facts instead of making assumptions.
-- Once the plan is approved, use `workflow-execution`.
+- Once the plan is approved, route command execution through the registered `workflow_execution` subagent and use `plan_mode_tasks` for approved plan artifacts when needed.
 
 ## Skills
-- Mandatory: Always use workflow-execution for any command execution (environment, tmux usage and command-running discipline).
-- Mandatory: Always use workflow-git for git practices and commit rules when asked to commit changes.
-- Mandatory: Always use plan-mode-tasks when a Plan Mode plan is approved before proceeding to implementation.
-- Mandatory: Always use workflow-investigation for search and inspection tooling practices.
-- Mandatory: Always use workflow-testing for testing and verification behavior.
-- Mandatory: Always use workflow-code for coding conventions, TDD, naming, and error handling.
+- Mandatory: Always use workflow-execution for any command execution (environment, tmux usage and command-running discipline), and route execution-heavy work through the registered `workflow_execution` subagent.
+- Mandatory: Always use workflow-git for git practices and commit rules when asked to commit changes, and route git operations through the registered `git_workflow` subagent.
+- Mandatory: Always use plan-mode-tasks when a Plan Mode plan is approved before proceeding to implementation, and route `plan.md` and `tasks.md` creation or maintenance through the registered `plan_mode_tasks` subagent.
+- Mandatory: Always use workflow-investigation for search and inspection tooling practices, and route broad or command-backed investigation through the registered `workflow_investigation` subagent.
+- Mandatory: Always use workflow-testing for testing and verification behavior, and route test selection, execution, and concise reporting through the registered `workflow_testing` subagent.
+- Mandatory: Always use workflow-code for coding conventions, TDD, naming, and error handling, and route implementation work through the registered `workflow_code` subagent instead of doing code updates in the main agent session.
+- Mandatory: Always use the relevant skill or minimal set of relevant skills for the task at hand instead of relying on general reasoning when a matching skill exists.
+- Mandatory: Delegate well-scoped work to the appropriate subagent when it reduces token usage or keeps context smaller, especially for repo exploration, parallelizable investigation, testing, git hygiene, or isolated implementation work.
 - Mandatory: Use the `context_retriever` subagent for repo exploration and context gathering before broad local inspection, unless the task is trivial or the needed context is already known.

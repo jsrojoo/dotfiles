@@ -10,7 +10,7 @@ description: Git workflow and commit practices.
 - Configure the subagent through `agents/git-workflow.toml` and `agents/git-workflow.md`, similar to the existing `context_retriever` setup.
 - Keep the subagent's model selection in `agents/git-workflow.toml` instead of hardcoding model overrides in the parent prompt.
 - Tell the subagent it is not alone in the codebase, it must not revert unrelated user changes, and it should stage only the minimal hunks needed for the requested commit.
-- Keep implementation edits in the main session unless the user explicitly asks to delegate code changes too.
+- Keep implementation edits delegated to the registered `workflow_code` subagent, and use this git subagent for staging, diff review, commit hygiene, and other git-only work.
 
 ## Git Practices
 - Create atomic commits that follow conventional commit prefixes like chore, feat, fix, or similar.
