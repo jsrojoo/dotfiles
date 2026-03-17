@@ -37,3 +37,8 @@ steer = true
 personality = true
 multi_agent = true
 prevent_idle_sleep = true
+
+[agents.context_retriever]
+description = "Read-only repo investigator for gathering minimal context and returning compact findings with exact file references."
+config_file = "agents/context-retriever.toml"
+nickname_candidates = ["context", "retriever", "scout"]

@@ -1,0 +1,4 @@
+name = "context_retriever"
+model_reasoning_effort = "low"
+sandbox_mode = "read-only"
+model_instructions_file = "context-retriever.md"
