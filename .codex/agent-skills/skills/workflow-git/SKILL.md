@@ -8,6 +8,7 @@ description: Git workflow and commit practices.
 - Spawn one git-focused subagent when the task includes reviewing diffs, staging hunks, creating commits, amending the latest local commit, rebasing, or other git operations.
 - Reuse that same subagent for the rest of the turn's git work so commit context and staging decisions stay in one place.
 - Use a `default` or `worker` subagent with a narrow prompt that says it owns git status, diff review, patch grouping, staging, commit creation, and commit-message hygiene.
+- Let the subagent inherit the session's default model from `config.toml`; do not set a model override unless the user explicitly asks for a different model.
 - Tell the subagent it is not alone in the codebase, it must not revert unrelated user changes, and it should stage only the minimal hunks needed for the requested commit.
 - Keep implementation edits in the main session unless the user explicitly asks to delegate code changes too.
 
