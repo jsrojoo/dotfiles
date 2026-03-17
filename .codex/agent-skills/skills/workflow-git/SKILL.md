@@ -5,10 +5,10 @@ description: Git workflow and commit practices.
 
 ## Delegation Model
 - Route git work through a dedicated subagent instead of mixing staging and commit hygiene into the main implementation thread.
-- Spawn one git-focused subagent when the task includes reviewing diffs, staging hunks, creating commits, amending the latest local commit, rebasing, or other git operations.
-- Reuse that same subagent for the rest of the turn's git work so commit context and staging decisions stay in one place.
-- Use a `default` or `worker` subagent with a narrow prompt that says it owns git status, diff review, patch grouping, staging, commit creation, and commit-message hygiene.
-- Let the subagent inherit the session's default model from `config.toml`; do not set a model override unless the user explicitly asks for a different model.
+- Invoke the registered `git_workflow` subagent when the task includes reviewing diffs, staging hunks, creating commits, amending the latest local commit, rebasing, or other git operations.
+- Reuse that same `git_workflow` subagent for the rest of the turn's git work so commit context and staging decisions stay in one place.
+- Configure the subagent through `agents/git-workflow.toml` and `agents/git-workflow.md`, similar to the existing `context_retriever` setup.
+- Keep the subagent's model selection in `agents/git-workflow.toml` instead of hardcoding model overrides in the parent prompt.
 - Tell the subagent it is not alone in the codebase, it must not revert unrelated user changes, and it should stage only the minimal hunks needed for the requested commit.
 - Keep implementation edits in the main session unless the user explicitly asks to delegate code changes too.
 

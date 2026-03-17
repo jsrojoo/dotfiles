@@ -62,6 +62,11 @@ description = "Read-only repo investigator for gathering minimal context and ret
 config_file = "agents/context-retriever.toml"
 nickname_candidates = ["context", "retriever", "scout"]
 
+[agents.git_workflow]
+description = "Git-focused worker for diff review, surgical staging, commit hygiene, and other scoped git operations."
+config_file = "agents/git-workflow.toml"
+nickname_candidates = ["git", "workflow", "committer"]
+
 [projects."/Users/josephrojo/fiserv/aitrium/labs/aitrium-conversions"]
 trust_level = "trusted"
 
