@@ -87,6 +87,11 @@ description = "Testing-focused worker for verification planning, test execution,
 config_file = "agents/workflow-testing.toml"
 nickname_candidates = ["test", "verify", "checks"]
 
+[agents.plan_mode_tasks]
+description = "Plan-mode worker for creating and maintaining plan.md and tasks.md artifacts for approved plans."
+config_file = "agents/plan-mode-tasks.toml"
+nickname_candidates = ["plan", "tasks", "planner"]
+
 [projects."/Users/josephrojo/fiserv/aitrium/labs/aitrium-conversions"]
 trust_level = "trusted"
 

@@ -5,6 +5,14 @@ description: Create and maintain agents/tasks/task-name/plan.md and tasks.md for
 
 # Plan Mode Tasks
 
+## Delegation Model
+
+- Route plan artifact creation and maintenance through the registered `plan_mode_tasks` subagent instead of keeping the workflow only in the parent thread.
+- Invoke `plan_mode_tasks` after a Plan Mode plan is approved and the task needs `plan.md` and `tasks.md` to be created or updated.
+- Reuse the same `plan_mode_tasks` subagent for the rest of the turn's plan artifact work so the approved plan state stays in one place.
+- Configure the subagent through `agents/plan-mode-tasks.toml` and `agents/plan-mode-tasks.md`, with model selection kept in the agent config.
+- Keep the actual implementation work in the parent thread or the appropriate workflow subagent; use `plan_mode_tasks` only for the plan artifacts themselves.
+
 ## Intent
 
 - Create plan artifacts in the directory the user requests; default to `./.agents/tasks/<task>/` whenever a Plan Mode plan is produced.
