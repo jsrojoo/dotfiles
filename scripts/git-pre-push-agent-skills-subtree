@@ -1,0 +1,78 @@
+#!/bin/sh
+set -eu
+
+agent_skills_path=".codex/agent-skills"
+remote_agent_skills_name="agent-skills"
+subtree_branch_name="master"
+zero_oid="0000000000000000000000000000000000000000"
+
+log_info() {
+  printf '%s\n' "$*" >&2
+}
+
+git_has_agent_skills_changes() {
+  local_ref="$1"
+  local_oid="$2"
+  remote_name="$3"
+  remote_oid="$4"
+
+  case "$local_ref" in
+    refs/heads/*) ;;
+    *) return 1 ;;
+  esac
+
+  if [ "$local_oid" = "$zero_oid" ]; then
+    return 1
+  fi
+
+  if [ "$remote_oid" != "$zero_oid" ]; then
+    git rev-list "${remote_oid}..${local_oid}" -- "$agent_skills_path" | grep -q .
+    return $?
+  fi
+
+  git rev-list "$local_oid" --not --remotes="$remote_name" -- "$agent_skills_path" | grep -q .
+}
+
+main() {
+  remote_name="${1:-}"
+
+  if [ "${CODEX_SKIP_AGENT_SKILLS_SUBTREE:-0}" = "1" ]; then
+    return 0
+  fi
+
+  if [ "$remote_name" = "$remote_agent_skills_name" ]; then
+    return 0
+  fi
+
+  repo_root="$(git rev-parse --show-toplevel)"
+  cd "$repo_root"
+
+  if ! git remote get-url "$remote_agent_skills_name" >/dev/null 2>&1; then
+    log_info "pre-push: remote '$remote_agent_skills_name' is not configured"
+    return 1
+  fi
+
+  subtree_should_push=0
+
+  while IFS=' ' read -r local_ref local_oid remote_ref remote_oid; do
+    if git_has_agent_skills_changes "$local_ref" "$local_oid" "$remote_name" "$remote_oid"; then
+      subtree_should_push=1
+      break
+    fi
+  done
+
+  if [ "$subtree_should_push" -ne 1 ]; then
+    return 0
+  fi
+
+  log_info "pre-push: detected changes in $agent_skills_path; pushing subtree to $remote_agent_skills_name/$subtree_branch_name"
+
+  subtree_command="${CODEX_AGENT_SKILLS_SUBTREE_COMMAND:-git subtree push --prefix=.codex/agent-skills agent-skills master}"
+
+  if ! CODEX_SKIP_AGENT_SKILLS_SUBTREE=1 sh -c "$subtree_command"; then
+    log_info "pre-push: subtree push failed"
+    return 1
+  fi
+}
+
+main "$@"
