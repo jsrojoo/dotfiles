@@ -3,6 +3,13 @@ name: workflow-code
 description: Coding conventions, naming, and TDD guidelines.
 ---
 
+## Delegation Model
+- Route code implementation work through the registered `workflow_code` subagent instead of keeping all coding guidance in the parent thread.
+- Invoke `workflow_code` when the task needs implementation, refactoring, naming cleanup, progressive delivery, or code validation guidance.
+- Reuse the same `workflow_code` subagent for the rest of the turn's implementation work so code context stays in one place.
+- Configure the subagent through `agents/workflow-code.toml` and `agents/workflow-code.md`, with model selection kept in the agent config.
+- Keep git staging and commit work delegated to the registered `git_workflow` subagent instead of mixing commit hygiene into code implementation.
+
 ## Code Guide
 - Keep the user in control of implementation details for each function.
 - Name variables and functions by intent, keep them modular, deterministic, and easy to test; pass arguments explicitly.

@@ -3,6 +3,12 @@ name: workflow-execution
 description: Environment setup and command execution discipline.
 ---
 
+## Delegation Model
+- Route shell execution discipline through the registered `workflow_execution` subagent instead of keeping command-running hygiene only in prose.
+- Invoke `workflow_execution` when the task needs environment setup, tmux coordination, temp-file handling, or disciplined command execution.
+- Reuse the same `workflow_execution` subagent for the rest of the turn's execution-heavy work so shell context stays consistent.
+- Configure the subagent through `agents/workflow-execution.toml` and `agents/workflow-execution.md`, with model selection kept in the agent config.
+
 ## Environment & Execution Discipline
 - Debug first and document the root cause before implementing fixes.
 - When debugging, capture actual inputs and outputs and isolate logic into testable functions for focused tests.
