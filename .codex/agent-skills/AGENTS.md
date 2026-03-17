@@ -1,5 +1,5 @@
 ## Response Style
-- Start with a TL;DR only when it is relevant or necessary.
+- End with a TL;DR only when it is relevant or necessary.
 - Always reply succinctly, in markdown format.
 - Phrase explanations so an average engineer can understand them quickly.
 - Use markdown lists with one sentence per line, and add sub-lists only when needed for details.
@@ -46,3 +46,4 @@
 - Mandatory: Always use workflow-investigation for search and inspection tooling practices.
 - Mandatory: Always use workflow-testing for testing and verification behavior.
 - Mandatory: Always use workflow-code for coding conventions, TDD, naming, and error handling.
+- Mandatory: Use the `context_retriever` subagent for repo exploration and context gathering before broad local inspection, unless the task is trivial or the needed context is already known.

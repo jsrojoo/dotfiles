@@ -4,8 +4,8 @@ notify = [
   "-sound", "Bell"
 ]
 
-model = "gpt-5.3-codex" 
-model_provider = "azure"
+model = "gpt-5.4" 
+model_provider = "atlas"
 model_reasoning_effort = "medium"
 model_reasoning_summary = "auto"
 model_verbosity = "medium"
@@ -30,6 +30,25 @@ base_url = "https://dev-atrium-eastus2-1.openai.azure.com/openai/v1"
 env_key = "AZURE_DEV_OPENAI_API_KEY"
 wire_api = "responses"
 
+[model_providers.atlas]
+name = "Atlas"
+base_url = "https://apis.aitrium.app.atlas.gfs-emea-ai-platform.aws.fisv.cloud/v1/codex/cat-aitrium-eastus2-1"
+env_key = "AITRIUM_LLM_PASSTHROUGH"
+query_params = { api-version = "2025-04-01-preview" }
+
+[model_providers.gemini]
+name = "gemini"
+base_url = "https://apis.egpt.app.gemini.aws.fisv.cloud/v1/codex/cat-aitrium-eastus2-1"
+env_key = "AITRIUM_GEMINI_OPENAI_API_KEY"
+query_params = { api-version = "2025-04-01-preview" }
+
+[model_providers.aitrium_gemini_reponses]
+name = "Gemini Responses"
+base_url = "https://apis.egpt.app.gemini.aws.fisv.cloud/v1/codex/cat-aitrium-eastus2-1"
+env_key = "AITRIUM_GEMINI_OPENAI_API_KEY"
+wire_api = "responses"
+query_params = { api-version = "2025-04-01-preview" }
+
 [features]
 shell_snapshot = true
 unified_exec = true
@@ -42,3 +61,12 @@ prevent_idle_sleep = true
 description = "Read-only repo investigator for gathering minimal context and returning compact findings with exact file references."
 config_file = "agents/context-retriever.toml"
 nickname_candidates = ["context", "retriever", "scout"]
+
+[projects."/Users/josephrojo/fiserv/aitrium/labs/aitrium-conversions"]
+trust_level = "trusted"
+
+[projects."/Users/josephrojo/dotfiles"]
+trust_level = "trusted"
+
+[notice.model_migrations]
+"gpt-5.3-codex" = "gpt-5.4"
