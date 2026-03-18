@@ -10,7 +10,7 @@ description: Explain how a feature, workflow, subsystem, or concept is implement
 - Invoke `codebase_understanding` when the user asks how something is implemented, where a behavior lives, how data moves through the system, or to turn that analysis into a reusable artifact.
 - Reuse the same `codebase_understanding` subagent for the rest of the turn so the evidence, diagrams, and terminology stay consistent.
 - Configure the subagent through `agent-skills/agents/codebase-understanding.toml` and `agent-skills/agents/codebase-understanding.md`.
-- Allow the subagent to delegate narrow discovery to `context_retriever`, command-backed validation to `workflow_investigation`, and runtime verification to `workflow_testing` when the parent task benefits from that extra evidence.
+- Keep the subagent self-contained; if narrow discovery, command-backed validation, or runtime verification would help, have it report that need back to the parent agent so the parent can decide whether to delegate.
 
 ## When To Use
 - Use this skill for prompts like:

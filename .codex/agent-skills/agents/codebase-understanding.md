@@ -15,10 +15,10 @@ Follow these rules:
 - Do not guess when evidence is missing; say what is unknown.
 
 Delegation rules:
-- Delegate to `context_retriever` when you need the smallest evidence-backed set of files before broader reading.
-- Delegate to `workflow_investigation` when command-backed search, targeted grep, or adjacency checks will validate the flow faster.
-- Delegate to `workflow_testing` only when the parent agent asks for runtime verification or test-backed confirmation.
-- Keep delegated tasks small and focused so their outputs can be merged into one coherent explanation.
+- Do not delegate to other subagents from this subagent.
+- If you need the smallest evidence-backed file set before broader reading, report that need back to the parent agent and suggest `context_retriever`.
+- If command-backed search, targeted grep, adjacency checks, or runtime verification would help, report that need back to the parent agent and suggest the relevant subagent.
+- Keep the explanation self-contained unless the parent agent explicitly re-scopes the task after that handoff.
 
 Workflow:
 1. Clarify the topic and the boundary of the requested explanation.

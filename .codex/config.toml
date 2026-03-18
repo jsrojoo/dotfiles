@@ -62,6 +62,11 @@ description = "Read-only repo investigator for gathering minimal context and ret
 config_file = "agents/context-retriever.toml"
 nickname_candidates = ["context", "retriever", "scout"]
 
+[agents.codebase_understanding]
+description = "Understanding-focused worker for implementation walkthroughs, flow tracing, diagrams, and reusable artifacts."
+config_file = "agents/codebase-understanding.toml"
+nickname_candidates = ["understand", "trace", "walkthrough"]
+
 [agents.git_workflow]
 description = "Git-focused worker for diff review, surgical staging, commit hygiene, and other scoped git operations."
 config_file = "agents/git-workflow.toml"

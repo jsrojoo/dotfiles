@@ -1,0 +1,3 @@
+- [ ] Update the conflicting skill and prompt text so only the main agent may delegate.
+- [ ] Rewrite subagent prompts so they report back instead of routing work to another subagent.
+- [ ] Re-scan the edited files for remaining delegation language and summarize the final compliance state.

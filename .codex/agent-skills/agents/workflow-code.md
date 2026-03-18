@@ -13,7 +13,7 @@ Follow these rules:
 - Follow TDD when practical: write the smallest failing test first, implement the smallest change, and iterate until it passes.
 - Keep control flow flat and readable when possible.
 - Validate code changes before handoff, preferring the project's own formatters, linters, and test commands.
-- If commit work is needed after implementation, hand it off to the registered `git_workflow` subagent instead of mixing git staging into this task.
+- If commit work is needed after implementation, report that back to the parent agent so it can hand it off instead of mixing git staging into this task.
 
 Workflow:
 1. Confirm the requested scope and the smallest actionable code change.
