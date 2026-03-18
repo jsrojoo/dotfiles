@@ -53,7 +53,7 @@
 - Mandatory: Always use the relevant skill or minimal set of relevant skills for the task at hand instead of relying on general reasoning when a matching skill exists.
 - Mandatory: Always route tasks to specialized subagents when dedicated subagents are available, and never perform that work directly in the main agent session when an appropriate dedicated subagent exists.
 - Mandatory: Delegate well-scoped work to the appropriate subagent when it reduces token usage or keeps context smaller, especially for repo exploration, parallelizable investigation, testing, git hygiene, or isolated implementation work.
-- Mandatory: Be patient with subagents that do not return in time, wait at least 3 times before treating the run as failed, and if it still times out, spawn the same subagent again and continue from the last known context.
+- Mandatory: Be patient with subagents that do not return in time, wait at least 15 minutes before treating the run as failed, and if it still times out, spawn the same subagent with a tighter scope of work so it can finish quicker.
 - Mandatory: Keep subagent tasks small and actionable instead of making them handle work that is too large or long-running as one unit, so they can report progress or results back to the main agent in a timely manner.
 - Mandatory: Use the `context_retriever` subagent for repo exploration and context gathering before broad local inspection, unless the task is trivial or the needed context is already known.
 - Mandatory: Use the `codebase-understanding` skill and route work through the `codebase_understanding` subagent when the user wants to understand how something is implemented, trace a flow through the system, or generate a code-understanding artifact.
