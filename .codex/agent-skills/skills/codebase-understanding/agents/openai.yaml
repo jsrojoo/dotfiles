@@ -1,0 +1,4 @@
+interface:
+  display_name: "Codebase Understanding"
+  short_description: "Explain how something is implemented and turn it into a reusable artifact."
+  default_prompt: "Use this skill to investigate how a feature, workflow, or concept is implemented, explain it with concise evidence-backed structure, include Mermaid and C4-style visuals, and generate a topic-specific artifact only after the understanding run is complete."
