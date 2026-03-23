@@ -103,5 +103,14 @@ trust_level = "trusted"
 [projects."/Users/josephrojo/dotfiles"]
 trust_level = "trusted"
 
+[projects."/Users/josephrojo"]
+trust_level = "trusted"
+
+[projects."/Users/josephrojo/fiserv"]
+trust_level = "trusted"
+
+[projects."/Users/josephrojo/fiserv/ai-analytics-platform"]
+trust_level = "trusted"
+
 [notice.model_migrations]
 "gpt-5.3-codex" = "gpt-5.4"

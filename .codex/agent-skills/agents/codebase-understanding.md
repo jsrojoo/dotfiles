@@ -7,11 +7,14 @@ Follow these rules:
 - Prefer exact evidence from the repo over broad summaries.
 - Distinguish facts, inferences, and unknowns.
 - Use concise headings and short bullets.
-- Include Mermaid diagrams when the implementation spans multiple components or steps.
-- Include a C4-style visual when actors, containers, or subsystem boundaries help the explanation.
-- Do not generate `.agents/artifacts/<topic-slug>.md` until the understanding run is complete and the topic name is stable.
+- Prefer D2 for reusable artifact visuals and rendered markdown-friendly outputs.
+- Use Mermaid only for inline chat explanations when no artifact is requested and a quick text diagram is sufficient.
+- Use an EventStorming lens when the behavior is best explained through actors, commands, domain events, policies, read models, aggregates, or bounded contexts.
+- Do not generate `.agents/artifacts/<topic-slug>/<topic-slug>.md` until the understanding run is complete and the topic name is stable.
 - When generating an artifact, use `agent-skills/skills/codebase-understanding/references/code-understanding-artifact-template.md` as the section template.
-- Choose one topic-specific artifact filename, such as `.agents/artifacts/auth-session-renewal.md`.
+- Choose one topic-specific artifact directory, such as `.agents/artifacts/auth-session-renewal/`.
+- Keep D2 sources and rendered assets beside the artifact, for example `flow.d2`, `flow.svg`, and optional `flow.png`.
+- If the `d2` CLI is unavailable, generate the `.d2` source and say that rendering is still pending.
 - Do not guess when evidence is missing; say what is unknown.
 
 Delegation rules:
@@ -24,9 +27,13 @@ Workflow:
 1. Clarify the topic and the boundary of the requested explanation.
 2. Identify the smallest likely entrypoints, files, or symbols.
 3. Read only the minimum slices needed to explain control flow, data flow, state transitions, and key dependencies.
-4. Summarize the implementation in a concise, evidence-backed structure.
-5. Add Mermaid and C4-style visuals when they improve comprehension.
-6. If the parent agent explicitly asks for an artifact, write `.agents/artifacts/<topic-slug>.md` only after the explanation is complete.
+4. Choose the explanation mode:
+   - Standard flow for request, control, and data movement.
+   - EventStorming for domain workflows, event-driven behavior, or business processes.
+   - Pick the mode yourself based on the implementation shape; do not ask the user to choose unless they explicitly request a specific framing.
+5. Summarize the implementation in a concise, evidence-backed structure.
+6. Add D2 visuals for artifacts and boundary views when they improve comprehension.
+7. If the parent agent explicitly asks for an artifact, write `.agents/artifacts/<topic-slug>/<topic-slug>.md` only after the explanation is complete.
 
 Output requirements:
 - Keep the response concise and structured.
@@ -39,11 +46,13 @@ Output requirements:
   6. Artifact path when generated
 - Cite exact repo file paths and line ranges whenever possible.
 - Say clearly whether each important claim is a fact or an inference when that distinction matters.
+- In EventStorming mode, explicitly call out actors, commands, events, policies, read models, aggregates, and boundaries when they are evidenced or reasonably inferred.
 
 Sample inputs:
 - "How is auth session renewal implemented?"
 - "Trace the billing retry pipeline and show me the main extension points."
 - "Explain how feature flags are resolved and generate a reusable artifact after the walkthrough."
+- "Map the subscription lifecycle in EventStorming terms and generate D2 visuals."
 
 Sample output:
 1. Direct answer
@@ -60,29 +69,11 @@ Sample output:
 - The worker consumes the event and performs the external side effect.
 
 4. Diagrams
-```mermaid
-flowchart TD
-    Request[Client Request] --> Handler[HTTP Handler]
-    Handler --> Service[Domain Service]
-    Service --> Repository[Repository]
-    Service --> Worker[Async Worker]
-```
-
-```mermaid
-flowchart LR
-    User[Person: User]
-    Api[Container: API]
-    Jobs[Container: Worker]
-    Db[Container: Database]
-
-    User --> Api
-    Api --> Jobs
-    Api --> Db
-    Jobs --> Db
-```
+- For artifacts, place D2 source and rendered SVG files in `.agents/artifacts/<topic-slug>/` and embed the SVGs from the markdown artifact.
+- For inline chat-only answers, Mermaid may be used when it keeps the explanation lightweight.
 
 5. Risks or unknowns
 - Retry behavior after worker failure is not confirmed without checking the job consumer or running a test.
 
 6. Artifact path
-- `.agents/artifacts/auth-session-renewal.md` when the parent agent has asked for artifact generation and the topic is finalized.
+- `.agents/artifacts/auth-session-renewal/auth-session-renewal.md` when the parent agent has asked for artifact generation and the topic is finalized.

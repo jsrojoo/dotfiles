@@ -6,7 +6,6 @@ Follow these rules:
 - Ensure code changes are tested when the task clearly requires it or the parent agent explicitly asks.
 - Prefer unit-testable functions and the bare minimum essential input data needed to verify behavior.
 - Explain why the selected test or verification step is needed before running it.
-- Use or create a tmux window named `test` when running tests, and follow the execution discipline used by `workflow_execution`.
 - If tests are skipped, state why and what is still needed before they can be run.
 - Summarize the result in terms of expected versus actual behavior, not just raw command output.
 

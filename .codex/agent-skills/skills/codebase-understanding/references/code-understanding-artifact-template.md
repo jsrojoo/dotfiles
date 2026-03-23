@@ -4,6 +4,13 @@
 - Summarize why this implementation matters and when an engineer would read this artifact.
 - State the scope boundary so adjacent systems are not confused as part of the same flow.
 
+## Artifact Layout
+- Artifact directory: `.agents/artifacts/<topic-slug>/`
+- Markdown artifact: `.agents/artifacts/<topic-slug>/<topic-slug>.md`
+- D2 source files: `.agents/artifacts/<topic-slug>/*.d2`
+- Rendered visuals: `.agents/artifacts/<topic-slug>/*.svg`
+- Optional PNG exports: `.agents/artifacts/<topic-slug>/*.png`
+
 ## Executive Summary
 - Explain the implementation in 3-5 bullets.
 - Separate confirmed behavior from inferred behavior.
@@ -23,46 +30,32 @@
 4. Describe how state or data changes.
 5. Describe where the flow ends or returns.
 
-## Mermaid: Request, Data, Or Control Flow
-```mermaid
-flowchart TD
-    Client[Client or Trigger] --> Entry[Entry Point or Trigger Handler]
-    Entry --> Boundary[System Boundary]
-    Boundary --> Service[Primary Service]
-    Service --> Dependency[Key Dependency]
-    Dependency --> Outcome[Result or State Change]
-```
+## Visuals
+- Prefer D2 for all reusable artifact visuals.
+- Render to SVG first and embed the SVG with markdown image syntax.
+- Add PNG only when a downstream viewer specifically needs it.
+- If `d2` is unavailable, keep the `.d2` file path here and state that rendering is still pending.
 
-## Mermaid: Sequence View
-```mermaid
-sequenceDiagram
-    participant Client
-    participant Entry as Entry Point
-    participant Service
-    participant Dependency
+### Flow Diagram
+![Flow diagram](./flow.svg)
+- Source: `./flow.d2`
+- Show the main trigger, major components, and the most important state transition or dependency edges.
 
-    Client->>Entry: Trigger request or event
-    Entry->>Service: Normalize input
-    Service->>Dependency: Perform key operation
-    Dependency-->>Service: Return data or status
-    Service-->>Entry: Produce result
-    Entry-->>Client: Final response or side effect
-```
+### Sequence Or Timeline Diagram
+![Sequence or timeline diagram](./sequence.svg)
+- Source: `./sequence.d2`
+- Use this when call order, async steps, or retries matter more than static structure.
 
-## C4-Style View
-```mermaid
-flowchart LR
-    User[Person: User or Caller]
-    App[Container: Application]
-    Worker[Container: Worker or Internal Module]
-    Store[Container: Database or External Service]
+### Boundary View
+![Boundary view](./boundaries.svg)
+- Source: `./boundaries.d2`
+- Focus on actors, containers, aggregates, or subsystem boundaries rather than every function call.
 
-    User --> App
-    App --> Worker
-    Worker --> Store
-```
-- Label each node with the real system name from the repo.
-- Keep this focused on actors and containers, not every function call.
+### EventStorming View
+![EventStorming view](./eventstorm.svg)
+- Source: `./eventstorm.d2`
+- Include only when commands, domain events, policies, read models, aggregates, or bounded contexts clarify the implementation.
+- Label inferred events or policies clearly when the code does not name them directly.
 
 ## State, Rules, And Constraints
 - Capture business rules, guard clauses, retries, caching, idempotency, and ordering constraints.
@@ -82,6 +75,6 @@ flowchart LR
 - "Which tests give the best coverage for this implementation?"
 
 ## Artifact Metadata
-- Suggested artifact path: `.agents/artifacts/<topic-slug>.md`
-- Use one topic-specific file per implementation area.
+- Suggested artifact path: `.agents/artifacts/<topic-slug>/<topic-slug>.md`
+- Use one topic-specific directory per implementation area.
 - Keep citations inline with the explanation using repo file paths and line ranges.
