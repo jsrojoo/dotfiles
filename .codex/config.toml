@@ -112,5 +112,8 @@ trust_level = "trusted"
 [projects."/Users/josephrojo/fiserv/ai-analytics-platform"]
 trust_level = "trusted"
 
+[projects."/Users/josephrojo/fiserv/ai-metrics"]
+trust_level = "trusted"
+
 [notice.model_migrations]
 "gpt-5.3-codex" = "gpt-5.4"
