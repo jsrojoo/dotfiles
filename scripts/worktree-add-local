@@ -64,12 +64,6 @@ if [[ -z "$worktree_ref" ]]; then
   fi
 fi
 
-if [[ "${#copy_items[@]}" -eq 0 ]]; then
-  usage
-  echo "error: at least one --copy item is required" >&2
-  exit 1
-fi
-
 source_root="$(pwd)"
 
 if [[ -e "$worktree_destination" ]]; then
