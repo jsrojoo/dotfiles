@@ -50,6 +50,8 @@
 - Mandatory: Always use workflow-investigation for search and inspection tooling practices, and route broad or command-backed investigation through the registered `workflow_investigation` subagent.
 - Mandatory: Always use workflow-testing for testing and verification behavior, and route test selection, execution, and concise reporting through the registered `workflow_testing` subagent.
 - Mandatory: Always use workflow-code for coding conventions, TDD, naming, and error handling, and route implementation work through the registered `workflow_code` subagent instead of doing code updates in the main agent session.
+- Mandatory: When delegating code changes to a subagent, explicitly require documentation updates for any affected behavior, interfaces, configuration, or workflows as part of the same task.
+- Mandatory: If the changed area has no relevant documentation, route a `codebase_understanding` subagent task to generate a high-level, easy-to-digest artifact with diagrams or visuals instead of leaving the change undocumented.
 - Mandatory: Always use the relevant skill or minimal set of relevant skills for the task at hand instead of relying on general reasoning when a matching skill exists.
 - Mandatory: Always route tasks to specialized subagents when dedicated subagents are available, and never perform that work directly in the main agent session when an appropriate dedicated subagent exists.
 - Mandatory: Delegate well-scoped work to the appropriate subagent only from the main agent session when it reduces token usage or keeps context smaller, especially for repo exploration, parallelizable investigation, testing, git hygiene, or isolated implementation work.

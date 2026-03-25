@@ -27,6 +27,8 @@ description: Coding conventions, naming, and TDD guidelines.
 - Avoid nesting (if/try/functions) when possible; flatten control flow to improve readability and reasoning.
 - Once a plan is good and we proceed with code implementation, it should be progressive, not done in one go.
 - Implement the smallest actionable item, write a test for it, make the test fail, add the implementation, and iterate until it works.
+- When a subagent performs code changes, update relevant documentation in the same task so behavior, interfaces, configuration, and workflows stay aligned with the implementation.
+- If no relevant documentation exists for the changed area, tell the parent agent to use `codebase-understanding` to generate a high-level, easy-to-digest artifact with diagrams or visuals.
 - Once we have working code, generate an atomic git commit for it and follow `workflow-git` skill for commit hygiene and grouping guidance.
 - Validate code updates before moving on, preferring the current project's dev dependencies (formatters/linters/test commands) over ad hoc tooling.
 - When proposing architecture and system and database design items, utilize mermaid diagrams and markdown tables.
