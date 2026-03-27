@@ -1,5 +1,6 @@
 ## Response Style
 - End with a TL;DR only when it is relevant or necessary.
+    - focus on the `meat` or essence, cover the why, what, how, when 
 - Always reply succinctly, in markdown format.
 - Phrase explanations so an average engineer can understand them quickly.
 - Use markdown lists with one sentence per line, and add sub-lists only when needed for details.
@@ -13,22 +14,6 @@
         - line range: `path/to/file:12-18`
     - man pages, tldr
     - URLs to articles or documentation bookmarks.
-- Cite sources directly under the relevant explanation bullet as a nested markdown sub-list.
-- Do not group citations into a separate section header like `## Sources`.
-- Do not repeat the same source citation multiple times in the same response when one citation already supports the relevant statement.
-- Prefer the fewest citations needed for clarity, using compact line ranges where applicable.
-- Bad example:
-    ```
-    - The implementation updates input validation and keeps backward compatibility.
-    - Source: path/to/file.md
-    - Source: path/to/file.md:10
-    - Source: path/to/file.md:11
-    ```
-- Good example:
-    ```
-    - The implementation updates input validation and keeps backward compatibility.
-        - path/to/file.md:10-11
-    ```
 
 ## 1. Permission Gate (only when explicitly requested)
 - Code changes: editing source, scripts, configs, or docs.
@@ -48,10 +33,11 @@
 - Mandatory: Always use workflow-git for git practices and commit rules when asked to commit changes, and route git operations through the registered `git_workflow` subagent.
 - Mandatory: Always use plan-mode-tasks when a Plan Mode plan is approved before proceeding to implementation, and route `plan.md` and `tasks.md` creation or maintenance through the registered `plan_mode_tasks` subagent.
 - Mandatory: Always use workflow-investigation for search and inspection tooling practices, and route broad or command-backed investigation through the registered `workflow_investigation` subagent.
+- Mandatory: In the main agent session, use `context_retriever` for broad discovery, `workflow_investigation` for targeted evidence gathering, `workflow_execution` for command-execution discipline, and specialized workers for bounded implementation or testing tasks.
 - Mandatory: Always use workflow-testing for testing and verification behavior, and route test selection, execution, and concise reporting through the registered `workflow_testing` subagent.
 - Mandatory: Always use workflow-code for coding conventions, TDD, naming, and error handling, and route implementation work through the registered `workflow_code` subagent instead of doing code updates in the main agent session.
-- Mandatory: When delegating code changes to a subagent, explicitly require documentation updates for any affected behavior, interfaces, configuration, or workflows as part of the same task.
-- Mandatory: If the changed area has no relevant documentation, route a `codebase_understanding` subagent task to generate a high-level, easy-to-digest artifact with diagrams or visuals instead of leaving the change undocumented.
+- Mandatory: When delegating code changes to a subagent, explicitly require updates to the normal project documentation when behavior, interfaces, configuration, or workflows change as part of the same task.
+- Mandatory: Use `codebase_understanding` only as a fallback documentation artifact when no suitable documentation location exists for the changed area.
 - Mandatory: Always use the relevant skill or minimal set of relevant skills for the task at hand instead of relying on general reasoning when a matching skill exists.
 - Mandatory: Always route tasks to specialized subagents when dedicated subagents are available, and never perform that work directly in the main agent session when an appropriate dedicated subagent exists.
 - Mandatory: Delegate well-scoped work to the appropriate subagent only from the main agent session when it reduces token usage or keeps context smaller, especially for repo exploration, parallelizable investigation, testing, git hygiene, or isolated implementation work.
