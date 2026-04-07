@@ -6,6 +6,10 @@ import subprocess
 import sys
 
 
+def get_tmux_environment() -> bool:
+    return bool(os.environ.get("TMUX") or os.environ.get("TMUX_PANE"))
+
+
 def load_notification() -> dict:
     if len(sys.argv) == 2:
         raw_notification = sys.argv[1]
@@ -18,21 +22,40 @@ def load_notification() -> dict:
     return json.loads(raw_notification)
 
 
-def get_tmux_context() -> str | None:
-    if not (os.environ.get("TMUX") or os.environ.get("TMUX_PANE")):
+def get_tmux_value(format_string: str) -> str | None:
+    if not get_tmux_environment():
         return None
 
     command = ["tmux", "display-message", "-p"]
     if pane := os.environ.get("TMUX_PANE"):
         command.extend(["-t", pane])
-    command.append("#{session_name}:#{window_index}.#{pane_index} #{window_name}")
+    command.append(format_string)
 
     try:
-        context = subprocess.check_output(command, text=True).strip()
+        value = subprocess.check_output(command, text=True).strip()
     except (OSError, subprocess.CalledProcessError):
         return None
 
-    return context or None
+    return value or None
+
+
+def get_tmux_context() -> str | None:
+    return get_tmux_value("#{session_name}:#{window_index}.#{pane_index} #{window_name}")
+
+
+def get_tmux_title() -> str | None:
+    return get_tmux_value("#{session_name}:#{window_name}")
+
+
+def get_notification_title(notification: dict) -> str:
+    if get_tmux_environment():
+        return get_tmux_title() or "tmux"
+
+    assistant_message = notification.get("last-assistant-message")
+    if assistant_message:
+        return f"Codex: {assistant_message}"
+
+    return "Codex: Turn Complete!"
 
 
 def main() -> int:
@@ -43,11 +66,7 @@ def main() -> int:
 
     match notification_type := notification.get("type"):
         case "agent-turn-complete":
-            assistant_message = notification.get("last-assistant-message")
-            if assistant_message:
-                title = f"Codex: {assistant_message}"
-            else:
-                title = "Codex: Turn Complete!"
+            title = get_notification_title(notification)
             input_messages = notification.get("input-messages", [])
             message = " ".join(input_messages)
         case _:
