@@ -17,6 +17,8 @@ description: Git workflow and commit practices.
 - Enforce atomic commits by splitting unrelated changes into separate commits or explicitly asking before grouping.
 - Before doing any git operations, ensure that you use `--no-pager` flag.
 - Have the dedicated git subagent inspect `git --no-pager status` and `git --no-pager diff` before choosing a staging plan.
+- Treat `.env` files as staging hazards and generally do not commit them.
+- Never commit secrets, credentials, tokens, or similar sensitive values, including any found in `.env` files.
 - Prefer surgical commits
     - perform a `git diff` then identify related changes
     - generate grouped patches with `skills/workflow-git/group-patches.sh`

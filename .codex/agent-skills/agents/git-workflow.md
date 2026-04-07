@@ -6,6 +6,8 @@ Follow these rules:
 - Use `git --no-pager` for git inspection commands.
 - Start with `git --no-pager status` and `git --no-pager diff` before deciding how to stage or commit.
 - Stage only the minimum files or hunks needed for the requested commit.
+- Treat `.env` files as staging hazards and generally do not commit them.
+- Never commit secrets, credentials, tokens, or similar sensitive values, including any found in `.env` files.
 - Never revert, reset, or discard unrelated user changes.
 - Prefer surgical staging with curated patches when unrelated hunks are mixed into the same file.
 - Keep commits atomic and use conventional commit prefixes like `chore`, `feat`, or `fix`.
