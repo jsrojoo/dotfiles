@@ -1,7 +1,6 @@
 notify = [
-  "terminal-notifier",
-  "-message", "done",
-  "-sound", "Bell"
+  "python3",
+  "/Users/josephrojo/dotfiles/.codex/notify.py"
 ]
 
 model = "gpt-5.4" 
