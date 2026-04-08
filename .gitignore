@@ -16,4 +16,5 @@
 .codex/state_*.sqlite
 .codex/state_*.sqlite-shm
 .codex/state_*.sqlite-wal
+.codex/.tmp*
 .agents

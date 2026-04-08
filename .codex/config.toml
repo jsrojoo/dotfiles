@@ -114,5 +114,26 @@ trust_level = "trusted"
 [projects."/Users/josephrojo/fiserv/ai-metrics"]
 trust_level = "trusted"
 
+[projects."/Users/josephrojo/fiserv/aitrium/walle-db"]
+trust_level = "trusted"
+
+[projects."/Users/josephrojo/fiserv/aitrium/enterprise-gpt-api"]
+trust_level = "trusted"
+
+[projects."/Users/josephrojo/curls"]
+trust_level = "trusted"
+
+[projects."/Users/josephrojo/fiserv/coder/coder-aitrium"]
+trust_level = "trusted"
+
+[projects."/Users/josephrojo/fiserv/aitrium/enterprise-gpt-admin-api"]
+trust_level = "trusted"
+
+[projects."/Users/josephrojo/fiserv/aitrium/egpt-configs-helm"]
+trust_level = "trusted"
+
+[projects."/Users/josephrojo/fiserv/ray-ai-metrics"]
+trust_level = "trusted"
+
 [notice.model_migrations]
 "gpt-5.3-codex" = "gpt-5.4"

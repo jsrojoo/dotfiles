@@ -8,8 +8,11 @@ pipx = "latest"
 fnox = "latest"
 
 [env]
-_.file = '~/.config/mise/secrets.env'
-_.source = '~/.config/mise/secrets.sh'
+_.file = [
+  '~/.config/mise/.env.secrets',
+  '~/.config/mise/.env.walle'
+]
+_.source = '~/.config/mise/.secrets.sh'
 LOCAL_DB="postgresql://postgres:root@localhost/enterprise_gpt_api"
 DB_UI_LOCAL="postgresql://postgres:root@localhost/enterprise_gpt_api"
 
