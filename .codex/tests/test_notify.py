@@ -86,6 +86,7 @@ class BuildNotifierCommandTest(unittest.TestCase):
 class MainNotifierCommandTest(unittest.TestCase):
     def test_main_wires_resume_command_into_terminal_notifier(self) -> None:
         notification_payload = {
+            "client": "codex-exec",
             "type": "agent-turn-complete",
             "thread-id": "thread-123",
             "input-messages": ["done"],
@@ -158,6 +159,22 @@ class MainNotifierCommandTest(unittest.TestCase):
             resume_command,
         )
         self.assertIn("/opt/homebrew/bin/tmux select-pane -t work:2.1", resume_command)
+
+    def test_main_skips_subagent_turn_complete_without_client(self) -> None:
+        notification_payload = {
+            "type": "agent-turn-complete",
+            "thread-id": "thread-123",
+            "input-messages": ["done"],
+        }
+
+        with (
+            mock.patch("sys.argv", ["notify.py", __import__("json").dumps(notification_payload)]),
+            mock.patch("subprocess.check_output") as check_output_mock,
+        ):
+            result_code = notify.main()
+
+        self.assertEqual(result_code, 0)
+        check_output_mock.assert_not_called()
 
 
 if __name__ == "__main__":

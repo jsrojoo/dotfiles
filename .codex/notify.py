@@ -192,6 +192,14 @@ def load_notification() -> dict:
     return json.loads(raw_notification)
 
 
+def should_notify(notification: dict) -> bool:
+    # In observed Codex runtime payloads, main-thread completions include `client`
+    # while subagent completions do not.
+    return notification.get("type") == "agent-turn-complete" and bool(
+        notification.get("client")
+    )
+
+
 def main() -> int:
     try:
         notification = load_notification()
@@ -199,14 +207,13 @@ def main() -> int:
         LOGGER.error("failed to load notification payload: %s", error)
         return 1
 
-    match notification_type := notification.get("type"):
-        case "agent-turn-complete":
-            title = get_notification_title(notification)
-            input_messages = notification.get("input-messages", [])
-            message = " ".join(input_messages)
-        case _:
-            print(f"not sending a push notification for: {notification_type}")
-            return 0
+    if not should_notify(notification):
+        print(f"not sending a push notification for: {notification.get('type')}")
+        return 0
+
+    title = get_notification_title(notification)
+    input_messages = notification.get("input-messages", [])
+    message = " ".join(input_messages)
 
     thread_id = notification.get("thread-id", "")
     if tmux_context := get_tmux_context():
