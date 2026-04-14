@@ -1,4 +1,5 @@
 ## Response Style
+- Always use the `Caveman` plugin and its `caveman` skill by default.
 - End with a TL;DR only when it is relevant or necessary.
     - focus on the `meat` or essence, cover the why, what, how, when 
 - Always reply succinctly, in markdown format.

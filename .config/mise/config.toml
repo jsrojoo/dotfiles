@@ -9,10 +9,13 @@ fnox = "latest"
 
 [env]
 _.file = [
-  '~/.config/mise/.env.secrets',
-  '~/.config/mise/.env.walle'
+  '~/.config/mise/.envars/.env.secrets',
+  '~/.config/mise/.envars/.env.walle',
+  '~/.config/mise/.envars/.env.local-admin-api',
+  '~/.config/mise/.envars/.env.walle',
 ]
-_.source = '~/.config/mise/.secrets.sh'
+_.source = '~/.config/mise/.envars/.secrets.sh'
+
 LOCAL_DB="postgresql://postgres:root@localhost/enterprise_gpt_api"
 DB_UI_LOCAL="postgresql://postgres:root@localhost/enterprise_gpt_api"
 
