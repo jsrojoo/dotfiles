@@ -151,6 +151,9 @@ trust_level = "trusted"
 [projects."/Users/josephrojo/github/caveman"]
 trust_level = "trusted"
 
+[projects."/Users/josephrojo/github/agent-plugins/andrej-karpathy-skills"]
+trust_level = "trusted"
+
 [notice.model_migrations]
 "gpt-5.3-codex" = "gpt-5.4"
 
