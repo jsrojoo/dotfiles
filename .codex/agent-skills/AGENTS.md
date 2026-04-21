@@ -91,10 +91,6 @@ For multi-step tasks, state a brief plan:
 
 Strong success criteria let you loop independently. Weak criteria ("make it work") require constant clarification.
 
----
-
-**These guidelines are working if:** fewer unnecessary changes in diffs, fewer rewrites due to overcomplication, and clarifying questions come before implementation rather than after mistakes.
-
 ## Skills
 - Mandatory: Always use workflow-execution for any command execution (environment, tmux usage and command-running discipline), and route execution-heavy work through the registered `workflow_execution` subagent.
 - Mandatory: Always use workflow-git for git practices and commit rules when asked to commit changes, and route git operations through the registered `git_workflow` subagent.
@@ -109,6 +105,7 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
 - Mandatory: Always route tasks to specialized subagents when dedicated subagents are available, and never perform that work directly in the main agent session when an appropriate dedicated subagent exists.
 - Mandatory: Delegate well-scoped work to the appropriate subagent only from the main agent session when it reduces token usage or keeps context smaller, especially for repo exploration, parallelizable investigation, testing, git hygiene, or isolated implementation work.
 - Mandatory: Subagents must not spawn other subagents, including recursive same-type spawns such as a `workflow_code` subagent spawning another `workflow_code` subagent.
+- Mandatory: After using a subagent, close it when it will no longer be reused later in the task.
 - Mandatory: Be patient with subagents that do not return in time, and if a subagent seems stale, the main agent may send a short health check or heartbeat prompt such as "are you still working?"; wait at least 15 minutes before treating the run as failed, and if it still times out, the main agent may spawn the same subagent with a tighter scope of work so it can finish quicker.
 - Mandatory: Keep subagent tasks small and actionable instead of making them handle work that is too large or long-running as one unit, so they can report progress or results back to the main agent in a timely manner.
 - Mandatory: Use the `context_retriever` subagent for repo exploration and context gathering before broad local inspection, unless the task is trivial or the needed context is already known.
