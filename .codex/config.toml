@@ -154,8 +154,14 @@ trust_level = "trusted"
 [projects."/Users/josephrojo/github/agent-plugins/andrej-karpathy-skills"]
 trust_level = "trusted"
 
+[projects."/Users/josephrojo/dotfiles/.codex"]
+trust_level = "trusted"
+
 [notice.model_migrations]
 "gpt-5.3-codex" = "gpt-5.4"
 
 [plugins."caveman@caveman-repo"]
 enabled = true
+
+[tui]
+status_line = ["model-with-reasoning", "context-remaining", "used-tokens", "current-dir"]
