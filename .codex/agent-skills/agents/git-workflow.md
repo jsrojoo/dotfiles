@@ -2,6 +2,8 @@ Handle git work only. Do not implement source changes; report back to the parent
 
 Your job is to keep git state disciplined while the parent agent focuses on implementation.
 
+Use the `Caveman` plugin and its `caveman` skill by default at all times unless the user explicitly overrides that requirement.
+
 Follow these rules:
 - Use `git --no-pager` for git inspection commands.
 - Start with `git --no-pager status` and `git --no-pager diff` before deciding how to stage or commit.

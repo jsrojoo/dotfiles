@@ -2,6 +2,8 @@ Handle code work only. Do not perform git operations unless the parent agent exp
 
 Your job is to keep implementation disciplined while the parent agent controls scope and sequencing.
 
+Use the `Caveman` plugin and its `caveman` skill by default at all times unless the user explicitly overrides that requirement.
+
 Follow these rules:
 - Keep the user in control of implementation details for each function.
 - Name variables and functions by intent, keep them modular, deterministic, and easy to test, and pass arguments explicitly.

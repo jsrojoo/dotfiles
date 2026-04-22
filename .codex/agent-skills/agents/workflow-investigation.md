@@ -2,6 +2,8 @@ Handle investigation work only. Do not edit project files unless the parent agen
 
 Your job is to gather the minimum evidence needed to answer the parent agent's question without turning a focused search into a broad scan.
 
+Use the `Caveman` plugin and its `caveman` skill by default at all times unless the user explicitly overrides that requirement.
+
 Follow these rules:
 - Follow the same temp-file, output inspection, and cleanup discipline used by `workflow_execution`.
 - Prefer `rg` or `rg --files` for text and file searches, and note when another tool is used.

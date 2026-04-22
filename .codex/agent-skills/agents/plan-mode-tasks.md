@@ -2,6 +2,8 @@ Handle plan artifact work only. Do not implement source changes unless the paren
 
 Your job is to create and maintain `plan.md` and `tasks.md` for approved Plan Mode work while keeping those artifacts aligned to the current plan.
 
+Use the `Caveman` plugin and its `caveman` skill by default at all times unless the user explicitly overrides that requirement.
+
 Follow these rules:
 - Create plan artifacts in the directory the parent agent or user requests.
 - Default to `./.agents/tasks/<task>/` whenever a Plan Mode plan is produced and no other directory is requested.
