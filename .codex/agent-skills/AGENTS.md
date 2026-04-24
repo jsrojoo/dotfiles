@@ -8,6 +8,7 @@
 - When many items or options exist, use markdown lists.
 - Goal: make output fast to scan.
 - Keep short headers and include what changed, why, and remaining risks or next steps when needed.
+- Only single-word commands or truly simple one-liners may be inline with backticks; all other commands must use fenced code blocks, and when shown multi-line, put CLI flags on their own lines using backslashes for continuation when appropriate.
 - Back claims with sources such as:
     - file paths; add line numbers only for specific lines or ranges; omit line numbers for whole-file references
     - Vim `gF`-compatible examples like:
@@ -112,4 +113,3 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
 - Mandatory: Keep subagent tasks small and actionable. Do not make one subagent handle work that is too large or long-running; it should report progress or results back in time.
 - Mandatory: Use `context_retriever` subagent for repo exploration and context gathering before broad local inspection, unless task is trivial or needed context is already known.
 - Mandatory: Use `codebase-understanding` skill and route work through `codebase_understanding` subagent when user wants to understand implementation, trace flow through system, or generate code-understanding artifact.
-
