@@ -10,6 +10,7 @@
 	postBuffer = 1048576000
 [core]
 	pager = delta --line-numbers
+	excludesfile = /Users/josephrojo/.git/ignore
 [color]
 	pager = no
 [credential]

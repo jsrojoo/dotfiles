@@ -16,7 +16,6 @@ COMMAND_NAME_OSASCRIPT = "osascript"
 COMMAND_NAME_TMUX = "tmux"
 NOTIFIER_GROUP_PREFIX = "codex-"
 NOTIFIER_SOUND_NAME = "Bell"
-TMUX_FORMAT_CONTEXT = "#{session_name}:#{window_index}.#{pane_index} #{window_name}"
 TMUX_FORMAT_CLIENT_TTY = "#{client_tty}"
 TMUX_FORMAT_PANE_TARGET = "#{session_name}:#{window_index}.#{pane_index}"
 TMUX_FORMAT_TITLE = "#{session_name}:#{window_name}"
@@ -36,7 +35,6 @@ class ResumeContext:
 
 def build_notifier_command(
     *,
-    message: str,
     resume_command: str,
     thread_id: str,
     title: str,
@@ -45,8 +43,6 @@ def build_notifier_command(
         "terminal-notifier",
         "-title",
         title,
-        "-message",
-        message,
         "-group",
         NOTIFIER_GROUP_PREFIX + thread_id,
         "-ignoreDnD",
@@ -150,10 +146,6 @@ def get_resume_context() -> ResumeContext:
     )
 
 
-def get_tmux_context() -> str | None:
-    return get_tmux_value(TMUX_FORMAT_CONTEXT)
-
-
 def get_tmux_environment() -> bool:
     return bool(os.environ.get("TMUX") or os.environ.get("TMUX_PANE"))
 
@@ -212,18 +204,9 @@ def main() -> int:
         return 0
 
     title = get_notification_title(notification)
-    input_messages = notification.get("input-messages", [])
-    message = " ".join(input_messages)
-
     thread_id = notification.get("thread-id", "")
-    if tmux_context := get_tmux_context():
-        if message:
-            message = f"{tmux_context}\n{message}"
-        else:
-            message = tmux_context
 
     notifier_command = build_notifier_command(
-        message=message,
         resume_command=build_resume_command(get_resume_context()),
         thread_id=thread_id,
         title=title,

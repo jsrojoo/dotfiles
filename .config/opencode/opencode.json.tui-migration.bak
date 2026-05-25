@@ -3,7 +3,7 @@
   "provider": {
     "atlas": {
       "name": "Atlas",
-      "npm": "@ai-sdk/openai-compatible",
+      "npm": "@ai-sdk/openai",
       "api": "chat",
       "options": {
         "baseURL": "https://apis.aitrium.app.atlas.gfs-emea-ai-platform.aws.fisv.cloud/v1/codex/cat-aitrium-eastus2-1",
@@ -12,28 +12,21 @@
       },
       "models": {
         "gpt-5.2-codex-2026-02-09": {
-          "id": "cat-aitrium-eastus2-1",
-          "provider": {
-            "npm": "@ai-sdk/openai-compatible",
-            "api": "chat"
-          }
+          "id": "cat-aitrium-eastus2-1"
         }
       }
     }
   },
   "model": "atlas/gpt-5.2-codex-2026-02-09",
+  "keybinds": {
+    "leader": "ctrl+a",
+    "session_export": "<leader>e",
+    "editor_open": "ctrl+g",
+    "command_list": "ctrl+o",
+    "history_previous": "ctrl+p",
+    "history_next": "ctrl+n"
+  },
   "instructions": [
     "~/dotfiles/.codex/AGENTS.md"
-  ],
-  "mcp": {
-    "codegraph": {
-      "type": "local",
-      "command": [
-        "codegraph",
-        "serve",
-        "--mcp"
-      ],
-      "enabled": true
-    }
-  }
+  ]
 }

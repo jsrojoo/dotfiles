@@ -9,10 +9,14 @@ fnox = "latest"
 
 [env]
 _.file = [
-  '~/.config/mise/.envars/.env.secrets',
-  '~/.config/mise/.envars/.env.walle',
-  '~/.config/mise/.envars/.env.local-admin-api',
-  '~/.config/mise/.envars/.env.walle',
+  '~/.config/mise/.envars/.secrets.env',
+  '~/.config/mise/.envars/.gitlab.env',
+  '~/.config/mise/.envars/.walle.env',
+  '~/.config/mise/.envars/.harbor.env',
+  '~/.config/mise/.envars/.local-admin-api.env',
+  '~/.config/mise/.envars/.fortify.env',
+  '~/.config/mise/.envars/.sonatype.env',
+  '~/.config/mise/.envars/.atlas.ms_graph.env',
 ]
 _.source = '~/.config/mise/.envars/.secrets.sh'
 

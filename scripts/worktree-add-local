@@ -6,6 +6,8 @@ usage() {
 Usage:
   worktree-add-local -- --path <worktree-path> [--ref <branch-or-commit>] [--branch <new-branch>] --copy <file-or-dir> [--copy <file-or-dir> ...]
 
+Creates .local.config/, .local.artifacts/, and .local.scripts/ in the new worktree.
+
 Examples:
   worktree-add-local -- --path ../repo-feature --copy .env.local --copy .vscode
   worktree-add-local -- --path ../repo-feature --ref feature/my-branch --copy .env.local --copy .vscode
@@ -15,12 +17,20 @@ USAGE
 }
 
 copy_items=()
+local_directories=(
+  ".local.config"
+  ".local.artifacts"
+  ".local.scripts"
+)
 worktree_destination=""
 worktree_ref=""
 worktree_branch=""
 
 while [[ "$#" -gt 0 ]]; do
   case "$1" in
+    --)
+      shift
+      ;;
     --path)
       worktree_destination="${2:-}"
       shift 2
@@ -78,6 +88,11 @@ if [[ -n "$worktree_branch" ]]; then
 fi
 git_worktree_args+=("$worktree_destination" "$worktree_ref")
 git "${git_worktree_args[@]}"
+
+for local_directory in "${local_directories[@]}"; do
+  mkdir -p "$worktree_destination/$local_directory"
+  echo "Ensured '$local_directory'"
+done
 
 for copy_item in "${copy_items[@]}"; do
   if [[ -z "$copy_item" ]]; then

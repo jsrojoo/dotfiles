@@ -3,7 +3,7 @@ notify = [
   "/Users/josephrojo/dotfiles/.codex/notify.py"
 ]
 
-model = "gpt-5.4" 
+model = "gpt-5.5"
 model_provider = "atlas"
 model_reasoning_effort = "medium"
 model_reasoning_summary = "auto"
@@ -157,11 +157,48 @@ trust_level = "trusted"
 [projects."/Users/josephrojo/dotfiles/.codex"]
 trust_level = "trusted"
 
+[projects."/Users/josephrojo/fiserv/aitrium-ai-skills-market-place"]
+trust_level = "trusted"
+
+[projects."/Users/josephrojo/.config/mise"]
+trust_level = "trusted"
+
+[projects."/Users/josephrojo/fiserv/poc/sdlc-automation"]
+trust_level = "trusted"
+
+[projects."/Users/josephrojo/fiserv/aitrium/aitrium-document-conversion-api"]
+trust_level = "trusted"
+
+[projects."/Users/josephrojo/fiserv/aitrium/aitrium-document-search-api"]
+trust_level = "trusted"
+
+[projects."/Users/josephrojo/fiserv/poc/sdlc-automation/.local.artifacts/.automation-workspace/task-worktrees/enterpise-gpt-admin-api/sonatype-pyjwt-CVE-2025-45768"]
+trust_level = "trusted"
+
+[projects."/Users/josephrojo/fiserv/test-sdlc/.local.artifacts/.automation-workspace/task-worktrees/enterpise-gpt-admin-api/sonatype-orjson-CVE-2025-67221"]
+trust_level = "trusted"
+
+[projects."/Users/josephrojo/fiserv/test-sdlc/.local.artifacts/.automation-workspace/task-worktrees/enterpise-gpt-admin-api/sonatype-pyjwt-CVE-2025-45768"]
+trust_level = "trusted"
+
+[projects."/Users/josephrojo/Documents/work-notes"]
+trust_level = "trusted"
+
 [notice.model_migrations]
 "gpt-5.3-codex" = "gpt-5.4"
 
 [plugins."caveman@caveman-repo"]
 enabled = true
 
+[plugins."sdlc-vulnerability-remediation@sdlc-automation-local"]
+enabled = true
+
 [tui]
 status_line = ["model-with-reasoning", "context-remaining", "used-tokens", "current-dir"]
+
+[tui.model_availability_nux]
+"gpt-5.5" = 4
+
+[mcp_servers.codegraph]
+command = "codegraph"
+args = ["serve", "--mcp"]

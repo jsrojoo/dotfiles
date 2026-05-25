@@ -1,0 +1,7 @@
+interface:
+  display_name: "Jira Task Details"
+  short_description: "Fetch Jira task details from env vars."
+  default_prompt: "Use $jira-task-details to pull and summarize a Jira issue from my configured environment variables."
+
+policy:
+  allow_implicit_invocation: true

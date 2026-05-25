@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "skills": {
+    "ms-graph": {
+      "source": "skills-08f97d.gitlab-pages.gbsemea-scm-gitlab.aws.fisv.cloud",
+      "sourceType": "well-known",
+      "computedHash": "a1a9ecf9ddebc598d8c6a152d42913fc3a00321fb3455eb80e3b834088282a7c"
+    }
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "$schema": "https://opencode.ai/tui.json",
+  "keybinds": {
+    "leader": "ctrl+a",
+    "session_export": "<leader>e",
+    "editor_open": "ctrl+g",
+    "command_list": "ctrl+o",
+    "history_previous": "ctrl+p",
+    "history_next": "ctrl+n"
+  }
+}
