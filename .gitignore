@@ -18,3 +18,4 @@
 .codex/state_*.sqlite-wal
 .codex/.tmp*
 .agents
+.DS_Store
