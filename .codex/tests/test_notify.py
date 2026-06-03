@@ -1,7 +1,13 @@
+import json
+import os
+import io
+import tempfile
 import unittest
 from unittest import mock
 
+import hook_payload
 import notify
+import notify_hook_harness
 
 
 class BuildResumeCommandTest(unittest.TestCase):
@@ -58,7 +64,7 @@ class BuildResumeCommandTest(unittest.TestCase):
 
 
 class BuildNotifierCommandTest(unittest.TestCase):
-    def test_includes_execute_when_resume_command_present(self) -> None:
+    def test_includes_message_and_execute_when_present(self) -> None:
         notifier_command = notify.build_notifier_command(
             message="done",
             resume_command="echo resume",
@@ -69,18 +75,59 @@ class BuildNotifierCommandTest(unittest.TestCase):
         self.assertEqual(notifier_command[0], "terminal-notifier")
         self.assertIn("-activate", notifier_command)
         self.assertIn("net.kovidgoyal.kitty", notifier_command)
+        self.assertIn("-message", notifier_command)
+        self.assertIn("done", notifier_command)
         self.assertIn("-execute", notifier_command)
         self.assertIn("echo resume", notifier_command)
 
-    def test_skips_execute_when_resume_command_is_empty(self) -> None:
+    def test_skips_optional_fields_when_empty(self) -> None:
         notifier_command = notify.build_notifier_command(
-            message="done",
+            message="",
             resume_command="",
             thread_id="thread-123",
             title="Codex",
         )
 
+        self.assertNotIn("-message", notifier_command)
         self.assertNotIn("-execute", notifier_command)
+
+
+class HookPayloadClassificationTest(unittest.TestCase):
+    def test_classifies_main_stop_as_main_agent(self) -> None:
+        classification = hook_payload.classify_hook_payload(
+            {"hook_event_name": hook_payload.HOOK_EVENT_NAME_STOP}
+        )
+
+        self.assertFalse(classification.is_subagent)
+        self.assertEqual(classification.detection_source, "hook_event_name")
+
+    def test_classifies_subagent_stop_as_subagent_first(self) -> None:
+        classification = hook_payload.classify_hook_payload(
+            {
+                "agent_id": "agent-123",
+                "hook_event_name": hook_payload.HOOK_EVENT_NAME_SUBAGENT_STOP,
+                "notification-channel": hook_payload.NOTIFICATION_CHANNEL_MAIN,
+            }
+        )
+
+        self.assertTrue(classification.is_subagent)
+        self.assertEqual(classification.detection_source, "hook_event_name")
+
+    def test_classifies_agent_identity_as_subagent_fallback(self) -> None:
+        classification = hook_payload.classify_hook_payload(
+            {"agent_transcript_path": "/tmp/subagent.jsonl"}
+        )
+
+        self.assertTrue(classification.is_subagent)
+        self.assertEqual(classification.detection_source, "agent_identity")
+
+    def test_classifies_notification_channel_as_fallback_when_event_missing(self) -> None:
+        classification = hook_payload.classify_hook_payload(
+            {"notification-channel": hook_payload.NOTIFICATION_CHANNEL_SUBAGENT}
+        )
+
+        self.assertTrue(classification.is_subagent)
+        self.assertEqual(classification.detection_source, "notification_channel")
 
 
 class MainNotifierCommandTest(unittest.TestCase):
@@ -129,7 +176,7 @@ class MainNotifierCommandTest(unittest.TestCase):
                     "tmux": "/opt/homebrew/bin/tmux",
                 }.get(command_name),
             ),
-            mock.patch("sys.argv", ["notify.py", __import__("json").dumps(notification_payload)]),
+            mock.patch("sys.argv", ["notify.py", json.dumps(notification_payload)]),
             mock.patch("subprocess.check_output", side_effect=subprocess_check_output_mock),
         ):
             result_code = notify.main()
@@ -168,13 +215,84 @@ class MainNotifierCommandTest(unittest.TestCase):
         }
 
         with (
-            mock.patch("sys.argv", ["notify.py", __import__("json").dumps(notification_payload)]),
+            mock.patch("sys.argv", ["notify.py", json.dumps(notification_payload)]),
             mock.patch("subprocess.check_output") as check_output_mock,
         ):
             result_code = notify.main()
 
         self.assertEqual(result_code, 0)
         check_output_mock.assert_not_called()
+
+    def test_main_skips_subagent_stop_hook_payload(self) -> None:
+        notification_payload = {
+            "hook_event_name": hook_payload.HOOK_EVENT_NAME_SUBAGENT_STOP,
+            "thread-id": "thread-123",
+        }
+
+        with (
+            mock.patch("sys.argv", ["notify.py", json.dumps(notification_payload)]),
+            mock.patch("subprocess.check_output") as check_output_mock,
+        ):
+            result_code = notify.main()
+
+        self.assertEqual(result_code, 0)
+        check_output_mock.assert_not_called()
+
+    def test_main_notifies_for_main_stop_hook_payload(self) -> None:
+        notification_payload = {
+            "hook_event_name": hook_payload.HOOK_EVENT_NAME_STOP,
+            "thread-id": "thread-123",
+        }
+
+        with (
+            mock.patch.dict("os.environ", {}, clear=True),
+            mock.patch("sys.argv", ["notify.py", json.dumps(notification_payload)]),
+            mock.patch("subprocess.check_output", return_value=b"") as check_output_mock,
+        ):
+            result_code = notify.main()
+
+        self.assertEqual(result_code, 0)
+        self.assertEqual(check_output_mock.call_count, 1)
+
+    def test_main_notifies_for_main_notification_channel_fallback(self) -> None:
+        notification_payload = {
+            "notification-channel": hook_payload.NOTIFICATION_CHANNEL_MAIN,
+            "thread-id": "thread-123",
+        }
+
+        with (
+            mock.patch.dict("os.environ", {}, clear=True),
+            mock.patch("sys.argv", ["notify.py", json.dumps(notification_payload)]),
+            mock.patch("subprocess.check_output", return_value=b"") as check_output_mock,
+        ):
+            result_code = notify.main()
+
+        self.assertEqual(result_code, 0)
+        self.assertEqual(check_output_mock.call_count, 1)
+
+
+class NotifyHookHarnessTest(unittest.TestCase):
+    def test_harness_appends_jsonl_record(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            log_path = os.path.join(temp_dir, "hook-log.jsonl")
+            payload = json.dumps(
+                {"hook_event_name": hook_payload.HOOK_EVENT_NAME_SUBAGENT_STOP}
+            )
+
+            with mock.patch(
+                "sys.argv",
+                ["notify_hook_harness.py", "--log-path", log_path, payload],
+            ), mock.patch("sys.stdout", new_callable=io.StringIO) as stdout_mock:
+                result_code = notify_hook_harness.main()
+
+            self.assertEqual(result_code, 0)
+            self.assertEqual(stdout_mock.getvalue(), "")
+            with open(log_path, encoding="utf-8") as log_file:
+                record = json.loads(log_file.readline())
+
+        self.assertTrue(record["is_subagent"])
+        self.assertEqual(record["detection_source"], "hook_event_name")
+        self.assertFalse(record["agent_id_present"])
 
 
 if __name__ == "__main__":

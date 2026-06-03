@@ -9,6 +9,8 @@ import shutil
 import subprocess
 import sys
 
+from hook_payload import classify_hook_payload
+
 
 APP_BUNDLE_ID_KITTY = "net.kovidgoyal.kitty"
 COMMAND_NAME_KITTY = "kitty"
@@ -17,6 +19,7 @@ COMMAND_NAME_TMUX = "tmux"
 NOTIFIER_GROUP_PREFIX = "codex-"
 NOTIFIER_SOUND_NAME = "Bell"
 TMUX_FORMAT_CLIENT_TTY = "#{client_tty}"
+TMUX_FORMAT_MESSAGE = "#{session_name}:#{window_index}.#{pane_index} #{window_name}"
 TMUX_FORMAT_PANE_TARGET = "#{session_name}:#{window_index}.#{pane_index}"
 TMUX_FORMAT_TITLE = "#{session_name}:#{window_name}"
 TMUX_FORMAT_WINDOW_TARGET = "#{session_name}:#{window_index}"
@@ -35,6 +38,7 @@ class ResumeContext:
 
 def build_notifier_command(
     *,
+    message: str,
     resume_command: str,
     thread_id: str,
     title: str,
@@ -51,6 +55,9 @@ def build_notifier_command(
         "-sound",
         NOTIFIER_SOUND_NAME,
     ]
+
+    if message:
+        command.extend(["-message", message])
 
     if resume_command:
         command.extend(["-execute", resume_command])
@@ -125,6 +132,23 @@ def build_resume_command(resume_context: ResumeContext) -> str:
     return " ; ".join(command_items)
 
 
+def get_notification_message(notification: dict) -> str:
+    message_lines: list[str] = []
+
+    if get_tmux_environment() and (tmux_message := get_tmux_value(TMUX_FORMAT_MESSAGE)):
+        message_lines.append(tmux_message)
+
+    input_messages = notification.get("input-messages")
+    if isinstance(input_messages, list):
+        message_lines.extend(str(message_item) for message_item in input_messages if message_item)
+    elif input_messages:
+        message_lines.append(str(input_messages))
+    elif assistant_message := notification.get("last-assistant-message"):
+        message_lines.append(str(assistant_message))
+
+    return "\n".join(message_lines)
+
+
 def get_notification_title(notification: dict) -> str:
     if get_tmux_environment():
         return get_tmux_title() or "tmux"
@@ -185,11 +209,13 @@ def load_notification() -> dict:
 
 
 def should_notify(notification: dict) -> bool:
-    # In observed Codex runtime payloads, main-thread completions include `client`
-    # while subagent completions do not.
-    return notification.get("type") == "agent-turn-complete" and bool(
-        notification.get("client")
-    )
+    if notification.get("type") == "agent-turn-complete":
+        return bool(notification.get("client"))
+
+    if notification.get("hook_event_name") or notification.get("notification-channel"):
+        return not classify_hook_payload(notification).is_subagent
+
+    return False
 
 
 def main() -> int:
@@ -207,6 +233,7 @@ def main() -> int:
     thread_id = notification.get("thread-id", "")
 
     notifier_command = build_notifier_command(
+        message=get_notification_message(notification),
         resume_command=build_resume_command(get_resume_context()),
         thread_id=thread_id,
         title=title,
@@ -235,9 +262,11 @@ def resolve_command_path(command_name: str, *, fallback_path: str | None = None)
         )
         return fallback_path
 
-    LOGGER.warning("command path lookup failed for %s; using bare command name", command_name)
+    LOGGER.warning(
+        "command path lookup failed for %s; using bare command name", command_name
+    )
     return command_name
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    raise SystemExit(main())
