@@ -14,6 +14,7 @@ approval_policy = "on-request"
 sandbox_mode = "danger-full-access"
 disable_response_storage = false
 personality = "pragmatic"
+service_tier = "default"
 
 [shell_environment_policy]
 inherit = "all"
@@ -184,6 +185,12 @@ trust_level = "trusted"
 [projects."/Users/josephrojo/Documents/work-notes"]
 trust_level = "trusted"
 
+[projects."/Users/josephrojo/fiserv/aitrium/labs/aitrium-admin-ui"]
+trust_level = "trusted"
+
+[projects."/Users/josephrojo/fiserv/aitrium/aitrium-dev-workspace"]
+trust_level = "trusted"
+
 [notice.model_migrations]
 "gpt-5.3-codex" = "gpt-5.4"
 
@@ -191,6 +198,9 @@ trust_level = "trusted"
 enabled = true
 
 [plugins."sdlc-vulnerability-remediation@sdlc-automation-local"]
+enabled = true
+
+[plugins."aitrium-dev-workspace@aitrium-dev-workspace-local"]
 enabled = true
 
 [tui]
@@ -202,3 +212,29 @@ status_line = ["model-with-reasoning", "context-remaining", "used-tokens", "curr
 [mcp_servers.codegraph]
 command = "codegraph"
 args = ["serve", "--mcp"]
+
+[mcp_servers.codegraph.tools.codegraph_status]
+approval_mode = "approve"
+
+[mcp_servers.codegraph.tools.codegraph_context]
+approval_mode = "approve"
+
+[mcp_servers.codegraph.tools.codegraph_files]
+approval_mode = "approve"
+
+[mcp_servers.codegraph.tools.codegraph_search]
+approval_mode = "approve"
+
+[mcp_servers.codegraph.tools.codegraph_explore]
+approval_mode = "approve"
+
+[mcp_servers.codegraph.tools.codegraph_node]
+approval_mode = "approve"
+
+[mcp_servers.codegraph.tools.codegraph_callers]
+approval_mode = "approve"
+
+[hooks.state]
+
+[hooks.state."/Users/josephrojo/.codex/hooks.json:subagent_stop:0:0"]
+trusted_hash = "sha256:7d4a561a54467a3d343516cee5fb95e0d3eea1444ebbb9e37db92dbac850e865"

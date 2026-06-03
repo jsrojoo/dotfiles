@@ -28,7 +28,7 @@
 - Reply `g` means permission granted and good to proceed.
 - Call out unknowns before continuing.
 - Verify facts; do not assume.
-- After plan approval, route command execution through registered `workflow_execution` subagent and use `plan_mode_tasks` for approved plan artifacts when needed.
+- After plan approval, use workflow-execution guidance for commands and plan-mode-tasks for approved plan artifacts when needed; route through subagents only when current runtime policy allows subagent use.
 
 ## Behavioral guidelines
 
@@ -93,26 +93,31 @@ For multi-step tasks, state brief plan:
 Strong success criteria let you loop independently. Weak criteria ("make it work") need constant clarification.
 
 ## Skills
-- Mandatory: Use workflow-execution for any command execution (environment, tmux usage, command-running discipline), and route execution-heavy work through registered `workflow_execution` subagent.
-- Mandatory: Use workflow-git for git practices and commit rules when asked to commit changes, and route git operations through registered `git_workflow` subagent.
-- Mandatory: Use plan-mode-tasks when a Plan Mode plan is approved before implementation, and route `plan.md` and `tasks.md` creation or maintenance through registered `plan_mode_tasks` subagent.
-- Mandatory: Use workflow-investigation for search and inspection tooling practices, and route broad or command-backed investigation through registered `workflow_investigation` subagent.
-- Mandatory: In main agent session, use `context_retriever` for broad discovery, `workflow_investigation` for targeted evidence gathering, `workflow_execution` for command-execution discipline, and specialized workers for bounded implementation or testing tasks.
-- Mandatory: Use workflow-testing for testing and verification behavior, and route test selection, execution, and concise reporting through registered `workflow_testing` subagent.
-- Mandatory: Use workflow-code for coding conventions, TDD, naming, and error handling, and route implementation work through registered `workflow_code` subagent instead of doing code updates in main agent session.
+- Mandatory: Use workflow-execution for command execution guidance, environment discipline, tmux usage, and command-running practices.
+- Mandatory: Use workflow-git for git practices and commit rules when asked to commit changes.
+- Mandatory: Use plan-mode-tasks when a Plan Mode plan is approved before implementation.
+- Mandatory: Use workflow-investigation for search and inspection tooling practices.
+- Mandatory: Use workflow-testing for testing and verification behavior.
+- Mandatory: Use workflow-code for coding conventions, TDD, naming, and error handling.
 - Mandatory: When delegating code changes to a subagent, explicitly require updates to normal project documentation when behavior, interfaces, configuration, or workflows change in same task.
 - Mandatory: Use `codebase_understanding` only as fallback documentation artifact when no suitable documentation location exists for changed area.
 - Mandatory: Use relevant skill, or smallest relevant set, for task at hand instead of relying on general reasoning when matching skill exists.
-- Mandatory: Route tasks to specialized subagents when dedicated subagents exist, and never do that work directly in main agent session when appropriate dedicated subagent exists.
-- Mandatory: Delegate well-scoped work to appropriate subagent only from main agent session when it cuts token use or keeps context smaller, especially for repo exploration, parallel investigation, testing, git hygiene, or isolated implementation work.
+- Mandatory: Use specialized subagents only when subagent use is allowed by current runtime policy and task scope benefits from delegation.
+- Mandatory: Delegate well-scoped work to appropriate subagent when allowed and when it cuts token use or keeps context smaller, especially for repo exploration, parallel investigation, testing, git hygiene, or isolated implementation work.
 - Mandatory: Every spawned subagent prompt must explicitly include instructions to use `Caveman` plugin and `caveman` skill.
 - Mandatory: All spawned subagents must use `Caveman` plugin and `caveman` skill by default at all times unless user explicitly overrides.
 - Mandatory: Subagents must not spawn other subagents, including recursive same-type spawns such as a `workflow_code` subagent spawning another `workflow_code` subagent.
 - Mandatory: After using a subagent, close it when it will not be reused later in task.
-- Mandatory: Be patient with subagents that do not return in time. If a subagent seems stale, main agent may send a short health check like "are you still working?"; wait at least 15 minutes before treating run as failed, and if it still times out, main agent may spawn same subagent with tighter scope so it can finish quicker.
+- Mandatory: Do not use routine ping or heartbeat checks for subagents. Prefer event-style completion handling: rely on `<subagent_notification>` messages, `wait_agent` completion status, and `SubagentStop` hook records in `tmp/subagent-stop-events.jsonl`. Send a health check only after a long `wait_agent` timeout when the next critical step is blocked and no completion event exists.
 - Mandatory: Keep subagent tasks small and actionable. Do not make one subagent handle work that is too large or long-running; it should report progress or results back in time.
-- Mandatory: Use `context_retriever` subagent for repo exploration and context gathering before broad local inspection, unless task is trivial or needed context is already known.
-- Mandatory: Use `codebase-understanding` skill and route work through `codebase_understanding` subagent when user wants to understand implementation, trace flow through system, or generate code-understanding artifact.
+- Mandatory: Use `context_retriever` subagent for repo exploration and context gathering when subagent use is allowed, unless task is trivial or needed context is already known.
+- Mandatory: Use `codebase-understanding` skill when user wants to understand implementation, trace flow through system, or generate code-understanding artifact; route through `codebase_understanding` subagent only when subagent use is allowed.
+
+## Aitrium Skill Boundaries
+- Use `aitrium` for Aitrium context, repo identity, shorthand, safety policy, task isolation policy, planning defaults, and repo-specific rules.
+- Use `local-development` for local laptop services, Coder workspace access, port forwarding, Dockerized dependencies, and repo-local Node/Python environment templates.
+- Use `aitrium-dev-workspace` for executable task workspace helpers, Git worktree bootstrap, tmux windows, cross-repo status, cross-repo diffs, and workspace command examples.
+- Keep generated system skills under `agent-skills/skills/.system/` untracked and ignored.
 
 <!-- CODEGRAPH_START -->
 ## CodeGraph

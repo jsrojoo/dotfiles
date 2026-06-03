@@ -1,0 +1,4 @@
+interface:
+  display_name: "Aitrium"
+  short_description: "Aitrium EGPT workspace context and repo conventions."
+  default_prompt: "Use Aitrium workspace conventions for EGPT repos."

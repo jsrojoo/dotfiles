@@ -1,0 +1,12 @@
+[tools]
+python = "3.13"
+
+[tasks]
+
+[env]
+_.file = [
+  '.env',
+]
+_.python.venv = { path = ".venv", create = true, python = "3.13" }
+REPO=<repo-name>
+repo=<repo-name>

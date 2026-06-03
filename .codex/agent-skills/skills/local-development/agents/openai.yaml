@@ -1,0 +1,4 @@
+interface:
+  display_name: "Local Development"
+  short_description: "Aitrium local dev setup memory."
+  default_prompt: "Use this skill when working with local Aitrium development paths, Docker services, Coder SSH workspace, or port forwarding."
