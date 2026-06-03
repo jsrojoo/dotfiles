@@ -14,9 +14,9 @@
 [color]
 	pager = no
 [credential]
-	helper = cache
-[includeIf "gitdir:~/fiserv/"]
-    path = ~/.gitconfig-work
+	helper = osxkeychain
+; [includeIf "gitdir:~/fiserv/"]
+;     path = ~/.gitconfig-work
 [interactive]
 	diffFilter = delta --color-only --line-numbers
 [delta]
