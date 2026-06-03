@@ -12,11 +12,15 @@ Return compact handoff with exact file references, key behaviors, and explicit u
 
 ## Workflow
 
-1. Decide if task really needs retrieval.
-2. If task is trivial or needed context is already known, skip subagent.
-3. Otherwise, invoke `context_retriever` subagent first.
-4. Ask only for minimum context needed to unblock parent task.
-5. Use returned evidence to continue in main session.
+1. Invoke `context_retriever` first for any task that needs repo discovery or context across more than one known file.
+2. Ask only for minimum context needed to unblock parent task.
+3. Use returned evidence to continue in main session.
+
+## Required Triggers
+
+- Use `context_retriever` for any task that mentions review, audit, inspect, understand, survey, inventory, map, trace, or suggest improvements across more than one file, skill, plugin, agent, or config.
+- Do not classify these tasks as trivial.
+- Main agent should not read multiple repo files directly before this skill runs, unless subagents are unavailable or user explicitly forbids subagents.
 
 ## Delegation Guidance
 
@@ -39,4 +43,3 @@ Ask for this structure unless parent task needs something else:
 4. Unknowns, assumptions, or risks
 
 Keep output short and evidence-backed so main session gets compressed context packet, not full exploration trace.
-

@@ -7,8 +7,8 @@ description: Git workflow and commit practices.
 - Route git work through dedicated subagent instead of mixing staging and commit hygiene into main implementation thread.
 - Invoke registered `git_workflow` subagent when task includes reviewing diffs, staging hunks, creating commits, amending latest local commit, rebasing, or other git operations.
 - Reuse same `git_workflow` subagent for rest of turn's git work so commit context and staging decisions stay in one place.
-- Configure subagent through `agents/git-workflow.toml` and `agents/git-workflow.md`, similar to existing `context_retriever` setup.
-- Keep subagent's model selection in `agents/git-workflow.toml` instead of hardcoding model overrides in parent prompt.
+- Configure subagent through `agent-skills/agents/git-workflow.toml` and `agent-skills/agents/git-workflow.md`, similar to existing `context_retriever` setup.
+- Keep subagent's model selection in `agent-skills/agents/git-workflow.toml` instead of hardcoding model overrides in parent prompt.
 - Tell subagent it is not alone in codebase, it must not revert unrelated user changes, and it should stage only minimum hunks needed for requested commit.
 - Keep implementation edits delegated to registered `workflow_code` subagent, and use this git subagent for staging, diff review, commit hygiene, and other git-only work.
 

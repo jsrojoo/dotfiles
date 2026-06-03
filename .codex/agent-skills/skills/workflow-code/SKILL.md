@@ -7,7 +7,7 @@ description: Coding conventions, naming, and TDD guidelines.
 - Route code implementation work through registered `workflow_code` subagent instead of keeping all coding guidance in parent thread.
 - Invoke `workflow_code` when task needs implementation, refactoring, naming cleanup, progressive delivery, or code validation guidance.
 - Reuse same `workflow_code` subagent for rest of turn's implementation work so code context stays in one place.
-- Configure subagent through `agents/workflow-code.toml` and `agents/workflow-code.md`, with model selection kept in agent config.
+- Configure subagent through `agent-skills/agents/workflow-code.toml` and `agent-skills/agents/workflow-code.md`, with model selection kept in agent config.
 - Keep git staging and commit work delegated to registered `git_workflow` subagent instead of mixing commit hygiene into code implementation.
 
 ## Code Guide
@@ -33,4 +33,3 @@ description: Coding conventions, naming, and TDD guidelines.
 - Validate code updates before moving on, preferring current project's dev dependencies (formatters/linters/test commands) over ad hoc tooling.
 - When proposing architecture and system and database design items, use mermaid diagrams and markdown tables.
 - For responsive frontend layout guidance, read `references/responsive-frontend.md`.
-

@@ -10,7 +10,7 @@ description: Create and maintain agents/tasks/task-name/plan.md and tasks.md for
 - Route plan artifact creation and maintenance through registered `plan_mode_tasks` subagent instead of keeping workflow only in parent thread.
 - Invoke `plan_mode_tasks` after Plan Mode plan is approved and task needs `plan.md` and `tasks.md` created or updated.
 - Reuse same `plan_mode_tasks` subagent for rest of turn's plan artifact work so approved plan state stays in one place.
-- Configure subagent through `agents/plan-mode-tasks.toml` and `agents/plan-mode-tasks.md`, with model selection kept in agent config.
+- Configure subagent through `agent-skills/agents/plan-mode-tasks.toml` and `agent-skills/agents/plan-mode-tasks.md`, with model selection kept in agent config.
 - Keep actual implementation work in parent thread or appropriate workflow subagent; use `plan_mode_tasks` only for plan artifacts themselves.
 
 ## Intent
@@ -72,4 +72,3 @@ Use this template and fill it with final plan content.
 ## Collisions
 
 - If `./.agents/tasks/<task>/` already exists, reuse it and update `plan.md` and `tasks.md`.
-

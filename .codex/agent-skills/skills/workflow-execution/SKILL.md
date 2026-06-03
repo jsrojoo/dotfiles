@@ -7,7 +7,7 @@ description: Environment setup and command execution discipline.
 - Route shell execution discipline through registered `workflow_execution` subagent instead of keeping command-running hygiene only in prose.
 - Invoke `workflow_execution` when task needs environment setup, tmux coordination, temp-file handling, or disciplined command execution.
 - Reuse same `workflow_execution` subagent for rest of turn's execution-heavy work so shell context stays consistent.
-- Configure subagent through `agents/workflow-execution.toml` and `agents/workflow-execution.md`, with model selection kept in agent config.
+- Configure subagent through `agent-skills/agents/workflow-execution.toml` and `agent-skills/agents/workflow-execution.md`, with model selection kept in agent config.
 
 ## Environment & Execution Discipline
 - Debug first and document root cause before implementing fixes.
@@ -24,4 +24,3 @@ description: Environment setup and command execution discipline.
 - You don't need to enable python venv in this tmux session; `mise` already handled that.
 - If sandbox or permission limits block command, document it and request needed escalation.
 - Log any deviations from these rules so user stays informed.
-

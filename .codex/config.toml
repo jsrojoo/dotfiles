@@ -64,46 +64,6 @@ personality = true
 multi_agent = true
 prevent_idle_sleep = true
 
-[agents.context_retriever]
-description = "Read-only repo investigator for gathering minimal context and returning compact findings with exact file references."
-config_file = "agents/context-retriever.toml"
-nickname_candidates = ["context", "retriever", "scout"]
-
-[agents.codebase_understanding]
-description = "Understanding-focused worker for implementation walkthroughs, flow tracing, diagrams, and reusable artifacts."
-config_file = "agents/codebase-understanding.toml"
-nickname_candidates = ["understand", "trace", "walkthrough"]
-
-[agents.git_workflow]
-description = "Git-focused worker for diff review, surgical staging, commit hygiene, and other scoped git operations."
-config_file = "agents/git-workflow.toml"
-nickname_candidates = ["git", "workflow", "committer"]
-
-[agents.workflow_code]
-description = "Code-focused worker for implementation discipline, naming, TDD, and validation."
-config_file = "agents/workflow-code.toml"
-nickname_candidates = ["code", "implementer", "builder"]
-
-[agents.workflow_execution]
-description = "Execution-focused worker for environment setup, tmux discipline, temp files, and command-running hygiene."
-config_file = "agents/workflow-execution.toml"
-nickname_candidates = ["exec", "runner", "shell"]
-
-[agents.workflow_investigation]
-description = "Investigation-focused worker for targeted search, output inspection, and tooling discipline."
-config_file = "agents/workflow-investigation.toml"
-nickname_candidates = ["investigate", "inspector", "search"]
-
-[agents.workflow_testing]
-description = "Testing-focused worker for verification planning, test execution, and concise result reporting."
-config_file = "agents/workflow-testing.toml"
-nickname_candidates = ["test", "verify", "checks"]
-
-[agents.plan_mode_tasks]
-description = "Plan-mode worker for creating and maintaining plan.md and tasks.md artifacts for approved plans."
-config_file = "agents/plan-mode-tasks.toml"
-nickname_candidates = ["plan", "tasks", "planner"]
-
 [projects."/Users/josephrojo/fiserv/aitrium/labs/aitrium-conversions"]
 trust_level = "trusted"
 
@@ -191,6 +151,9 @@ trust_level = "trusted"
 [projects."/Users/josephrojo/fiserv/aitrium/aitrium-dev-workspace"]
 trust_level = "trusted"
 
+[projects."/Users/josephrojo/fiserv/aitrium/enterprise-gpt-data-models"]
+trust_level = "trusted"
+
 [notice.model_migrations]
 "gpt-5.3-codex" = "gpt-5.4"
 
@@ -234,7 +197,18 @@ approval_mode = "approve"
 [mcp_servers.codegraph.tools.codegraph_callers]
 approval_mode = "approve"
 
+[mcp_servers.codegraph.tools.codegraph_callees]
+approval_mode = "approve"
+
+[mcp_servers.codegraph.tools.codegraph_impact]
+approval_mode = "approve"
+
 [hooks.state]
 
 [hooks.state."/Users/josephrojo/.codex/hooks.json:subagent_stop:0:0"]
 trusted_hash = "sha256:7d4a561a54467a3d343516cee5fb95e0d3eea1444ebbb9e37db92dbac850e865"
+
+[marketplaces.aitrium-dev-workspace-local]
+last_updated = "2026-06-03T19:17:29Z"
+source_type = "local"
+source = "/Users/josephrojo/fiserv/aitrium/aitrium-dev-workspace"
