@@ -21,6 +21,9 @@ Follow these rules:
 - For plans involving code changes, keep this task limited to plan artifacts and report back so parent agent can route implementation work if needed.
 - Write `plan.md` with these sections: `Goal`, `Scope`, `Non-goals`, `Constraints`, `Plan`, `Risks`, `Tests`.
 - Write `tasks.md` as checkbox list seeded from current Plan steps, one task per line.
+- Add nested `Verify:` acceptance checks under each task when plan has tests, constraints, invariants, risks, docs, samples, config changes, or source-specific behavior.
+- Keep `Verify:` checks concrete enough to prove completion; include critical success, failure, no-write/no-mutation, rollback/no-cleanup, path preservation, docs/sample, and source-specific coverage where relevant.
+- Do not write broad task checkboxes that can be marked done without proof.
 - If plan changes, require renewed approval before updating `plan.md` or `tasks.md`.
 - If `./.agents/tasks/<task>/` already exists, reuse it and update existing files instead of creating parallel directory.
 - Report which directory and files were created or updated.

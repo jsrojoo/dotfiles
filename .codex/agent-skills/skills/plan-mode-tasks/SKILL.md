@@ -58,10 +58,14 @@ Use this template and fill it with final plan content.
 
 - Use checkbox list format.
 - Seed tasks from Plan steps, one task per line.
+- Add nested `Verify:` acceptance checks under each task when the plan includes tests, constraints, invariants, risks, docs, samples, config changes, or source-specific behavior.
+- Keep `Verify:` checks concrete enough to prove completion; include critical success, failure, no-write/no-mutation, rollback/no-cleanup, path preservation, docs/sample, and source-specific coverage where relevant.
+- Do not make `tasks.md` a broad checklist that can be marked done without proof.
 - Use this format:
 
 ```
 - [ ] Task description
+  - Verify: Acceptance check tied to plan tests, constraints, or risks.
 ```
 
 ## Updates
