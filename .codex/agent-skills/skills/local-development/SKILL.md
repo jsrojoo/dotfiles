@@ -1,6 +1,6 @@
 ---
 name: local-development
-description: Joseph Rojo local Aitrium development setup knowledge. Use when working with local development, Dockerized local services, Postgres, MinIO, Coder workspace access, SSH to main.Aitrium.josephrojo.coder, port forwarding, Redis, OpenSearch, LocalStack/ElasticMQ, Kind Kubernetes, mise-managed Node/Python environments, mise.local.toml templates, or paths under /Users/josephrojo/fiserv/aitrium/aitrium-services and /Users/josephrojo/fiserv/coder/coder-aitrium.
+description: Joseph Rojo local Aitrium development setup knowledge. Use when working with local development, Dockerized local services, Postgres, MinIO, Coder workspace access, SSH to main.Aitrium.josephrojo.coder, port forwarding, Redis, OpenSearch, LocalStack/ElasticMQ, Kind Kubernetes, local auth/OAuth service startup, PingID sandbox, mise-managed Node/Python environments, mise.local.toml templates, or paths under /Users/josephrojo/fiserv/aitrium/aitrium-services and /Users/josephrojo/fiserv/coder/coder-aitrium.
 ---
 
 # Local Development
@@ -11,6 +11,53 @@ description: Joseph Rojo local Aitrium development setup knowledge. Use when wor
 - Local laptop services include Postgres and MinIO.
 - Use `/Users/josephrojo/fiserv/coder/coder-aitrium` for Coder workspace access and port forwarding.
 - Use `aitrium-dev-workspace` for task workspace bootstrap, worktrees, tmux windows, cross-repo status, and cross-repo diffs.
+
+## Local Auth And PingID
+
+- Use this flow when an Aitrium UI needs `http://localhost:5000/v1/oauth/initialize` or local OAuth login.
+- Start PingID sandbox first from `/Users/josephrojo/fiserv/aitrium/pingid-sandbox`; it serves local PingID on `http://localhost:4321`.
+- PingID sandbox needs Redis for `/api/submit`; if Coder Redis on `6379` hangs, use isolated local Redis on `6380`.
+
+```bash
+docker run -d --name aitrium-pingid-redis -p 6380:6379 redis:latest
+```
+
+```bash
+REDIS_PORT=6380 npm run dev
+```
+
+- Start `enterprise-gpt-api` auth routes from `/Users/josephrojo/fiserv/aitrium/enterprise-gpt-api` on `http://localhost:5000`.
+- Source env files with `./` paths in zsh; `. .env` can fail with `no such file or directory`.
+- Do not print dotenv contents.
+
+```bash
+set -a
+. ./.env
+. ./auth.env
+. ./auth-local.env
+. ./orion-apis.env
+set +a
+CORS_ORIGINS='http://localhost:5173,http://localhost:3000,http://localhost:8001' CORS_CREDENTIALS=True OAUTH_ACCESS_TOKEN_KEY=access_token OAUTH_REFERER_REDIRECT=true OAUTH_REFERER_WHITELIST='http://localhost:5173/,http://localhost:5173/login,http://localhost:3000/,http://localhost:8001/' OAUTH_ON_SUCCESS_REDIRECT_URI='http://localhost:5173' OAUTH_ON_ERROR_REDIRECT_URI='http://localhost:5173/login' FUNCTION=postLogin,oAuthInitialize,oAuthCode,unifiedAuthCallback,oAuthMe,oAuthLogout,oAutRefresh,getPublicSettings poetry run uvicorn server:app --reload --host 0.0.0.0 --port 5000
+```
+
+- Direct browser open of `http://localhost:5000/v1/oauth/initialize` may return `200 OK` JSON with `sso_url`; this is normal when no whitelisted `Referer` header is present.
+- Expected UI click from `http://localhost:5173/` is `307 Temporary Redirect` to `http://localhost:4321/as/authorization.oauth2`.
+- If `localhost:5000` refuses connection, `enterprise-gpt-api` is not running.
+- If `sso_url` points away from `localhost:4321`, check auth env for `OAUTH_PING_ID_BASE_URI=http://localhost:4321`.
+- If UI still shows JSON, check the request `Referer`; `handlers/oauth/initialize_oauth/handler.py` requires exact match against `OAUTH_REFERER_WHITELIST`.
+- If PingID hangs after selecting a user and clicking Submit, test `/api/submit`; a hang usually means Redis is unavailable or stale.
+- If callback redirects to `login?egpt_error=INTERNAL_SERVER_ERROR` and logs show `KeyError: ''`, set `OAUTH_ACCESS_TOKEN_KEY=access_token`.
+- If UI requests to `/v1/oauth/me` or `/v1/public/settings` fail preflight, set `CORS_ORIGINS` to include `http://localhost:5173` and `CORS_CREDENTIALS=True`.
+- Verify without printing secrets:
+
+```bash
+lsof -nP -iTCP:5000 -sTCP:LISTEN
+curl -i http://localhost:5000/v1/oauth/initialize
+curl -i -H 'Referer: http://localhost:5173/' http://localhost:5000/v1/oauth/initialize
+lsof -nP -iTCP:4321 -sTCP:LISTEN
+curl -I http://localhost:4321
+node -e "const Redis=require('ioredis'); const r=new Redis(6380,'localhost',{connectTimeout:1000,commandTimeout:2000}); r.ping().then(v=>{console.log(v); process.exit(0)}).catch(e=>{console.error(e.message); process.exit(1)})"
+```
 
 ## Coder Workspace
 
