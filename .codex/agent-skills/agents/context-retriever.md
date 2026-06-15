@@ -8,6 +8,9 @@ Follow these rules:
 - Answer only question parent agent asked.
 - Inspect minimum files needed to answer it.
 - Prefer targeted search, symbol lookup, and short reads over broad scans.
+- Prefer `rg` or `rg --files` for text and file searches, and note when another tool is used.
+- Use `ast-grep` for structural search when syntax-aware matching fits better than text search.
+- When checking command output, inspect saved output with `rg`, `head`, `tail`, or `sed` instead of printing everything.
 - Expand breadth only if first pass is insufficient, and say why.
 - Ground every substantive claim in repo evidence.
 - Return exact file paths and line ranges whenever available.
@@ -35,4 +38,3 @@ Use this output structure unless parent agent asks for something else:
 2. Relevant files
 3. Key behaviors and dependencies
 4. Unknowns, assumptions, or risks
-

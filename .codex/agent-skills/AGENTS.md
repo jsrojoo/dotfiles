@@ -32,6 +32,19 @@
 - After plan approval, prefer registered subagents for command execution and plan artifacts: `workflow_execution` for execution-heavy work and `plan_mode_tasks` for approved `plan.md` or `tasks.md` updates.
 - If current runtime policy prevents spawning subagents, perform only the narrow required work directly and state that runtime constraint before tool-heavy work.
 
+## 3. Subagent Operating Rule
+- This `AGENTS.md` is a standing explicit user request to use subagents for non-trivial repo work.
+- Before non-trivial repo work, main agent must decide whether work can split into independent narrow scopes.
+- Main agent must write a short delegation map before spawning:
+    - Local critical-path work.
+    - Subagent A scope and expected output.
+    - Subagent B scope and expected output.
+    - Integration and verification step.
+- Main agent must spawn 2+ sibling subagents in parallel when tasks are independent, non-conflicting, and materially improve speed or context hygiene.
+- Good parallel scopes include separate repo areas, separate implementation slices with disjoint file ownership, separate review dimensions, and verification that can run while implementation continues.
+- Do not spawn subagents for trivial one-file work, fully blocking next-step work, overlapping write scopes, or when user explicitly forbids subagents.
+- Every spawned subagent prompt must require `Caveman` plugin and `caveman` skill, narrow scope, expected output, no nested subagents, and no reverting others' changes.
+
 ## Behavioral guidelines
 
 Behavioral rules to reduce common LLM coding mistakes. Merge with project-specific instructions when needed.
@@ -95,7 +108,7 @@ For multi-step tasks, state brief plan:
 Strong success criteria let you loop independently. Weak criteria ("make it work") need constant clarification.
 
 ## Skills
-- Use `workflow-investigation` for searches, file inspection, evidence gathering, and structural queries.
+- Use `context_retriever` subagent as the only read-only investigation agent for searches, file inspection, evidence gathering, structural queries, file discovery, command-output inspection, and repo context.
 - Use `workflow-execution` for complex shell work, temp files, environment setup, tmux discipline, and command-running practices.
 - Use `workflow-code` for code edits, refactors, naming, TDD, and error handling.
 - Use `workflow-testing` when tests run, verification is needed, or test selection matters.
@@ -112,16 +125,19 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
 - Use judgment: do not spawn subagents for trivial one-file reads unless `context_retriever` is required by repo instructions.
 - Prefer specialized subagents by default whenever current runtime policy allows them.
 - Delegate well-scoped work to appropriate subagent when it cuts token use or keeps context smaller, especially for repo exploration, parallel investigation, testing, git hygiene, or isolated implementation work.
+- Main agent must spawn multiple sibling subagents in parallel when tasks are independent, non-conflicting, and parallel execution improves efficient execution of current task.
 - Route task tool calls and MCP calls through appropriate subagent when subagent can perform work.
+- When gathering context, including web search, retrieving context, reading files, and executing commands to get result data, main agent must delegate that work to appropriate subagent unless user explicitly forbids subagents or runtime cannot run them.
 - Keep tool-heavy and MCP-heavy work out of main agent session; main agent should orchestrate subagents and consume concise findings, command results, file references, and risks.
 - When an appropriate dedicated subagent exists, main agent must delegate that work and must not do it directly in main session, unless user explicitly forbids subagents or runtime cannot run them.
-- For any prompt that requires repo exploration, broad review, codebase understanding, file discovery, skill/plugin inventory, or "review X and suggest improvements," main agent must invoke `context_retriever` first.
-- Main agent must not perform broad file reads, repo-wide searches, CodeGraph queries, or plugin/skill inventory directly when `context_retriever` is available.
+- For any prompt that requires repo exploration, broad review, codebase understanding, file discovery, skill/plugin inventory, targeted searches, evidence gathering, or "review X and suggest improvements," main agent must invoke `context_retriever` first.
+- Treat `context_retriever` as the single default read-only investigation subagent for both discovery and focused follow-up.
+- Main agent must not perform broad file reads, repo-wide searches, targeted repo searches, or plugin/skill inventory directly when `context_retriever` is available.
 - Main agent may inspect files directly only after `context_retriever` returns a focused file list, and only for final synthesis or small targeted verification.
 - Before using repo-inspection tools directly in main session, state why no available subagent can perform the work, why runtime cannot spawn subagents, or why user explicitly forbade subagents.
 - Read-only repo work priority:
-    1. `context_retriever` for discovery, inventory, file selection, and broad review.
-    2. Specialized subagent for focused follow-up, such as `workflow_investigation`, `codebase_understanding`, or `workflow_testing`.
+    1. `context_retriever` for discovery, inventory, file selection, targeted search, evidence gathering, and broad review.
+    2. Specialized subagent for non-investigation follow-up, such as `codebase_understanding`, `workflow_testing`, `workflow_code`, or `workflow_execution`.
     3. Main-agent direct reads only for final synthesis, narrow verification, or when subagents are unavailable.
 - Main agent may invoke tools directly for subagent orchestration, user-facing prompts, final response support, work no available subagent can perform, or work required because runtime cannot spawn subagents.
 - Route git write operations through `git_workflow` subagent.
@@ -134,8 +150,8 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
 - Do not use routine ping or heartbeat checks for subagents. Prefer event-style completion handling: rely on `<subagent_notification>` messages, `wait_agent` completion status, and `SubagentStop` hook records in `tmp/subagent-stop-events.jsonl`.
 - Send a health check only after a long `wait_agent` timeout when next critical step is blocked and no completion event exists.
 - Keep subagent tasks small and actionable. Do not make one subagent handle work that is too large or long-running; it should report progress or results back in time.
-- Use `context_retriever` subagent for repo exploration, code search, CodeGraph queries, file inspection, and context gathering.
-- Keep context retrieval out of main agent session; main agent should ask subagent for focused findings with file references, then use only summarized evidence.
+- Use `context_retriever` subagent for repo exploration, code search, file inspection, and context gathering.
+- Keep all read-only investigation out of main agent session by default; main agent should ask `context_retriever` for focused findings with file references, then use only summarized evidence.
 - Use `codebase-understanding` skill when user wants to understand implementation, trace flow through system, or generate code-understanding artifact; route through `codebase_understanding` subagent.
 
 ## Aitrium Skill Boundaries
@@ -143,38 +159,3 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
 - Use `local-development` for local laptop services, Coder workspace access, port forwarding, Dockerized dependencies, and repo-local Node/Python environment templates.
 - Use `aitrium-dev-workspace` for executable task workspace helpers, Git worktree bootstrap, tmux windows, cross-repo status, cross-repo diffs, and workspace command examples.
 - Keep generated system skills under `agent-skills/skills/.system/` untracked and ignored.
-
-<!-- CODEGRAPH_START -->
-## CodeGraph
-
-This project has a CodeGraph MCP server (`codegraph_*` tools) configured. When a repo has `.codegraph/` initialized, CodeGraph is a tree-sitter-parsed knowledge graph of every symbol, edge, and file. Reads are sub-millisecond and return structural information grep cannot.
-
-### When to prefer codegraph over native search
-
-Use codegraph for **structural** questions — what calls what, what would break, where is X defined, what is X's signature. Use native grep/read only for **literal text** queries (string contents, comments, log messages) or after you already have a specific file open.
-
-| Question | Tool |
-|---|---|
-| "Where is X defined?" / "Find symbol named X" | `codegraph_search` |
-| "What calls function Y?" | `codegraph_callers` |
-| "What does Y call?" | `codegraph_callees` |
-| "What would break if I changed Z?" | `codegraph_impact` |
-| "Show me Y's signature / source / docstring" | `codegraph_node` |
-| "Give me focused context for a task/area" | `codegraph_context` |
-| "See several related symbols' source at once" | `codegraph_explore` |
-| "What files exist under path/" | `codegraph_files` |
-| "Is the index healthy?" | `codegraph_status` |
-
-### Rules of thumb
-
-- **Delegate context retrieval.** For "how does X work" / architecture / trace questions, route CodeGraph calls through `context_retriever`. Ask for focused findings with file references, not raw dumps.
-- **Trust codegraph results.** They come from a full AST parse. Do NOT re-verify them with grep — that's slower, less accurate, and wastes context.
-- **Don't grep first** when looking up a symbol by name. `codegraph_search` is faster and returns kind + location + signature in one call.
-- **Don't chain `codegraph_search` + `codegraph_node`** when you just want context — `codegraph_context` is one call.
-- **Don't loop `codegraph_node` over many symbols** — one `codegraph_explore` call returns several symbols' source grouped in a single capped call, while each separate node/Read call re-reads the whole context and costs far more.
-- **Index lag**: the file watcher debounces ~500ms behind writes; don't re-query immediately after editing a file in the same turn.
-
-### If `.codegraph/` doesn't exist
-
-The MCP server returns "not initialized." Ask the user: *"I notice this project doesn't have CodeGraph initialized. Want me to run `codegraph init -i` to build the index?"*
-<!-- CODEGRAPH_END -->

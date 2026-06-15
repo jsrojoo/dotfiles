@@ -28,7 +28,6 @@ Shared instructions, skills, and subagent definitions for coding-agent workflows
     ├── workflow-code/
     ├── workflow-execution/
     ├── workflow-git/
-    ├── workflow-investigation/
     └── workflow-testing/
 ```
 
@@ -42,7 +41,7 @@ Shared instructions, skills, and subagent definitions for coding-agent workflows
 1. Copy or link `AGENTS.md` into the location your agent runtime uses for top-level instructions.
 2. Copy or link `skills/` into the location your runtime uses for reusable skills.
 3. If your runtime supports subagent registration, also copy or link `agents/`.
-4. Start with a simple task and explicitly mention the workflow you want, such as `workflow-investigation` or `workflow-code`.
+4. Start with a simple task and explicitly mention the workflow you want, such as `agent-context-retriever` or `workflow-code`.
 5. Keep this repo updated so future runs pick up instruction and skill changes.
 
 ## Core operating model
@@ -52,12 +51,11 @@ Shared instructions, skills, and subagent definitions for coding-agent workflows
 
 ### Typical flow
 1. Use `agent-context-retriever` before broad repo inspection.
-2. Use `workflow-investigation` for focused search and evidence gathering.
-3. Use `workflow-code` for implementation changes and related documentation updates.
-4. Use `workflow-testing` for focused verification.
-5. Use `workflow-git` when the task includes staging or commits.
-6. Use `plan-mode-tasks` after an approved plan needs `plan.md` and `tasks.md` artifacts.
-7. Use `codebase-understanding` when the goal is explanation, diagrams, or a reusable understanding artifact.
+2. Use `workflow-code` for implementation changes and related documentation updates.
+3. Use `workflow-testing` for focused verification.
+4. Use `workflow-git` when the task includes staging or commits.
+5. Use `plan-mode-tasks` after an approved plan needs `plan.md` and `tasks.md` artifacts.
+6. Use `codebase-understanding` when the goal is explanation, diagrams, or a reusable understanding artifact.
 
 ## Shipped skills
 
@@ -68,7 +66,6 @@ Shared instructions, skills, and subagent definitions for coding-agent workflows
 - `workflow-code` — guides implementation, naming, TDD, documentation updates, and validation expectations.
 - `workflow-execution` — defines shell discipline, environment handling, and tmux-oriented command execution rules.
 - `workflow-git` — handles diff review, staging, commit grouping, and commit hygiene.
-- `workflow-investigation` — guides targeted search, inspection, and evidence gathering.
 - `workflow-testing` — guides focused verification and concise test reporting.
 
 ## Subagents included
@@ -77,7 +74,6 @@ Shared instructions, skills, and subagent definitions for coding-agent workflows
 - `agents/plan-mode-tasks.*` — plan artifact support.
 - `agents/workflow-code.*` — implementation support.
 - `agents/workflow-execution.*` — execution discipline support.
-- `agents/workflow-investigation.*` — investigation support.
 - `agents/workflow-testing.*` — testing support.
 - `agents/git-workflow.*` — git-only workflow support.
 

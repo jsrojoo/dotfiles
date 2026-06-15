@@ -1,4 +1,0 @@
-interface:
-  display_name: Workflow Investigation
-  short_description: Search and inspection tooling practices.
-  default_prompt: Use this skill for investigation and tooling practices.
