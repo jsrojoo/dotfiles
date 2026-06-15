@@ -110,11 +110,6 @@ export DOCKER_CLI_HINTS=false
 
 export WASMER_DIR="/Users/joseph.rojo/.wasmer"
 
-if [[ -z "${CODEX_REAL:-}" ]]; then
-  CODEX_REAL="$(whence -p codex 2>/dev/null)"
-  export CODEX_REAL
-fi
-
 export PATH="$HOME/dotfiles/scripts:$PATH"
 
 [[ -e ~/.profile ]] && emulate sh -c 'source ~/.profile'

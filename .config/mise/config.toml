@@ -47,5 +47,4 @@ tmux_window_create_if_missing() {
 }
 
 tmux_window_create_if_missing "codex" "codex"
-tmux_window_create_if_missing "codex-cli" ""
 '''

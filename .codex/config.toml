@@ -63,6 +63,7 @@ steer = true
 personality = true
 multi_agent = true
 prevent_idle_sleep = true
+terminal_resize_reflow = true
 
 [projects."/Users/josephrojo/fiserv/aitrium/labs/aitrium-conversions"]
 trust_level = "trusted"
@@ -154,6 +155,12 @@ trust_level = "trusted"
 [projects."/Users/josephrojo/fiserv/aitrium/enterprise-gpt-data-models"]
 trust_level = "trusted"
 
+[projects."/Users/josephrojo/fiserv/aitrium/local-dev-secrets"]
+trust_level = "trusted"
+
+[projects."/Users/josephrojo/fiserv/aitrium/labs/ai-usage-metrics"]
+trust_level = "trusted"
+
 [notice.model_migrations]
 "gpt-5.3-codex" = "gpt-5.4"
 
@@ -171,37 +178,6 @@ status_line = ["model-with-reasoning", "context-remaining", "used-tokens", "curr
 
 [tui.model_availability_nux]
 "gpt-5.5" = 4
-
-[mcp_servers.codegraph]
-command = "codegraph"
-args = ["serve", "--mcp"]
-
-[mcp_servers.codegraph.tools.codegraph_status]
-approval_mode = "approve"
-
-[mcp_servers.codegraph.tools.codegraph_context]
-approval_mode = "approve"
-
-[mcp_servers.codegraph.tools.codegraph_files]
-approval_mode = "approve"
-
-[mcp_servers.codegraph.tools.codegraph_search]
-approval_mode = "approve"
-
-[mcp_servers.codegraph.tools.codegraph_explore]
-approval_mode = "approve"
-
-[mcp_servers.codegraph.tools.codegraph_node]
-approval_mode = "approve"
-
-[mcp_servers.codegraph.tools.codegraph_callers]
-approval_mode = "approve"
-
-[mcp_servers.codegraph.tools.codegraph_callees]
-approval_mode = "approve"
-
-[mcp_servers.codegraph.tools.codegraph_impact]
-approval_mode = "approve"
 
 [hooks.state]
 
