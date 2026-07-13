@@ -14,6 +14,7 @@ _.file = [
   '~/.config/mise/.envars/.fortify.env',
   '~/.config/mise/.envars/.gitlab.env',
   '~/.config/mise/.envars/.harbor.env',
+  '~/.config/mise/.envars/.local-dev.env',
   '~/.config/mise/.envars/.local-admin-api.env',
   '~/.config/mise/.envars/.secrets.env',
   '~/.config/mise/.envars/.sonatype.env',

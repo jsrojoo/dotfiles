@@ -14,7 +14,7 @@ approval_policy = "on-request"
 sandbox_mode = "danger-full-access"
 disable_response_storage = false
 personality = "pragmatic"
-service_tier = "default"
+service_tier = "fast"
 
 [shell_environment_policy]
 inherit = "all"
@@ -161,16 +161,19 @@ trust_level = "trusted"
 [projects."/Users/josephrojo/fiserv/aitrium/labs/ai-usage-metrics"]
 trust_level = "trusted"
 
+[projects."/Users/josephrojo/fiserv/document-intelligence-api"]
+trust_level = "trusted"
+
 [notice.model_migrations]
 "gpt-5.3-codex" = "gpt-5.4"
 
 [plugins."caveman@caveman-repo"]
 enabled = true
 
-[plugins."sdlc-vulnerability-remediation@sdlc-automation-local"]
+[plugins."aitrium-dev-workspace@aitrium-dev-workspace-local"]
 enabled = true
 
-[plugins."aitrium-dev-workspace@aitrium-dev-workspace-local"]
+[plugins."sdlc-vulnerability-remediation@sdlc-automation"]
 enabled = true
 
 [tui]
@@ -188,3 +191,8 @@ trusted_hash = "sha256:7d4a561a54467a3d343516cee5fb95e0d3eea1444ebbb9e37db92dbac
 last_updated = "2026-06-03T19:17:29Z"
 source_type = "local"
 source = "/Users/josephrojo/fiserv/aitrium/aitrium-dev-workspace"
+
+[marketplaces.sdlc-automation]
+last_updated = "2026-07-06T11:16:11Z"
+source_type = "local"
+source = "/Users/josephrojo/fiserv/poc/sdlc-automation"

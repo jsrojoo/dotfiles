@@ -36,8 +36,7 @@ lazy.setup({
 
   {
     "williamboman/mason.nvim",
-    cmd = "Mason",
-    event = "VeryLazy",
+    lazy = false,
     opts = {},
   },
 

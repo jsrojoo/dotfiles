@@ -53,6 +53,11 @@ git apply --cached /tmp/patches/api.patch
     - keep body to 1-2 short sentences describing what changed and why.
     - write commit subject and body in normal clear prose, not caveman style, even when caveman is default elsewhere.
     - if `tmux send-keys` is explicitly requested, wrap each `-m` argument in single quotes or escape spaces so message is not collapsed.
+- When creating merge requests with `glab`, first verify command context belongs to the target repository.
+    - run `pwd`, `git remote get-url origin`, and `glab repo view` or equivalent before `glab mr create`.
+    - ensure current directory is the target repo/worktree that owns the source branch, not a parent orchestration repo.
+    - always pass `--repo <group/project>` explicitly, even when current directory is correct.
+    - if `glab` writes a recovery file after a wrong-repo attempt, do not reuse it; rerun a fresh `glab mr create` from the correct repo context with `--repo`.
 - Ask git subagent to report exact git commands it ran, files or hunks it staged, and any leftover unstaged changes that still need user attention.
 - Default to conventional, atomic commits without asking; ask only when user explicitly requests different approach.
 - Prefer many small commits while iterating, then group related work using `fixup!`/`squash!` and `git rebase -i --autosquash` before sharing.

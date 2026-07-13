@@ -1,0 +1,4 @@
+interface:
+  display_name: "Confluence Skill"
+  short_description: "Work with enterprise Confluence content"
+  default_prompt: "Use $confluence-skill to read and summarize this Confluence URL."
