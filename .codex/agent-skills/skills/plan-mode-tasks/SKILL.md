@@ -47,6 +47,8 @@ Use this template and fill it with final plan content.
 
 # Constraints
 
+# Plain-English Pseudocode
+
 # Plan
 
 # Risks
@@ -66,6 +68,36 @@ Use this template and fill it with final plan content.
 ```
 - [ ] Task description
   - Verify: Acceptance check tied to plan tests, constraints, or risks.
+```
+
+## Plain-English Pseudocode
+
+- For code-change plans, include `# Plain-English Pseudocode` in `plan.md`.
+- This helps `workflow-code`, but `workflow-code` can derive pseudocode later if absent.
+- Write pseudocode as domain steps in execution order.
+- Prefer immutable flow: each step should produce a named output consumed by the next step.
+- Keep it behavior-focused, not language-specific.
+- Name key invariants when behavior must not change.
+
+Use this shape:
+
+```text
+Collect [domain inputs].
+Normalize [domain inputs] into [normalized inputs].
+Build [primary output] from [normalized inputs].
+Add [secondary output] to produce [expanded output].
+Enrich [expanded output] with [domain data].
+Compute [derived output] from [enriched output].
+Filter [derived output] into [valid output].
+Return [valid output].
+```
+
+For implementation-heavy tasks, add `Pseudo:` lines in `tasks.md` when useful:
+
+```md
+- [ ] Refactor consumption row build into billing, seat, and pricing stages.
+  - Pseudo: collect raw records; build pricing rules; build seat snapshots; build billing rows; build seat rows; produce enriched rows; compute total spend; return valid-email rows.
+  - Verify: focused tests pass and public behavior stays unchanged.
 ```
 
 ## Updates

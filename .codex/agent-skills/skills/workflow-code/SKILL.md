@@ -33,3 +33,78 @@ description: Coding conventions, naming, and TDD guidelines.
 - Validate code updates before moving on, preferring current project's dev dependencies (formatters/linters/test commands) over ad hoc tooling.
 - When proposing architecture and system and database design items, use mermaid diagrams and markdown tables.
 - For responsive frontend layout guidance, read `references/responsive-frontend.md`.
+
+## Plain-English Pseudocode
+- Before non-trivial implementation or refactor work, produce plain-English pseudocode.
+- If approved `plan.md` already has `# Plain-English Pseudocode`, use it as source of truth.
+- If no pseudocode exists, derive it from current task, code context, tests, and constraints before editing.
+- Do not depend on `plan-mode-tasks`; `workflow-code` must be able to create task-local pseudocode itself.
+- Write pseudocode as domain steps, not implementation syntax.
+- Prefer immutable flow: each step returns a new value instead of mutating shared state.
+- Each line should map to one top-level orchestration statement, focused helper, or acceptance check.
+- Preserve current behavior unless task explicitly asks for behavior change.
+- If behavior is unclear, state the unknown before editing.
+
+Use this shape:
+
+```text
+Collect [domain inputs].
+Normalize [domain inputs] into [normalized inputs].
+Build [primary output] from [normalized inputs].
+Add [secondary output] to produce [expanded output].
+Enrich [expanded output] with [domain data].
+Compute [derived output] from [enriched output].
+Filter [derived output] into [valid output].
+Return [valid output].
+```
+
+## Immutable Implementation Flow
+- Make top-level code read in same order as pseudocode.
+- Prefer helpers that accept inputs and return outputs.
+- Avoid helper side effects unless required by existing API, performance, transaction, or I/O boundary.
+- If mutation is necessary, keep it local, name it clearly, and do not leak mutable intermediate state across unrelated helpers.
+- Convert each meaningful pseudocode line into a clearly named helper when it reduces cognitive load.
+- Helper names should preserve domain language.
+- Prefer names shaped like `[domain]_[thing]_[action]`, e.g. `_billing_consumption_rows_build`.
+- Avoid vague mixed-concern helpers like `_process_items`, `_handle_records`, `_apply_all`, or `_do_work`.
+
+Preferred refactor shape:
+
+```python
+def _thing_build(input_items):
+    normalized_items = _items_normalize(input_items)
+    rules = _rules_collect(normalized_items)
+    primary_output = _primary_output_build(normalized_items)
+    expanded_output = _secondary_output_add(primary_output, normalized_items)
+    enriched_output = _domain_output_enrich(expanded_output, rules)
+    derived_output = _derived_values_compute(enriched_output)
+    return _valid_output_filter(derived_output)
+```
+
+Avoid this shape unless existing APIs force it:
+
+```python
+def _thing_build(input_items):
+    output_by_key = {}
+    _primary_output_add(output_by_key, input_items)
+    _secondary_output_add(output_by_key, input_items)
+    _domain_output_enrich(output_by_key)
+    return _valid_output_filter(output_by_key)
+```
+
+## Execution Flow
+- Read current code and tests.
+- Write or derive plain-English pseudocode.
+- Compare pseudocode to existing behavior and invariants.
+- Implement top-level code so it mirrors pseudocode.
+- Extract helpers only when they clarify one core concern.
+- Run focused tests.
+- Report pseudocode, changed helpers, tests, and behavior risk.
+
+## Handoff Check
+- Top-level function reads like plain-English pseudocode.
+- Each helper owns one core concern.
+- Data flow is immutable by default, with any necessary mutation isolated and obvious.
+- Names use domain terms.
+- Tests prove behavior.
+- Diff avoids unrelated cleanup.
