@@ -1,3 +1,16 @@
+vim.diagnostic.config({
+  virtual_text = {
+    severity = { min = vim.diagnostic.severity.ERROR },
+  },
+  signs = {
+    severity = { min = vim.diagnostic.severity.ERROR },
+  },
+  underline = {
+    severity = { min = vim.diagnostic.severity.ERROR },
+  },
+  severity_sort = true,
+})
+
 vim.api.nvim_create_autocmd("LspAttach", {
   group = vim.api.nvim_create_augroup("user_lsp_keymaps", { clear = true }),
   callback = function(args)
