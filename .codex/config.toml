@@ -3,7 +3,7 @@ notify = [
   "/Users/josephrojo/dotfiles/.codex/notify.py"
 ]
 
-model = "gpt-5.5"
+model = "gpt-5.6-sol"
 model_provider = "atlas"
 model_reasoning_effort = "medium"
 model_reasoning_summary = "auto"
@@ -174,6 +174,7 @@ status_line = ["model-with-reasoning", "context-remaining", "used-tokens", "curr
 
 [tui.model_availability_nux]
 "gpt-5.5" = 4
+"gpt-5.6-sol" = 3
 
 [hooks.state]
 
