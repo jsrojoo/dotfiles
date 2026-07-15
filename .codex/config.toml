@@ -33,9 +33,9 @@ wire_api = "responses"
 
 [model_providers.walle]
 name = "Azure OpenAI"
-base_url = "https://apis.aitrium.app.walle.aws.fisv.cloud/v1/codex/dev-aitrium-eastus2-1"
-env_key = "WALLE_CODEX_PAT"
-wire_api = "responses"
+base_url = "https://apis.aitrium.app.walle.aws.fisv.cloud/v1/codex/dev-atrium-useast2"
+env_key = "WALLE_PAT"
+query_params = { api-version = "2025-04-01-preview" }
 
 [model_providers.atlas]
 name = "Atlas"
@@ -43,17 +43,10 @@ base_url = "https://apis.aitrium.app.atlas.gfs-emea-ai-platform.aws.fisv.cloud/v
 env_key = "AITRIUM_LLM_PASSTHROUGH"
 query_params = { api-version = "2025-04-01-preview" }
 
-[model_providers.gemini]
-name = "gemini"
-base_url = "https://apis.egpt.app.gemini.aws.fisv.cloud/v1/codex/cat-aitrium-eastus2-1"
-env_key = "AITRIUM_GEMINI_OPENAI_API_KEY"
-query_params = { api-version = "2025-04-01-preview" }
-
-[model_providers.aitrium_gemini_reponses]
-name = "Gemini Responses"
-base_url = "https://apis.egpt.app.gemini.aws.fisv.cloud/v1/codex/cat-aitrium-eastus2-1"
-env_key = "AITRIUM_GEMINI_OPENAI_API_KEY"
-wire_api = "responses"
+[model_providers.ameca]
+name = "Ameca"
+base_url = "https://apis.aitrium.app.ameca.gfsemea-ai-platform-cat.aws.fisv.cloud/v1/codex/cat-aitrium-eastus2-1"
+env_key = "AMECA_PAT"
 query_params = { api-version = "2025-04-01-preview" }
 
 [features]
