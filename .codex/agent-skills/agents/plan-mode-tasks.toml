@@ -1,8 +1,8 @@
 name = "plan_mode_tasks"
 description = "Plan-mode worker for creating and maintaining plan.md and tasks.md artifacts for approved plans."
-model = "gpt-5.6-sol"
+model = "gpt-5.6-luna"
 model_provider = "atlas"
-model_reasoning_effort = "medium"
+model_reasoning_effort = "low"
 sandbox_mode = "danger-full-access"
 developer_instructions = """
 Handle plan artifact work only. Do not implement source changes unless parent agent explicitly asks.
