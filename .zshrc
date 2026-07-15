@@ -112,6 +112,8 @@ export WASMER_DIR="/Users/joseph.rojo/.wasmer"
 
 export PATH="$HOME/dotfiles/scripts:$PATH"
 
+[[ -e ~/dotfiles/.config/zsh/claude.zsh ]] && source ~/dotfiles/.config/zsh/claude.zsh
+
 [[ -e ~/.profile ]] && emulate sh -c 'source ~/.profile'
 [[ -e ~/dotfiles/scripts.sh ]] && source ~/dotfiles/scripts.sh
 [[ -e ~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh ]] && source ~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh
