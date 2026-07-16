@@ -26,6 +26,7 @@
     }
   },
   "effortLevel": "medium",
+  "includeCoAuthoredBy": false,
   "skipDangerousModePermissionPrompt": true,
   "theme": "dark-daltonized",
   "hooks": {
