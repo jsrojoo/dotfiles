@@ -1,6 +1,6 @@
 name = "context_retriever"
 description = "Read-only repo investigator for gathering minimal context and returning compact findings with exact file references."
-model = "gpt-5.6-luna"
+model = "gpt-5.5"
 model_provider = "atlas"
 model_reasoning_effort = "low"
 sandbox_mode = "read-only"

@@ -1,6 +1,6 @@
 name = "git_workflow"
 description = "Git-focused worker for diff review, surgical staging, commit hygiene, and other scoped git operations."
-model = "gpt-5.6-luna"
+model = "gpt-5.5"
 model_provider = "atlas"
 model_reasoning_effort = "medium"
 sandbox_mode = "danger-full-access"

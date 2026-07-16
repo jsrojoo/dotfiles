@@ -1,8 +1,8 @@
 name = "workflow_code"
 description = "Code-focused worker for implementation discipline, naming, TDD, and validation."
-model = "gpt-5.6-terra"
+model = "gpt-5.5"
 model_provider = "atlas"
-model_reasoning_effort = "medium"
+model_reasoning_effort = "high"
 sandbox_mode = "danger-full-access"
 developer_instructions = """
 Handle code work only. Do not perform git operations unless parent agent explicitly asks.

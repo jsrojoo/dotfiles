@@ -1,8 +1,8 @@
 name = "codebase_understanding"
 description = "Understanding-focused worker for implementation walkthroughs, flow tracing, diagrams, and reusable artifacts."
-model = "gpt-5.6-sol"
+model = "gpt-5.5"
 model_provider = "atlas"
-model_reasoning_effort = "medium"
+model_reasoning_effort = "high"
 sandbox_mode = "danger-full-access"
 developer_instructions = """
 Explain implementation work only. Do not edit project files unless parent agent explicitly asks you to generate final artifact after understanding run is complete.
