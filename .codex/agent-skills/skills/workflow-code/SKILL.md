@@ -20,16 +20,23 @@ description: Coding conventions, naming, and TDD guidelines.
 - Consistency: provide stable mental model and reduce cognitive load.
 - Avoid magic numbers or strings.
 - Prefer functional patterns, avoid globals and side effects, and always handle errors with appropriate log levels: `info`, `debug`, `warn`, `error`, `fatal`.
+- Separate code into dedicated stages for data retrieval, data preparation, validation, and business logic.
+- Keep core business logic pure: accept primitive values or immutable primitive-data records/collections as parameters.
+- Do not pass request objects, ORM models, dataframes, SDK clients, response objects, or other infrastructure objects into core business logic.
+- Keep parsing, deserialization, normalization, and enrichment out of core business logic; do that in data preparation functions.
+- Keep I/O, queries, filesystem access, network calls, cache access, and environment reads in data retrieval functions.
+- Keep validation separate from business logic; validation functions inspect prepared primitive inputs and return explicit valid inputs or errors.
+- Prefer immutability: build new values from inputs instead of mutating inputs in place.
 - Using fallbacks and exception hiding means problem is not fixed and now you have two bugs.
 - Python: handle `try` and `except` properly with logging, and never use `pass` in an `except` block.
-- Follow TDD: write failing test first, then iterate until it passes.
+- Follow TDD when practical: write the smallest useful failing test first, then iterate until it passes.
 - Write code for average humans: readable and easy to understand.
 - Avoid nesting (`if`/`try`/functions) when possible; flatten control flow to improve readability and reasoning.
 - Once plan is approved and implementation starts, do it progressively, not in one dump.
-- Implement smallest actionable item, write test for it, make test fail, add implementation, and iterate until it works.
+- Implement smallest actionable item, add or update focused tests when the task warrants it, and iterate until it works.
 - When subagent performs code changes, update relevant documentation in same task so behavior, interfaces, configuration, and workflows stay aligned with implementation.
 - If no relevant documentation exists for changed area, tell parent agent to use `codebase-understanding` to generate high-level, easy-to-digest artifact with diagrams or visuals.
-- Once code works, generate atomic git commit for it and follow `workflow-git` skill for commit hygiene and grouping guidance.
+- Once code works, report commit-ready changes to the parent agent so git work can be routed through `workflow-git`.
 - Validate code updates before moving on, preferring current project's dev dependencies (formatters/linters/test commands) over ad hoc tooling.
 - When proposing architecture and system and database design items, use mermaid diagrams and markdown tables.
 - For responsive frontend layout guidance, read `references/responsive-frontend.md`.
@@ -39,6 +46,10 @@ description: Coding conventions, naming, and TDD guidelines.
 - If approved `plan.md` already has `# Plain-English Pseudocode`, use it as source of truth.
 - If no pseudocode exists, derive it from current task, code context, tests, and constraints before editing.
 - Do not depend on `plan-mode-tasks`; `workflow-code` must be able to create task-local pseudocode itself.
+- Write pseudocode inside a fenced `text` code block.
+- Use multiline flow format: one domain step per line, in execution order.
+- Keep pseudocode active during implementation; update it when behavior, helper boundaries, or data flow changes.
+- Make pseudocode show separate retrieval, preparation, validation, and pure business-logic stages when code touches business behavior.
 - Write pseudocode as domain steps, not implementation syntax.
 - Prefer immutable flow: each step returns a new value instead of mutating shared state.
 - Each line should map to one top-level orchestration statement, focused helper, or acceptance check.
@@ -48,14 +59,12 @@ description: Coding conventions, naming, and TDD guidelines.
 Use this shape:
 
 ```text
-Collect [domain inputs].
-Normalize [domain inputs] into [normalized inputs].
-Build [primary output] from [normalized inputs].
-Add [secondary output] to produce [expanded output].
-Enrich [expanded output] with [domain data].
-Compute [derived output] from [enriched output].
-Filter [derived output] into [valid output].
-Return [valid output].
+Retrieve [raw source data] from [source boundary].
+Prepare [raw source data] into [primitive inputs].
+Validate [primitive inputs] into [validated primitive inputs] or [validation errors].
+Compute [business result] from [validated primitive inputs].
+Build [output value] from [business result].
+Return [output value] without mutating inputs.
 ```
 
 ## Immutable Implementation Flow
@@ -64,39 +73,43 @@ Return [valid output].
 - Avoid helper side effects unless required by existing API, performance, transaction, or I/O boundary.
 - If mutation is necessary, keep it local, name it clearly, and do not leak mutable intermediate state across unrelated helpers.
 - Convert each meaningful pseudocode line into a clearly named helper when it reduces cognitive load.
+- Put retrieval, preparation, validation, and business logic in separate helpers unless existing project shape makes that worse.
+- Make core business helpers deterministic and easy to unit test with primitive-data inputs only.
+- Treat parser/prep helpers as adapters from messy external shapes into primitive business inputs.
 - Helper names should preserve domain language.
-- Prefer names shaped like `[domain]_[thing]_[action]`, e.g. `_billing_consumption_rows_build`.
+- Prefer names shaped like `[domain]_[thing]_[action]`, e.g. `_usage_pricing_rules_build`.
 - Avoid vague mixed-concern helpers like `_process_items`, `_handle_records`, `_apply_all`, or `_do_work`.
 
 Preferred refactor shape:
 
 ```python
-def _thing_build(input_items):
-    normalized_items = _items_normalize(input_items)
-    rules = _rules_collect(normalized_items)
-    primary_output = _primary_output_build(normalized_items)
-    expanded_output = _secondary_output_add(primary_output, normalized_items)
-    enriched_output = _domain_output_enrich(expanded_output, rules)
-    derived_output = _derived_values_compute(enriched_output)
-    return _valid_output_filter(derived_output)
+def _usage_cost_summary_build(source_id):
+    raw_usage_rows = _usage_rows_retrieve(source_id)
+    usage_inputs = _usage_inputs_prepare(raw_usage_rows)
+    valid_usage_inputs = _usage_inputs_validate(usage_inputs)
+    cost_summary = _usage_cost_summary_compute(valid_usage_inputs)
+    return _usage_cost_output_build(cost_summary)
 ```
 
 Avoid this shape unless existing APIs force it:
 
 ```python
-def _thing_build(input_items):
+def _usage_cost_summary_build(request, db_session):
+    raw_items = db_session.query(...)
     output_by_key = {}
-    _primary_output_add(output_by_key, input_items)
-    _secondary_output_add(output_by_key, input_items)
+    _primary_output_add(output_by_key, request, raw_items)
+    _secondary_output_add(output_by_key, db_session)
     _domain_output_enrich(output_by_key)
     return _valid_output_filter(output_by_key)
 ```
 
 ## Execution Flow
 - Read current code and tests.
-- Write or derive plain-English pseudocode.
+- Write or derive plain-English pseudocode in a fenced multiline `text` code block.
 - Compare pseudocode to existing behavior and invariants.
+- Keep pseudocode beside the work as the implementation checklist.
 - Implement top-level code so it mirrors pseudocode.
+- Update pseudocode before code if the implementation path changes.
 - Extract helpers only when they clarify one core concern.
 - Run focused tests.
 - Report pseudocode, changed helpers, tests, and behavior risk.
@@ -104,6 +117,8 @@ def _thing_build(input_items):
 ## Handoff Check
 - Top-level function reads like plain-English pseudocode.
 - Each helper owns one core concern.
+- Retrieval, preparation, validation, and business logic are separated where code touches business behavior.
+- Core business logic accepts primitive values or immutable primitive-data records/collections, not framework or infrastructure objects.
 - Data flow is immutable by default, with any necessary mutation isolated and obvious.
 - Names use domain terms.
 - Tests prove behavior.

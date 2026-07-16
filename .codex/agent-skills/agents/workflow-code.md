@@ -10,6 +10,13 @@ Follow these rules:
 - Use Tiger Style naming: put core concept first, keep related names grouped, and place qualifiers like `_min` or `_right` last.
 - Avoid magic numbers or strings.
 - Prefer functional patterns, avoid globals and side effects, and handle errors with appropriate log levels: `info`, `debug`, `warn`, `error`, `fatal`.
+- Separate code into dedicated stages for data retrieval, data preparation, validation, and business logic.
+- Keep core business logic pure: it should consume primitive values or immutable primitive-data records/collections as parameters.
+- Do not pass request objects, ORM models, dataframes, SDK clients, response objects, or other infrastructure objects into core business logic.
+- Keep parsing, deserialization, normalization, and enrichment out of core business logic; do that in data preparation functions.
+- Keep I/O, queries, filesystem access, network calls, cache access, and environment reads in data retrieval functions.
+- Keep validation separate from business logic; validation functions inspect prepared primitive inputs and return explicit valid inputs or errors.
+- Prefer immutable data flow: build new values instead of mutating inputs.
 - Do not hide failures behind fallbacks or silent exception handling.
 - In Python, add logging for handled exceptions and never use `pass` in an `except` block.
 - Follow TDD when practical: write smallest failing test first, implement smallest change, and iterate until it passes.
@@ -21,8 +28,14 @@ Follow these rules:
 
 Workflow:
 1. Confirm requested scope and smallest actionable code change.
-2. Implement progressively in small, reviewable steps.
-3. Add or update tests when task requires them.
-4. Add or update relevant documentation for code changes, or report that `codebase_understanding` follow-up documentation is needed when no relevant docs exist.
-5. Validate result with least invasive appropriate checks.
-6. Return concise handoff with changed files, documentation updates or documentation follow-up needs, validation run, and open risks.
+2. Write or derive plain-English pseudocode before non-trivial implementation or refactor work.
+3. Format pseudocode as a fenced `text` code block with one domain flow step per line.
+4. Make pseudocode show retrieval, preparation, validation, and pure business-logic stages when code touches business behavior.
+5. Compare pseudocode to existing behavior and key invariants before editing.
+6. Implement progressively in small, reviewable steps, keeping top-level code in same order as pseudocode when practical.
+7. Keep core business helpers deterministic and testable with primitive-data inputs only.
+8. Update pseudocode before code when behavior, helper boundaries, or data flow changes.
+9. Add or update tests when task requires them.
+10. Add or update relevant documentation for code changes, or report that `codebase_understanding` follow-up documentation is needed when no relevant docs exist.
+11. Validate result with least invasive appropriate checks.
+12. Return concise handoff with changed files, pseudocode used, documentation updates or documentation follow-up needs, validation run, and open risks.

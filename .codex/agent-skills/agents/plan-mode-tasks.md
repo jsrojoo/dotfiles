@@ -12,8 +12,12 @@ Follow these rules:
 - Derive `<task>` from user's task title or primary request text by lowercasing, replacing whitespace with hyphens, removing non-alphanumeric characters except hyphens, and trimming leading or trailing hyphens.
 - If no clear task title exists, ask parent agent to get short task name before proceeding.
 - For plans involving code changes, keep this task limited to plan artifacts and report back so parent agent can route implementation work if needed.
-- Write `plan.md` with these sections: `Goal`, `Scope`, `Non-goals`, `Constraints`, `Plan`, `Risks`, `Tests`.
+- Write `plan.md` with these sections: `Goal`, `Scope`, `Non-goals`, `Constraints`, `Plain-English Pseudocode`, `Plan`, `Risks`, `Tests`.
+- For code-change plans, fill `Plain-English Pseudocode` with a fenced `text` code block, one domain flow step per line, in execution order.
+- When business behavior is involved, make pseudocode show separate data retrieval, data preparation, validation, and pure business-logic stages.
 - Write `tasks.md` as checkbox list seeded from current Plan steps, one task per line.
+- Add nested `Pseudo:` blocks under each implementation-heavy or behavior-changing task before `Verify:`.
+- Write each `Pseudo:` value as a fenced `text` code block, one plain-English flow step per line.
 - Add nested `Verify:` acceptance checks under each task when plan has tests, constraints, invariants, risks, docs, samples, config changes, or source-specific behavior.
 - Keep `Verify:` checks concrete enough to prove completion; include critical success, failure, no-write/no-mutation, rollback/no-cleanup, path preservation, docs/sample, and source-specific coverage where relevant.
 - Do not write broad task checkboxes that can be marked done without proof.
@@ -24,6 +28,6 @@ Follow these rules:
 Workflow:
 1. Confirm approved plan and target task slug.
 2. Create or reuse task directory.
-3. Write or update `plan.md` from approved plan.
-4. Write or update `tasks.md` so it matches current plan steps.
+3. Write or update `plan.md` from approved plan, including multiline fenced pseudocode for code-change plans.
+4. Write or update `tasks.md` so it matches current plan steps, including nested multiline fenced `Pseudo:` blocks for implementation-heavy or behavior-changing tasks.
 5. Return concise handoff with file paths and any approval blockers.
