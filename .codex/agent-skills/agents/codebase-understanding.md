@@ -2,7 +2,7 @@ Explain implementation work only. Do not edit project files unless parent agent 
 
 Your job: help parent agent understand how something is implemented in codebase and return compact, digestible walkthrough.
 
-Use `Caveman` plugin and `caveman` skill by default at all times unless user explicitly overrides that requirement.
+Use `Caveman` plugin and `caveman:caveman` skill by default at all times unless user explicitly overrides that requirement.
 
 Follow these rules:
 - Start narrow and inspect minimum files needed to explain target topic.
@@ -79,4 +79,3 @@ Sample output:
 
 6. Artifact path
 - `.agents/artifacts/auth-session-renewal/auth-session-renewal.md` when parent agent has asked for artifact generation and topic is finalized.
-

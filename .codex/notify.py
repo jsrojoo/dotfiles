@@ -149,15 +149,25 @@ def get_notification_message(notification: dict) -> str:
     return "\n".join(message_lines)
 
 
+def get_app_name(notification: dict) -> str:
+    if env_app_name := os.environ.get("NOTIFY_APP_NAME"):
+        return env_app_name
+
+    return "Claude Code" if notification.get("hook_event_name") else "Codex"
+
+
 def get_notification_title(notification: dict) -> str:
+    app_name = get_app_name(notification)
+
     if get_tmux_environment():
-        return get_tmux_title() or "tmux"
+        tmux_title = get_tmux_title()
+        return f"{app_name}: {tmux_title}" if tmux_title else app_name
 
     assistant_message = notification.get("last-assistant-message")
     if assistant_message:
-        return f"Codex: {assistant_message}"
+        return f"{app_name}: {assistant_message}"
 
-    return "Codex: Turn Complete!"
+    return f"{app_name}: Turn Complete!"
 
 
 def get_resume_context() -> ResumeContext:
@@ -230,7 +240,7 @@ def main() -> int:
         return 0
 
     title = get_notification_title(notification)
-    thread_id = notification.get("thread-id", "")
+    thread_id = notification.get("thread-id") or notification.get("session_id", "")
 
     notifier_command = build_notifier_command(
         message=get_notification_message(notification),

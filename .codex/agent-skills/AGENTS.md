@@ -1,5 +1,5 @@
 ## Response Style
-- Use `Caveman` plugin and `caveman` skill by default.
+- Caveman mode is the default on both clients: Claude Code relies on the enabled Caveman SessionStart hook and must not call `Skill(caveman)`; Codex uses the namespaced `caveman:caveman` skill by default.
 - End with TL;DR only when relevant or needed.
     - Focus on `meat`: why, what, how, when.
 - Reply succinctly, in markdown.
@@ -43,7 +43,7 @@
 - Main agent must spawn 2+ sibling subagents in parallel when tasks are independent, non-conflicting, and materially improve speed or context hygiene.
 - Good parallel scopes include separate repo areas, separate implementation slices with disjoint file ownership, separate review dimensions, and verification that can run while implementation continues.
 - Do not spawn subagents for trivial one-file work, fully blocking next-step work, overlapping write scopes, or when user explicitly forbids subagents.
-- Every spawned subagent prompt must require `Caveman` plugin and `caveman` skill, narrow scope, expected output, no nested subagents, and no reverting others' changes.
+- Every spawned subagent prompt must require Caveman mode by default using the client-specific mechanism (Claude Code: enabled SessionStart hook, never `Skill(caveman)`; Codex: namespaced `caveman:caveman` skill), narrow scope, expected output, no nested subagents, and no reverting others' changes.
 
 ## Behavioral guidelines
 
@@ -143,8 +143,8 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
 - Route git write operations through `git_workflow` subagent.
 - Main agent may run read-only git status or diff if subagents are unavailable, runtime forbids spawn, or quick local state is needed before safe edits.
 - Keep git command output out of main agent session when using git subagent; git subagent should report only concise status, exact commands run, changed files or hunks, commit ids, and remaining risks.
-- Every spawned subagent prompt must explicitly include instructions to use `Caveman` plugin and `caveman` skill.
-- All spawned subagents must use `Caveman` plugin and `caveman` skill by default at all times unless user explicitly overrides.
+- Every spawned subagent prompt must explicitly require Caveman mode using the client-specific mechanism: Claude Code relies on the enabled SessionStart hook and must not call `Skill(caveman)`; Codex uses the namespaced `caveman:caveman` skill.
+- All spawned subagents must use Caveman mode by default at all times unless user explicitly overrides.
 - Subagents must not spawn other subagents, including recursive same-type spawns such as a `workflow_code` subagent spawning another `workflow_code` subagent.
 - After using a subagent, close it when it will not be reused later in task.
 - Do not use routine ping or heartbeat checks for subagents. Prefer event-style completion handling: rely on `<subagent_notification>` messages, `wait_agent` completion status, and `SubagentStop` hook records in `tmp/subagent-stop-events.jsonl`.

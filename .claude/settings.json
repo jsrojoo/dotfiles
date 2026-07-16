@@ -27,5 +27,27 @@
   },
   "effortLevel": "medium",
   "skipDangerousModePermissionPrompt": true,
-  "theme": "dark-daltonized"
+  "theme": "dark-daltonized",
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "NOTIFY_APP_NAME='Claude Code' python3 /Users/josephrojo/dotfiles/.codex/notify.py"
+          }
+        ]
+      }
+    ],
+    "SubagentStop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 /Users/josephrojo/dotfiles/.codex/notify_hook_harness.py --log-path /Users/josephrojo/dotfiles/.codex/tmp/subagent-stop-events.jsonl"
+          }
+        ]
+      }
+    ]
+  }
 }
