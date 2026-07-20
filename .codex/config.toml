@@ -15,6 +15,7 @@ sandbox_mode = "danger-full-access"
 disable_response_storage = false
 personality = "pragmatic"
 service_tier = "fast"
+plan_mode_reasoning_effort = "high"
 
 [shell_environment_policy]
 inherit = "all"
@@ -170,10 +171,12 @@ enabled = true
 enabled = true
 
 [tui]
-status_line = ["model-with-reasoning", "context-remaining", "used-tokens", "current-dir"]
+status_line = ["model-with-reasoning", "context-remaining", "used-tokens", "current-dir", "total-input-tokens", "total-output-tokens"]
+status_line_use_colors = true
 
 [tui.model_availability_nux]
 "gpt-5.5" = 4
+"gpt-5.6-sol" = 4
 
 [hooks.state]
 

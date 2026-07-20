@@ -1,13 +1,7 @@
 vim.diagnostic.config({
-  virtual_text = {
-    severity = { min = vim.diagnostic.severity.ERROR },
-  },
-  signs = {
-    severity = { min = vim.diagnostic.severity.ERROR },
-  },
-  underline = {
-    severity = { min = vim.diagnostic.severity.ERROR },
-  },
+  virtual_text = false,
+  underline = false,
+  signs = false,
   severity_sort = true,
 })
 
