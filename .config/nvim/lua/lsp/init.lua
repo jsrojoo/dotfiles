@@ -8,7 +8,12 @@ vim.diagnostic.config({
 vim.api.nvim_create_autocmd("LspAttach", {
   group = vim.api.nvim_create_augroup("user_lsp_keymaps", { clear = true }),
   callback = function(args)
+    local client = vim.lsp.get_client_by_id(args.data.client_id)
     local opts = { buffer = args.buf, noremap = true, silent = true }
+
+    if client and client:supports_method("textDocument/completion") then
+      vim.lsp.completion.enable(true, client.id, args.buf, { autotrigger = true })
+    end
 
     vim.keymap.set("n", "gD", vim.lsp.buf.declaration, opts)
     vim.keymap.set("n", "gd", vim.lsp.buf.definition, opts)

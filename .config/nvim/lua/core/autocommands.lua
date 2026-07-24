@@ -31,3 +31,11 @@ vim.api.nvim_create_autocmd({ "BufWinEnter", "WinNew" }, {
   desc = "Ensure linebreak/list align with wrap on window enter",
   callback = sync_wrap_deps,
 })
+
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = "blink-cmp-menu",
+  desc = "Hide listchars in completion menu",
+  callback = function()
+    vim.opt_local.list = false
+  end,
+})

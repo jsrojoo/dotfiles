@@ -17,7 +17,7 @@ local home = os.getenv("HOME") -- Home directory
 opt.mouse = "a"                               -- Enable mouse support
 opt.clipboard = "unnamedplus"                 -- Copy/paste to system clipboard
 opt.swapfile = false                          -- Don't use swapfile
-opt.completeopt = "menuone" -- Autocomplete options
+opt.completeopt = "menuone,noselect,popup" -- Autocomplete options
 opt.pumheight = 4
 opt.diffopt:append("context:0")
 opt.jumpoptions:append("stack")

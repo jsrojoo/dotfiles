@@ -4,15 +4,13 @@
 -- Migrate away from deprecated require('lspconfig') to vim.lsp.config/vim.lsp.enable
 -- See :help lspconfig-nvim-0.11
 
-local cmp_nvim_lsp_ok, cmp_nvim_lsp = pcall(require, "cmp_nvim_lsp")
-
-if not cmp_nvim_lsp_ok then
-  return
-end
-
-local cmp_capabilities = cmp_nvim_lsp.default_capabilities()
+local lsp_capabilities = vim.lsp.protocol.make_client_capabilities()
 
 local on_attach = function(client, bufnr)
+  if client:supports_method("textDocument/completion") then
+    vim.lsp.completion.enable(true, client.id, bufnr, { autotrigger = true })
+  end
+
   if client.server_capabilities.documentHighlightProvider then
     vim.api.nvim_create_augroup("lsp_document_highlight", { clear = true })
     vim.api.nvim_clear_autocmds({ buffer = bufnr, group = "lsp_document_highlight" })
@@ -53,8 +51,14 @@ local lsp_keymaps_group = vim.api.nvim_create_augroup("user_lsp_keymaps", { clea
 vim.api.nvim_create_autocmd("LspAttach", {
   group = lsp_keymaps_group,
   callback = function(args)
+    local client = vim.lsp.get_client_by_id(args.data.client_id)
     local bufnr = args.buf
     local opts = { buffer = bufnr, noremap = true, silent = true }
+
+    if client and client:supports_method("textDocument/completion") then
+      vim.lsp.completion.enable(true, client.id, bufnr, { autotrigger = true })
+    end
+
     vim.keymap.set("n", "gD", vim.lsp.buf.declaration, opts)
     vim.keymap.set("n", "gd", vim.lsp.buf.definition, opts)
     vim.keymap.set("n", "K", vim.lsp.buf.hover, opts)
@@ -75,7 +79,7 @@ end
 vim.lsp.config("basedpyright", {
   on_attach = on_attach,
   root_dir = root_dir,
-  capabilities = cmp_capabilities,
+  capabilities = lsp_capabilities,
   cmd = { "basedpyright-langserver", "--stdio" },
   filetypes = { "python" },
   root_markers = { ".git", "pyproject.toml", "setup.cfg", "setup.py", "requirements.txt" },
@@ -93,7 +97,7 @@ vim.lsp.config("basedpyright", {
 vim.lsp.config("ruff", {
   on_attach = on_attach,
   root_dir = root_dir,
-  capabilities = cmp_capabilities,
+  capabilities = lsp_capabilities,
   cmd = { "ruff", "server" },
   filetypes = { "python" },
   root_markers = { ".git", "pyproject.toml", "setup.cfg", "setup.py", "requirements.txt" },
@@ -129,7 +133,7 @@ for _, lsp in ipairs(servers) do
     local base = {
       on_attach = on_attach,
       root_dir = root_dir,
-      capabilities = cmp_capabilities,
+      capabilities = lsp_capabilities,
       autostart = true,
     }
 
@@ -168,7 +172,7 @@ vim.api.nvim_create_autocmd({ "BufReadPost", "BufNewFile" }, {
 vim.lsp.config('lua_ls', {
   on_attach = on_attach,
   root_dir = root_dir,
-  capabilities = cmp_capabilities,
+  capabilities = lsp_capabilities,
   settings = {
     Lua = {
       runtime = {

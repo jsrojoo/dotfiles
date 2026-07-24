@@ -10,8 +10,6 @@ require("core.autocommands")
 
 require("plugins.lazy")
 
-require("plugins.nvim-cmp")
-
 require("lsp")
 
 require("plugins.firenvim")

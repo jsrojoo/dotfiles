@@ -9,8 +9,8 @@ require("obsidian").setup({
   },
   file = {
     ignore_filters = {
-      "%.git/",
-      "%.obsidian/",
+      ".git/",
+      ".obsidian/",
       "media/",
     },
   },
