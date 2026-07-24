@@ -7,6 +7,13 @@ require("obsidian").setup({
     --   ["x"] = { char = "", hl_group = "ObsidianDone" },
     -- },
   },
+  file = {
+    ignore_filters = {
+      "%.git/",
+      "%.obsidian/",
+      "media/",
+    },
+  },
   note_id_func = function(title)
     return title or 'Untitled'
   end,
@@ -50,10 +57,11 @@ require("obsidian").setup({
   picker = {
     name = "fzf-lua",
   },
-  preferred_link_style = "wiki",
+  link = {
+    style = "wiki",
+  },
   completion = {
-    nvim_cmp = true,
-    min_chars = 1,
+    min_chars = 3,
   },
   footer = {
     enabled = false, -- turn it off

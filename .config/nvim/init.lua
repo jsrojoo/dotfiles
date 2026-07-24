@@ -26,7 +26,6 @@ require("plugins.nvim-treesitter")
 require("plugins.obsidian")
 require("plugins.oil")
 require("plugins.zmux")
-require("plugins.copilot")
 
 if vim.g.started_by_firenvim == false then
   require("plugins.image")
@@ -45,7 +44,6 @@ require("swagger-preview").setup({})
 
 local plugins = {
   "react-extract",
-  "colorizer",
 }
 
 for _, plugin in ipairs(plugins) do
