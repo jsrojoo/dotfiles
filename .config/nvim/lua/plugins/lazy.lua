@@ -24,5 +24,5 @@ lazy.setup({
   { import = "plugins.specs" },
 }, {
   install = { colorscheme = { "warlock" } },
-  checker = { enabled = true },
+  checker = { enabled = true, notify = false },
 })

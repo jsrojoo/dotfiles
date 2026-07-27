@@ -8,4 +8,3 @@ null_ls.setup({
   },
 })
 
-
