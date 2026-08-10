@@ -91,6 +91,7 @@ return {
             enabled = blink_wikilink_context_not_is,
           },
           wiki_links = {
+            enabled = blink_wikilink_context_is,
             module = "plugins.completion.wiki_links",
             name = "WikiLinks",
             opts = {
