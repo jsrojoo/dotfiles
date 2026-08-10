@@ -3,7 +3,7 @@ notify = [
   "/Users/josephrojo/dotfiles/.codex/notify.py"
 ]
 
-model = "gpt-5.5"
+model = "gpt-5.6-sol"
 model_provider = "atlas"
 model_reasoning_effort = "medium"
 model_reasoning_summary = "auto"
@@ -40,8 +40,9 @@ query_params = { api-version = "2025-04-01-preview" }
 
 [model_providers.atlas]
 name = "Atlas"
-base_url = "https://apis.aitrium.app.atlas.gfs-emea-ai-platform.aws.fisv.cloud/v1/codex/cat-aitrium-eastus2-1"
+base_url = "https://apis.aitrium.app.atlas.gfs-emea-ai-platform.aws.fisv.cloud/v1/codex"
 env_key = "AITRIUM_LLM_PASSTHROUGH"
+wire_api = "responses"
 query_params = { api-version = "2025-04-01-preview" }
 
 [model_providers.ameca]
@@ -156,6 +157,9 @@ trust_level = "trusted"
 trust_level = "trusted"
 
 [projects."/Users/josephrojo/fiserv/document-intelligence-api"]
+trust_level = "trusted"
+
+[projects."/Users/josephrojo/fiserv/aitrium/labs/coderusage-main"]
 trust_level = "trusted"
 
 [notice.model_migrations]
