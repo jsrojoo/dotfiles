@@ -10,7 +10,7 @@ description: Coding conventions, naming, and TDD guidelines.
 - Configure subagent through `agent-skills/agents/workflow-code.toml` and `agent-skills/agents/workflow-code.md`, with model selection kept in agent config.
 - Keep git staging and commit work delegated to registered `git_workflow` subagent instead of mixing commit hygiene into code implementation.
 
-## Code Guide
+## Coding Guidelines
 - Keep user in control of implementation details for each function.
 - Name variables and functions by intent, keep them modular, deterministic, and easy to test; pass arguments explicitly.
 - Use Tiger Style, big-endian naming convention.
@@ -40,6 +40,37 @@ description: Coding conventions, naming, and TDD guidelines.
 - Validate code updates before moving on, preferring current project's dev dependencies (formatters/linters/test commands) over ad hoc tooling.
 - When proposing architecture and system and database design items, use mermaid diagrams and markdown tables.
 - For responsive frontend layout guidance, read `references/responsive-frontend.md`.
+
+### Before Coding
+- State assumptions explicitly before implementing; if uncertain, ask.
+- If multiple interpretations exist, present them and do not choose silently.
+- If a simpler approach exists, say so and explain the tradeoff.
+- If the task is unclear, stop, name the confusion, and ask before editing.
+
+### Simplicity First
+- Build only what the request needs.
+- Avoid abstractions, adapters, wrappers, fallback paths, optional flags, and configurability unless a current caller or requirement needs them.
+- Do not add error handling for impossible scenarios.
+- Prefer direct, boring code over generic helpers until duplication or complexity proves a helper is needed.
+- Modify the existing code path that owns the behavior instead of creating a parallel implementation unless the request needs both.
+- If the implementation becomes much larger than the actual requirement, simplify it before handoff.
+
+### Surgical Changes
+- Touch only files and lines needed for the request.
+- Do not improve adjacent code, comments, formatting, or unrelated structure.
+- Do not refactor working code unless the requested change requires it.
+- Match existing style, even when another style seems better.
+- Mention unrelated dead code or risks in handoff instead of deleting them.
+- Remove imports, variables, functions, and files made unused by this task.
+- Do not remove pre-existing dead code unless asked.
+- Every changed line should trace directly to the user's request.
+
+### Goal-Driven Execution
+- Convert vague work into verifiable success criteria before coding.
+- For bug fixes, write or identify a focused reproduction before changing code when practical.
+- For validation changes, test invalid and valid inputs when practical.
+- For refactors, preserve behavior and run relevant checks before and after when practical.
+- Report verification with concrete proof snippets when output is large.
 
 ## Plain-English Pseudocode
 - Before non-trivial implementation or refactor work, produce plain-English pseudocode.

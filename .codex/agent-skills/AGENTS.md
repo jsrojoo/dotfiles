@@ -45,76 +45,25 @@
 - Do not spawn subagents for trivial one-file work, fully blocking next-step work, overlapping write scopes, or when user explicitly forbids subagents.
 - Every spawned subagent prompt must require Caveman mode by default using the client-specific mechanism (Claude Code: enabled SessionStart hook, never `Skill(caveman)`; Codex: namespaced `caveman:caveman` skill), narrow scope, expected output, no nested subagents, and no reverting others' changes.
 
-## Behavioral guidelines
+## Coding Guidelines
+- Use `workflow-code` as the source for coding, review, and refactor behavior, including assumptions, simplicity, surgical changes, and verification proof.
 
-Behavioral rules to reduce common LLM coding mistakes. Merge with project-specific instructions when needed.
-
-**Tradeoff:** Rules bias toward caution over speed. For trivial tasks, use judgment.
-
-### 1. Think Before Coding
-
-**Don't assume. Don't hide confusion. Surface tradeoffs.**
-
-Before implementing:
-- State assumptions explicitly. If uncertain, ask.
-- If multiple interpretations exist, present them. Do not pick silently.
-- If simpler approach exists, say so. Push back when warranted.
-- If something is unclear, stop. Name confusion. Ask.
-
-### 2. Simplicity First
-
-**Minimum code that solves problem. Nothing speculative.**
-
-- No features beyond request.
-- No abstractions for single-use code.
-- No "flexibility" or "configurability" that was not requested.
-- No error handling for impossible scenarios.
-- If you wrote 200 lines and 50 would do, rewrite it.
-
-Ask: "Would senior engineer call this overcomplicated?" If yes, simplify.
-
-### 3. Surgical Changes
-
-**Touch only what you must. Clean only your own mess.**
-
-When editing existing code:
-- Don't "improve" adjacent code, comments, or formatting.
-- Don't refactor things that are not broken.
-- Match existing style, even if you would do it differently.
-- If you spot unrelated dead code, mention it. Don't delete it.
-
-When your changes create orphans:
-- Remove imports/variables/functions that YOUR changes made unused.
-- Don't remove pre-existing dead code unless asked.
-
-Test: every changed line should trace straight to user request.
-
-### 4. Goal-Driven Execution
-
-**Define success criteria. Loop until verified.**
-
-Turn tasks into verifiable goals:
-- "Add validation" → "Write tests for invalid inputs, then make them pass"
-- "Fix the bug" → "Write a test that reproduces it, then make it pass"
-- "Refactor X" → "Ensure tests pass before and after"
-
-For multi-step tasks, state brief plan:
-```
-1. [Step] → verify: [check]
-2. [Step] → verify: [check]
-3. [Step] → verify: [check]
-```
-
-Strong success criteria let you loop independently. Weak criteria ("make it work") need constant clarification.
+## Review Finding Detail Standard
+- For `/review`, findings must be detailed enough to fix without follow-up.
+- Lead with findings, ordered by severity.
+- Include only findings backed by code evidence.
+- Move weak or uncertain concerns to `Questions`, not `Findings`.
+- If a finding cannot include a concrete example or failure mode, downgrade it to an open question unless it is a clear standards, security, or correctness violation.
+- Use readable finding blocks with blank lines, concrete `Exhibit`, concrete `Proof`, and small `Suggested fix` sketches.
+- Follow `agent-skills/references/review-findings.md` for full template and examples.
 
 ## Skills
 - Use `context_retriever` subagent as the only read-only investigation agent for searches, file inspection, evidence gathering, structural queries, file discovery, command-output inspection, and repo context.
 - Use `workflow-execution` for complex shell work, temp files, environment setup, tmux discipline, and command-running practices.
-- Use `workflow-code` for code edits, refactors, naming, TDD, and error handling.
+- Use `workflow-code` for code edits, reviews, refactors, naming, TDD, error handling, overcomplication checks, surgical changes, and verification discipline.
 - Use `workflow-testing` when tests run, verification is needed, or test selection matters.
 - Use `workflow-git` for git practices and commit rules when asked to commit or perform git write operations.
 - Use `plan-mode-tasks` only after a Plan Mode plan is approved and `plan.md` or `tasks.md` artifacts are needed.
-- Use `karpathy-guidelines` for coding, review, and refactor tasks to avoid overcomplication, broad edits, and weak verification.
 - Use relevant skill, or smallest relevant set, for task at hand instead of relying on general reasoning when matching skill exists.
 - When delegating code changes to a subagent, explicitly require updates to normal project documentation when behavior, interfaces, configuration, or workflows change in same task.
 - Use `codebase_understanding` only as fallback documentation artifact when no suitable documentation location exists for changed area.
