@@ -72,6 +72,9 @@ description: Coding conventions, naming, and TDD guidelines.
 - For refactors, preserve behavior and run relevant checks before and after when practical.
 - Report verification with concrete proof snippets when output is large.
 
+### SQL Execution Validation
+- Read `references/sql-execution-validation.md` when work creates, changes, reviews, or validates SQL.
+
 ## Plain-English Pseudocode
 - Before non-trivial implementation or refactor work, produce plain-English pseudocode.
 - If approved `plan.md` already has `# Plain-English Pseudocode`, use it as source of truth.
