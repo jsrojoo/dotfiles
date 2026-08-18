@@ -1,9 +1,8 @@
 return {
   {
     "nvim-treesitter/nvim-treesitter",
-    build = function()
-      require("nvim-treesitter.install").update({ with_sync = true })
-    end,
+    lazy = false,
+    build = ":TSUpdate",
   },
 
   -- Show the current Treesitter context (e.g., function/class) at the top
