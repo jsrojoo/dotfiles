@@ -194,3 +194,5 @@ source ~/.aliases.sh
 eval "$(zoxide init zsh)"
 eval "$(mise activate zsh)"
 eval "$(fnox activate zsh)"
+
+fpath+=~/.zfunc; autoload -Uz compinit; compinit
