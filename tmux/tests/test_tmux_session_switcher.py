@@ -127,3 +127,25 @@ class TmuxSessionSwitcherModeTest(TestCase):
                 session_current_only=True,
                 window_name_filter='notes',
                 )
+
+    def test_build_existing_sessions_argument_filters_window_name_substring(self):
+        window_lines = [
+                'work:codex:1:zsh',
+                'work:devin-codex:2:zsh',
+                'work:some-task-codex:3:zsh',
+                'work:codex-dotfiles:4:zsh',
+                'work:notes:5:zsh',
+                ]
+
+        with patch.object(
+                tmux_session_switcher,
+                'list_tmux_windows',
+                return_value=window_lines,
+                ):
+            self.assertEqual(
+                    '\n'.join(window_lines[:4]),
+                    tmux_session_switcher.build_existing_sessions_argument(
+                            session_current_only=False,
+                            window_name_filter='codex',
+                            ),
+                    )

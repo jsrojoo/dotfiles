@@ -47,7 +47,7 @@ def parse_script_arguments() -> argparse.Namespace:
     argument_parser.add_argument(
             '--window-name',
             dest='window_name_filter',
-            help='Limit the list to an exact window name match.',
+            help='Limit the list to window names containing this text.',
             )
     argument_parser.add_argument(
             '--fzf-list-mode',
@@ -145,7 +145,7 @@ def build_existing_sessions_argument(
     if window_name_filter:
         window_lines = [
                 line for line in window_lines
-                if line.split(':', 3)[1] == window_name_filter
+                if window_name_filter in line.split(':', 3)[1]
                 ]
 
     return '\n'.join(window_lines)
