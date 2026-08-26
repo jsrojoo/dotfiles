@@ -54,7 +54,7 @@ Shared instructions, skills, and subagent definitions for coding-agent workflows
 2. Use `workflow-code` for implementation changes and related documentation updates.
 3. Use `workflow-testing` for focused verification.
 4. Use `workflow-git` when the task includes staging or commits.
-5. Use `plan-mode-tasks` after an approved plan needs `plan.md` and `tasks.md` artifacts.
+5. Use `plan-mode-tasks` after an approved plan needs `plan.md` and `tasks.md` artifacts, validation, checkbox progress, archive handling, or restore handling.
 6. Use `codebase-understanding` when the goal is explanation, diagrams, or a reusable understanding artifact.
 
 ## Shipped skills
@@ -62,7 +62,7 @@ Shared instructions, skills, and subagent definitions for coding-agent workflows
 ### Workflow skills
 - `agent-context-retriever` — gathers minimal, evidence-backed repo context before broad local inspection.
 - `codebase-understanding` — explains how a feature or workflow is implemented and can generate reusable understanding artifacts.
-- `plan-mode-tasks` — creates and updates approved plan artifacts such as `plan.md` and `tasks.md`.
+- `plan-mode-tasks` — creates, validates, updates progress, archives, and restores approved plan artifacts such as `plan.md` and `tasks.md`.
 - `workflow-code` — guides implementation, naming, TDD, documentation updates, and validation expectations.
 - `workflow-execution` — defines shell discipline, environment handling, and tmux-oriented command execution rules.
 - `workflow-git` — handles diff review, staging, commit grouping, and commit hygiene.
@@ -81,7 +81,7 @@ Shared instructions, skills, and subagent definitions for coding-agent workflows
 - Responses are expected to be short, structured, and citation-backed.
 - Complex tasks usually start with a multi-step plan and wait for approval before implementation.
 - Code changes are expected to update relevant documentation in the same task.
-- Plan Mode work uses task artifacts such as `./.agents/tasks/<task>/plan.md` and `tasks.md`.
+- Plan Mode work uses task artifacts such as `./.agents/tasks/<task>/plan.md` and `tasks.md`; the skill ships `skills/plan-mode-tasks/scripts/agent-taskctl.py` for active and archived lifecycle commands.
 - Code-understanding runs can generate reusable artifacts under `./.agents/artifacts/<topic-slug>/`.
 
 ## Tooling expectations

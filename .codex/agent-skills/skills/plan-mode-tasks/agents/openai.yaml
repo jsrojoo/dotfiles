@@ -1,4 +1,4 @@
 interface:
   display_name: "Plan Mode Tasks"
-  short_description: "Create plan.md and tasks.md for plan-mode plans."
-  default_prompt: "Use the registered plan_mode_tasks subagent to create and update plan.md and tasks.md under ./.agents/tasks/<task> during Plan Mode."
+  short_description: "Create, validate, update progress, archive, and restore plan-mode task artifacts."
+  default_prompt: "Use the registered plan_mode_tasks subagent and its agent-taskctl.py CLI to manage active and archived ./.agents/tasks/<task>/plan.md and tasks.md during Plan Mode."
