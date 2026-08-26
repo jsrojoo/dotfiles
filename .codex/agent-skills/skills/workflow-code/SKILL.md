@@ -38,7 +38,7 @@ description: Coding conventions, naming, and TDD guidelines.
 - If no relevant documentation exists for changed area, tell parent agent to use `codebase-understanding` to generate high-level, easy-to-digest artifact with diagrams or visuals.
 - Once code works, report commit-ready changes to the parent agent so git work can be routed through `workflow-git`.
 - Validate code updates before moving on, preferring current project's dev dependencies (formatters/linters/test commands) over ad hoc tooling.
-- When proposing architecture and system and database design items, use mermaid diagrams and markdown tables.
+- When proposing architecture and system and database design items, use Mermaid diagrams with top-down direction (`flowchart TD` or `graph TD`) and markdown tables unless user explicitly requests another orientation.
 - For responsive frontend layout guidance, read `references/responsive-frontend.md`.
 
 ### Before Coding

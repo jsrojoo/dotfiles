@@ -44,6 +44,7 @@ A canvas file (`.canvas`) contains two top-level arrays following the [JSON Canv
 2. Generate a unique edge ID
 3. Set `fromNode` and `toNode` to the source and target IDs
 4. Optionally set `fromSide`/`toSide` (top, right, bottom, left) for anchor points
+   - For default top-down flows, use `fromSide: bottom` and `toSide: top`
 5. Optionally set `label` for descriptive text on the edge
 6. Append the edge to the `edges` array
 7. **Validate**: Confirm both `fromNode` and `toNode` reference existing node IDs
@@ -103,8 +104,8 @@ Nodes are objects placed on the canvas. Array order determines z-index: first no
 {
   "id": "a1b2c3d4e5f67890",
   "type": "file",
-  "x": 500,
-  "y": 0,
+  "x": 0,
+  "y": 300,
   "width": 400,
   "height": 300,
   "file": "Attachments/diagram.png"
@@ -172,9 +173,9 @@ Edges connect nodes via `fromNode` and `toNode` IDs.
 {
   "id": "0123456789abcdef",
   "fromNode": "6f0ad84f44ce9c17",
-  "fromSide": "right",
+  "fromSide": "bottom",
   "toNode": "a1b2c3d4e5f67890",
-  "toSide": "left",
+  "toSide": "top",
   "toEnd": "arrow",
   "label": "leads to"
 }
@@ -208,6 +209,7 @@ Generate 16-character lowercase hexadecimal strings (64-bit random value):
 
 - Coordinates can be negative (canvas extends infinitely)
 - `x` increases right, `y` increases down; position is the top-left corner
+- Default flowcharts to top-down layout: increase `y` for each next step, keep main sequence edges from `bottom` to `top`, and use another orientation only when user explicitly requests it
 - Space nodes 50-100px apart; leave 20-50px padding inside groups
 - Align to grid (multiples of 10 or 20) for cleaner layouts
 

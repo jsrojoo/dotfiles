@@ -131,6 +131,8 @@ $$
 
 ## Diagrams (Mermaid)
 
+Default Mermaid flowcharts and diagrams to top-down direction (`graph TD` or `flowchart TD`). Use another direction only when user explicitly requests it.
+
 ````markdown
 ```mermaid
 graph TD

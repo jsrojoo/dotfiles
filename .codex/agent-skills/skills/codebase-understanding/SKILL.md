@@ -27,6 +27,8 @@ description: Explain how a feature, workflow, subsystem, or concept is implement
 4. Separate facts from inferences and call out unknowns.
 5. Choose visual mode that best fits topic without asking user to pick unless they explicitly request specific framing:
    - Default to D2 for reusable artifacts and explanations that benefit from rendered visuals in markdown.
+   - Default flowcharts and diagrams to top-down orientation: D2 `direction: down`; Mermaid `flowchart TD` or `graph TD`.
+   - Use another orientation only when user explicitly requests it.
    - Use EventStorming lens when commands, domain events, actors, policies, read models, aggregates, or bounded contexts explain system better than raw control-flow view.
    - Use Mermaid only for inline chat explanations when no artifact is requested and fast text-only visuals are enough.
 6. Build concise explanation with file citations, diagrams, and boundary-oriented visual when helpful.
@@ -48,6 +50,7 @@ description: Explain how a feature, workflow, subsystem, or concept is implement
 
 ## D2 Artifact Flow
 - Keep each artifact self-contained in `.agents/artifacts/<topic-slug>/`.
+- Start D2 flowcharts and diagrams with `direction: down` unless user explicitly requests another orientation.
 - Store markdown artifact at `.agents/artifacts/<topic-slug>/<topic-slug>.md`.
 - Store diagram sources and renders beside it, such as:
   - `.agents/artifacts/<topic-slug>/flow.d2`
@@ -88,4 +91,3 @@ description: Explain how a feature, workflow, subsystem, or concept is implement
 - `Diagrams`: D2-backed rendered visuals for artifacts, or Mermaid inline when task is chat-only and lightweight.
 - `Risks or unknowns`: edge cases, inferred behavior, and unanswered questions.
 - `Artifact path`: present only after `.agents/artifacts/<topic-slug>/<topic-slug>.md` has actually been generated.
-
