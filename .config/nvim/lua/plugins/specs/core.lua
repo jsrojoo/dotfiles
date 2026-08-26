@@ -7,10 +7,10 @@ return {
     version = "*", -- or branch = "dev", to use the latest commit
   },
 
-  {
-    "catgoose/nvim-colorizer.lua",
-    opts = {},
-  },
+  -- {
+  --   "catgoose/nvim-colorizer.lua",
+  --   opts = {},
+  -- },
 
   {
     "williamboman/mason.nvim",

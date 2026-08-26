@@ -1,5 +1,8 @@
 require("obsidian").setup({
   legacy_commands = false,
+  checkbox = {
+    order = { " ", "x" },
+  },
   ui = {
     enable = false,
     -- checkboxes = {

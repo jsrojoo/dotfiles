@@ -15,6 +15,27 @@ local function blink_wikilink_context_not_is()
   return not blink_wikilink_context_is()
 end
 
+local function blink_path_cwd_default_get(context)
+  return vim.fn.expand(("#%d:p:h"):format(context.bufnr))
+end
+
+local function blink_path_editor_temp_is(file_path)
+  local codex_editor_temp_is = file_path:match("/%.codex/editor/%.tmp[^/]*%.md$") ~= nil
+  local zsh_editor_temp_is = file_path:match("^/private/tmp/zsh[^/]*%.zsh$") ~= nil
+
+  return codex_editor_temp_is or zsh_editor_temp_is
+end
+
+local function blink_path_cwd_get(context)
+  local file_path = vim.api.nvim_buf_get_name(context.bufnr)
+
+  if blink_path_editor_temp_is(file_path) then
+    return vim.fn.getcwd()
+  end
+
+  return blink_path_cwd_default_get(context)
+end
+
 return {
   {
     "saghen/blink.cmp",
@@ -86,6 +107,9 @@ return {
           },
           path = {
             enabled = blink_wikilink_context_not_is,
+            opts = {
+              get_cwd = blink_path_cwd_get,
+            },
           },
           snippets = {
             enabled = blink_wikilink_context_not_is,
