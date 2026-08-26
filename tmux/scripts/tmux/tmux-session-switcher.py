@@ -245,6 +245,7 @@ def fzf_select_window(
         ) -> str:
     command_tokens = [
             'fzf',
+            '--cycle',
             '--reverse',
             '--prompt',
             MODE_PROMPT_BY_MODE[selector_mode],

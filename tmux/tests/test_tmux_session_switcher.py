@@ -1,6 +1,7 @@
 import importlib.util
 from pathlib import Path
 from unittest import TestCase
+from unittest.mock import Mock
 from unittest.mock import patch
 
 
@@ -20,6 +21,24 @@ MODULE_SPEC.loader.exec_module(tmux_session_switcher)
 
 
 class TmuxSessionSwitcherModeTest(TestCase):
+    def test_fzf_select_window_cycles_result_navigation(self):
+        command_result = Mock(returncode=0, stdout='work:notes:1:zsh\n')
+
+        with patch.object(
+                tmux_session_switcher.subprocess,
+                'run',
+                return_value=command_result,
+                ) as subprocess_run:
+            selection = tmux_session_switcher.fzf_select_window(
+                    existing_sessions='work:notes:1:zsh',
+                    script_path='/tmp/tmux-session-switcher.py',
+                    selector_mode=tmux_session_switcher.MODE_ALL,
+                    )
+
+        self.assertEqual('work:notes:1:zsh', selection)
+        command_tokens = subprocess_run.call_args.args[0]
+        self.assertIn('--cycle', command_tokens)
+
     def test_selector_mode_initial_prepare_uses_existing_cli_modes(self):
         self.assertEqual(
                 tmux_session_switcher.MODE_ALL,
