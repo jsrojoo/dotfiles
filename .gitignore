@@ -1,5 +1,7 @@
 .config/nvim/plugin
 
+.codex/app-server-daemon/
+.codex/thread-writer-locks/
 .codex/back.config.toml
 .codex/history.jsonl
 .codex/log/

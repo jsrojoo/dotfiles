@@ -7,7 +7,7 @@ model = "gpt-5.6-sol"
 model_provider = "atlas"
 model_reasoning_effort = "medium"
 model_reasoning_summary = "auto"
-model_verbosity = "medium"
+model_verbosity = "low"
 model_supports_reasoning_summaries = true
 
 approval_policy = "on-request"
@@ -160,6 +160,9 @@ trust_level = "trusted"
 trust_level = "trusted"
 
 [projects."/Users/josephrojo/fiserv/aitrium/labs/coderusage-main"]
+trust_level = "trusted"
+
+[projects."/Users/josephrojo/fiserv/harbor"]
 trust_level = "trusted"
 
 [notice.model_migrations]
