@@ -44,5 +44,9 @@
 .claude/.caveman-mode-log.jsonl
 .claude/CLAUDE.md
 .claude/skills
+.claude/*.bak
+.claude*-backup-*/
 .agents
+.pytest_cache/
+graphify-out/
 .DS_Store

@@ -6,6 +6,8 @@ watchexec = "latest"
 python = "latest"
 pipx = "latest"
 fnox = "latest"
+uv = "latest"
+"github:can1357/oh-my-pi" = "latest"
 
 [env]
 _.file = [
@@ -26,6 +28,8 @@ _.source = '~/.config/mise/.envars/.secrets.sh'
 
 LOCAL_DB="postgresql://postgres:root@localhost/enterprise_gpt_api"
 DB_UI_LOCAL="postgresql://postgres:root@localhost/enterprise_gpt_api"
+
+UV_DEFAULT_INDEX = "https://nexus-emea.1dc.com/repository/pypi-org/simple"
 
 [settings]
 experimental = true
