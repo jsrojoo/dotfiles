@@ -1,0 +1,23 @@
+{
+  "providers": {
+    "azure": {
+      "baseUrl": "https://dev-atrium-eastus2-1.openai.azure.com/openai/v1",
+      "api": "azure-openai-responses",
+      "apiKey": "$AZURE_DEV_OPENAI_API_KEY",
+      "models": [
+        {
+          "id": "gpt-5.6-sol",
+          "reasoning": true
+        },
+        {
+          "id": "gpt-5.6-terra",
+          "reasoning": true
+        },
+        {
+          "id": "gpt-5.6-luna",
+          "reasoning": true
+        }
+      ]
+    }
+  }
+}

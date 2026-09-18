@@ -1,0 +1,18 @@
+# Credentials
+agent/auth.json
+
+# Private runtime state
+agent/sessions/
+agent/trust.json
+
+# Generated model catalog
+agent/models-store.json
+
+# Pi-managed package installations
+agent/git/
+agent/npm/
+
+# General local artifacts
+.DS_Store
+node_modules/
+*.log
