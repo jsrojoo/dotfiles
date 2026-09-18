@@ -59,6 +59,7 @@
 
 ## Skills
 - Use `context_retriever` subagent as the only read-only investigation agent for searches, file inspection, evidence gathering, structural queries, file discovery, command-output inspection, and repo context.
+- Use `defuddle` for web fetches via `defuddle parse <url> --md`; URLs ending `.md` use direct web fetch; if Defuddle returns 403, fall back to official GitHub repository docs or another available approved fetch tool.
 - Use `workflow-execution` for complex shell work, temp files, environment setup, tmux discipline, and command-running practices.
 - Use `workflow-code` for code edits, reviews, refactors, naming, TDD, error handling, overcomplication checks, surgical changes, and verification discipline.
 - Use `workflow-testing` when tests run, verification is needed, or test selection matters.
@@ -108,3 +109,25 @@
 - Use `local-development` for local laptop services, Coder workspace access, port forwarding, Dockerized dependencies, and repo-local Node/Python environment templates.
 - Use `aitrium-dev-workspace` for executable task workspace helpers, Git worktree bootstrap, tmux windows, cross-repo status, cross-repo diffs, and workspace command examples.
 - Keep generated system skills under `agent-skills/skills/.system/` untracked and ignored.
+# graphify
+- **graphify** (`~/.claude/skills/graphify/SKILL.md`) - any input to knowledge graph. Trigger: `/graphify`
+When the user types `/graphify`, use the installed graphify skill or instructions before doing anything else.
+
+## RTK
+
+- Prefix every supported shell command with `rtk`.
+- Examples: `rtk git status`, `rtk git diff`, `rtk rg`, `rtk pytest`.
+- Use native command only when RTK does not support it or exact raw output is required.
+
+## graphify
+
+This project has a knowledge graph at graphify-out/ with god nodes, community structure, and cross-file relationships.
+
+When the user types `/graphify`, use the installed graphify skill or instructions before doing anything else.
+
+Rules:
+- For codebase questions, first run `graphify query "<question>"` when graphify-out/graph.json exists. Use `graphify path "<A>" "<B>"` for relationships and `graphify explain "<concept>"` for focused concepts. These return a scoped subgraph, usually much smaller than GRAPH_REPORT.md or raw grep output.
+- Dirty graphify-out/ files are expected after hooks or incremental updates; dirty graph files are not a reason to skip graphify. Only skip graphify if the task is about stale or incorrect graph output, or the user explicitly says not to use it.
+- If graphify-out/wiki/index.md exists, use it for broad navigation instead of raw source browsing.
+- Read graphify-out/GRAPH_REPORT.md only for broad architecture review or when query/path/explain do not surface enough context.
+- After modifying code, run `graphify update .` to keep the graph current (AST-only, no API cost).

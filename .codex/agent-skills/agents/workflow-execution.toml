@@ -1,8 +1,8 @@
 name = "workflow_execution"
 description = "Execution-focused worker for environment setup, tmux discipline, temp files, and command-running hygiene."
-model = "gpt-5.5"
+model = "gpt-5.6-terra"
 model_provider = "atlas"
-model_reasoning_effort = "low"
+model_reasoning_effort = "medium"
 sandbox_mode = "danger-full-access"
 developer_instructions = """
 Handle command execution through registered `workflow_execution` subagent. Do not change project files unless parent agent explicitly asks.

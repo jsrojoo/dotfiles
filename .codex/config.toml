@@ -165,6 +165,12 @@ trust_level = "trusted"
 [projects."/Users/josephrojo/fiserv/harbor"]
 trust_level = "trusted"
 
+[projects."/Users/josephrojo/fiserv/coder-nonprod"]
+trust_level = "trusted"
+
+[projects."/Users/josephrojo/Downloads"]
+trust_level = "trusted"
+
 [notice.model_migrations]
 "gpt-5.3-codex" = "gpt-5.4"
 
@@ -175,6 +181,9 @@ enabled = true
 enabled = true
 
 [plugins."sdlc-vulnerability-remediation@sdlc-automation"]
+enabled = true
+
+[plugins."ponytail@ponytail"]
 enabled = true
 
 [tui]
@@ -190,6 +199,21 @@ status_line_use_colors = true
 [hooks.state."/Users/josephrojo/.codex/hooks.json:subagent_stop:0:0"]
 trusted_hash = "sha256:7d4a561a54467a3d343516cee5fb95e0d3eea1444ebbb9e37db92dbac850e865"
 
+[hooks.state."ponytail@ponytail:hooks/claude-codex-hooks.json:session_start:0:0"]
+trusted_hash = "sha256:5f81d38f47448a1581c08ec877e044d9e04dd6f814dce3f2671f7a8edadd719b"
+
+[hooks.state."ponytail@ponytail:hooks/claude-codex-hooks.json:user_prompt_submit:0:0"]
+trusted_hash = "sha256:6a6f42bc3b58d6262db38bfd74d7f340fcca2b09cdb134aad365063f0bfefca4"
+
+[hooks.state."ponytail@ponytail:hooks/claude-codex-hooks.json:subagent_start:0:0"]
+trusted_hash = "sha256:1423b56c1322f96c8f74c51c1e7ae9a047b904c1fa43ee9165d462fd7a6e70ef"
+
+[hooks.state."/Users/josephrojo/.codex/hooks.json:pre_tool_use:0:0"]
+trusted_hash = "sha256:b0f163476e6d73f691466351f072dd4a2b4a1812fc617d7c1953f629b07c6cc4"
+
+[hooks.state."/Users/josephrojo/fiserv/aitrium/labs/ai-usage-metrics/.codex/hooks.json:pre_tool_use:0:0"]
+trusted_hash = "sha256:29f2c24ce14835f0ef3110c2cfef9edb16671cede0385763096051cea430f16c"
+
 [marketplaces.aitrium-dev-workspace-local]
 last_updated = "2026-06-03T19:17:29Z"
 source_type = "local"
@@ -199,3 +223,7 @@ source = "/Users/josephrojo/fiserv/aitrium/aitrium-dev-workspace"
 last_updated = "2026-07-06T11:16:11Z"
 source_type = "local"
 source = "/Users/josephrojo/fiserv/poc/sdlc-automation"
+
+[marketplaces.ponytail]
+source_type = "git"
+source = "https://github.com/DietrichGebert/ponytail.git"
