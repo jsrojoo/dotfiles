@@ -1,6 +1,6 @@
-# Codex subagent adapter for Pi
+# Shared-agent discovery for Pi
 
-This installs Pi's reference `subagent` extension and extends its agent discovery so existing Codex agents can be reused without generating duplicate prompt files.
+This installs Pi's reference `subagent` extension and extends agent discovery to reuse shared agent definitions without generating duplicate prompt files.
 
 ## Sources and precedence
 
@@ -9,13 +9,11 @@ For `agentScope: "user"`, agents are loaded from:
 1. `~/.agents/agents/<name>.toml` paired with `~/.agents/agents/<name>.md`
 2. `~/.pi/agent/agents/*.md`
 
-In the current setup, `~/.agents` is a symlink to `~/.codex`, so this remains compatible while using the harness-neutral path.
+Pi-native user agents override shared agents with the same name. With `agentScope: "both"`, project-local `.pi/agents/*.md` definitions override both.
 
-Pi-native user agents override imported Codex agents with the same name. With `agentScope: "both"`, project-local `.pi/agents/*.md` definitions override both.
+## Shared agent metadata mapping
 
-## Codex field mapping
-
-| Codex field | Pi behavior |
+| Shared agent metadata | Pi behavior |
 | --- | --- |
 | `name` | Agent name |
 | `description` | Agent description |
@@ -24,13 +22,13 @@ Pi-native user agents override imported Codex agents with the same name. With `a
 | `sandbox_mode = "read-only"` | Restricts tools to `read`, `grep`, `find`, and `ls` |
 | Other `sandbox_mode` values | Uses Pi's default tool set |
 
-The local provider map currently translates Codex provider `atlas` to Pi provider `azure`, because the same configured models are exposed through that provider in this Pi installation.
+Provider and model values are preserved in Pi model selectors. The local Atlas extension exposes the matching `atlas` provider and model IDs directly.
 
 ## Current limitations
 
-- Codex `model_reasoning_effort` is not mapped; a model-specific Pi subagent uses Pi's default thinking behavior.
-- Codex approval policies and sandbox implementations are not imported.
-- Read-only Codex agents do not receive `bash`, so prompts mentioning `rg` or `ast-grep` must fall back to Pi's `grep`, `find`, and `read` tools.
+- `model_reasoning_effort` is not mapped; a model-specific Pi subagent uses Pi's default thinking behavior.
+- Approval policies and sandbox implementations are not imported.
+- Read-only shared agents do not receive `bash`, so prompts mentioning `rg` or `ast-grep` must fall back to Pi's `grep`, `find`, and `read` tools.
 - A TOML definition is ignored unless its paired Markdown prompt exists and both `name` and `description` are simple quoted strings.
 
 ## Usage

@@ -8,9 +8,6 @@ import * as path from "node:path";
 import { CONFIG_DIR_NAME, getAgentDir, parseFrontmatter } from "@earendil-works/pi-coding-agent";
 
 const SHARED_AGENTS_DIR = path.join(os.homedir(), ".agents", "agents");
-const CODEX_PROVIDER_MAP: Readonly<Record<string, string>> = {
-	atlas: "azure",
-};
 
 export type AgentScope = "user" | "project" | "both";
 
@@ -111,7 +108,7 @@ function loadAgentsFromDir(dir: string, source: "user" | "project"): AgentConfig
 	return agents;
 }
 
-function parseCodexString(content: string, key: string): string | undefined {
+function parseSharedAgentString(content: string, key: string): string | undefined {
 	const escapedKey = key.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 	const match = content.match(new RegExp(`^\\s*${escapedKey}\\s*=\\s*"((?:\\\\.|[^"\\\\])*)"\\s*$`, "m"));
 	if (!match) return undefined;
@@ -123,13 +120,13 @@ function parseCodexString(content: string, key: string): string | undefined {
 	}
 }
 
-function codexModelSelectorBuild(model: string | undefined, provider: string | undefined): string | undefined {
+function sharedAgentModelSelectorBuild(model: string | undefined, provider: string | undefined): string | undefined {
 	if (!model) return undefined;
 	if (!provider) return model;
-	return `${CODEX_PROVIDER_MAP[provider] ?? provider}/${model}`;
+	return `${provider}/${model}`;
 }
 
-function loadCodexAgents(dir: string): AgentConfig[] {
+function loadSharedAgents(dir: string): AgentConfig[] {
 	if (!fs.existsSync(dir)) return [];
 
 	let entries: fs.Dirent[];
@@ -155,19 +152,19 @@ function loadCodexAgents(dir: string): AgentConfig[] {
 			continue;
 		}
 
-		const description = parseCodexString(toml, "description");
-		const name = parseCodexString(toml, "name");
+		const description = parseSharedAgentString(toml, "description");
+		const name = parseSharedAgentString(toml, "name");
 		if (!description || !name || !prompt.trim()) continue;
 
-		const model = parseCodexString(toml, "model");
-		const modelProvider = parseCodexString(toml, "model_provider");
-		const sandboxMode = parseCodexString(toml, "sandbox_mode");
+		const model = parseSharedAgentString(toml, "model");
+		const modelProvider = parseSharedAgentString(toml, "model_provider");
+		const sandboxMode = parseSharedAgentString(toml, "sandbox_mode");
 
 		agents.push({
 			name,
 			description,
 			tools: sandboxMode === "read-only" ? ["read", "grep", "find", "ls"] : undefined,
-			model: codexModelSelectorBuild(model, modelProvider),
+			model: sharedAgentModelSelectorBuild(model, modelProvider),
 			systemPrompt: prompt,
 			source: "user",
 			filePath: tomlPath,
@@ -201,18 +198,18 @@ export function discoverAgents(cwd: string, scope: AgentScope): AgentDiscoveryRe
 	const userDir = path.join(getAgentDir(), "agents");
 	const projectAgentsDir = findNearestProjectAgentsDir(cwd);
 
-	const codexAgents = scope === "project" ? [] : loadCodexAgents(SHARED_AGENTS_DIR);
+	const sharedAgents = scope === "project" ? [] : loadSharedAgents(SHARED_AGENTS_DIR);
 	const userAgents = scope === "project" ? [] : loadAgentsFromDir(userDir, "user");
 	const projectAgents = scope === "user" || !projectAgentsDir ? [] : loadAgentsFromDir(projectAgentsDir, "project");
 
 	const agentMap = new Map<string, AgentConfig>();
 
 	if (scope === "both") {
-		for (const agent of codexAgents) agentMap.set(agent.name, agent);
+		for (const agent of sharedAgents) agentMap.set(agent.name, agent);
 		for (const agent of userAgents) agentMap.set(agent.name, agent);
 		for (const agent of projectAgents) agentMap.set(agent.name, agent);
 	} else if (scope === "user") {
-		for (const agent of codexAgents) agentMap.set(agent.name, agent);
+		for (const agent of sharedAgents) agentMap.set(agent.name, agent);
 		for (const agent of userAgents) agentMap.set(agent.name, agent);
 	} else {
 		for (const agent of projectAgents) agentMap.set(agent.name, agent);
