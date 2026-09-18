@@ -1,0 +1,29 @@
+import { execFile } from "node:child_process";
+import * as os from "node:os";
+import * as path from "node:path";
+import { promisify } from "node:util";
+import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
+
+const NOTIFIER_PATH = path.join(os.homedir(), ".agents", "notify.py");
+const notifierExecute = promisify(execFile);
+
+export default function notifyRegister(pi: ExtensionAPI) {
+	pi.on("agent_settled", async (_event, ctx) => {
+		if (ctx.mode !== "tui") return;
+
+		const notificationPayload = JSON.stringify({
+			type: "agent-turn-complete",
+			client: "pi",
+			session_id: ctx.sessionManager.getSessionId(),
+		});
+
+		try {
+			await notifierExecute("python3", [NOTIFIER_PATH, notificationPayload], {
+				env: { ...process.env, NOTIFY_APP_NAME: "Pi" },
+			});
+		} catch (error) {
+			const errorMessage = error instanceof Error ? error.message : String(error);
+			ctx.ui.notify(`Pi notification failed: ${errorMessage}`, "warning");
+		}
+	});
+}
