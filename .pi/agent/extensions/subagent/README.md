@@ -22,7 +22,7 @@ Pi-native user agents override shared agents with the same name. With `agentScop
 | `sandbox_mode = "read-only"` | Restricts tools to `read`, `grep`, `find`, and `ls` |
 | Other `sandbox_mode` values | Uses Pi's default tool set |
 
-Provider and model values are preserved in Pi model selectors. The local Atlas extension exposes the matching `atlas` provider and model IDs directly.
+Provider and model values are converted to Pi model selectors. In this setup, the Pi adapter maps the shared `atlas` provider to `azure` while preserving each model ID; the shared TOML files remain unchanged for other harnesses.
 
 ## Current limitations
 
