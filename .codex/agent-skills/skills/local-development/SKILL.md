@@ -104,6 +104,7 @@ Known services running in the Coder workspace:
 - Before changing local-dev setup, distinguish local laptop services from remote Coder services.
 - Use `mise` for local Node and Python environment setup when repo conventions do not say otherwise.
 - If task mentions Postgres or MinIO, first check `/Users/josephrojo/fiserv/aitrium/aitrium-services`.
+- For local database SQL, read [`../../references/database-sql-workflow.md`](../../references/database-sql-workflow.md).
 - If task mentions Redis, OpenSearch, ElasticMQ, LocalStack, Kind, Kubernetes API, SSH, or port forwarding, first check `/Users/josephrojo/fiserv/coder/coder-aitrium` and the Coder workspace.
 - When giving commands that must run inside Coder, clearly mark them as remote workspace commands.
 - When giving commands that must run on laptop, clearly mark them as local machine commands.

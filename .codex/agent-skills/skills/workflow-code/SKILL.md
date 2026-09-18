@@ -73,7 +73,7 @@ description: Coding conventions, naming, and TDD guidelines.
 - Report verification with concrete proof snippets when output is large.
 
 ### SQL Execution Validation
-- Read `references/sql-execution-validation.md` when work creates, changes, reviews, or validates SQL.
+- Read [`../../references/database-sql-workflow.md`](../../references/database-sql-workflow.md) when work creates, changes, reviews, or validates SQL.
 
 ## Plain-English Pseudocode
 - Before non-trivial implementation or refactor work, produce plain-English pseudocode.
