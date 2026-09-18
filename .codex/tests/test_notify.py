@@ -136,7 +136,6 @@ class MainNotifierCommandTest(unittest.TestCase):
             "client": "codex-exec",
             "type": "agent-turn-complete",
             "thread-id": "thread-123",
-            "input-messages": ["done"],
         }
         command_calls: list[list[str]] = []
 
@@ -192,7 +191,10 @@ class MainNotifierCommandTest(unittest.TestCase):
         self.assertIn("-message", notifier_command)
 
         message_index = notifier_command.index("-message") + 1
-        self.assertEqual(notifier_command[message_index], "work:2.1 editor\ndone")
+        self.assertEqual(notifier_command[message_index], "work:2.1 editor\nthread-123")
+
+        title_index = notifier_command.index("-title") + 1
+        self.assertEqual(notifier_command[title_index], "Codex: work:editor")
 
         execute_index = notifier_command.index("-execute") + 1
         resume_command = notifier_command[execute_index]
@@ -206,6 +208,54 @@ class MainNotifierCommandTest(unittest.TestCase):
             resume_command,
         )
         self.assertIn("/opt/homebrew/bin/tmux select-pane -t work:2.1", resume_command)
+
+    def test_main_uses_pi_session_name_without_preview(self) -> None:
+        notification_payload = {
+            "client": "pi",
+            "input-messages": ["sensitive input preview"],
+            "last-assistant-message": "sensitive assistant preview",
+            "session_id": "pi-session-123",
+            "session_name": "Explicit Pi Name",
+            "type": "agent-turn-complete",
+        }
+
+        with (
+            mock.patch.dict("os.environ", {"NOTIFY_APP_NAME": "Pi"}, clear=True),
+            mock.patch("sys.argv", ["notify.py", json.dumps(notification_payload)]),
+            mock.patch("subprocess.check_output", return_value=b"") as check_output_mock,
+        ):
+            result_code = notify.main()
+
+        self.assertEqual(result_code, 0)
+        notifier_command = check_output_mock.call_args.args[0]
+        message = notifier_command[notifier_command.index("-message") + 1]
+        self.assertEqual(message, "Explicit Pi Name")
+        title = notifier_command[notifier_command.index("-title") + 1]
+        self.assertEqual(title, "Pi: Explicit Pi Name")
+        self.assertNotIn("sensitive input preview", message)
+        self.assertNotIn("sensitive assistant preview", message)
+
+    def test_main_uses_pi_session_id_when_name_is_blank(self) -> None:
+        notification_payload = {
+            "client": "pi",
+            "session_id": "pi-session-123",
+            "session_name": "  ",
+            "type": "agent-turn-complete",
+        }
+
+        with (
+            mock.patch.dict("os.environ", {"NOTIFY_APP_NAME": "Pi"}, clear=True),
+            mock.patch("sys.argv", ["notify.py", json.dumps(notification_payload)]),
+            mock.patch("subprocess.check_output", return_value=b"") as check_output_mock,
+        ):
+            result_code = notify.main()
+
+        self.assertEqual(result_code, 0)
+        notifier_command = check_output_mock.call_args.args[0]
+        message = notifier_command[notifier_command.index("-message") + 1]
+        self.assertEqual(message, "pi-session-123")
+        title = notifier_command[notifier_command.index("-title") + 1]
+        self.assertEqual(title, "Pi: pi-session-123")
 
     def test_main_skips_subagent_turn_complete_without_client(self) -> None:
         notification_payload = {
@@ -269,6 +319,40 @@ class MainNotifierCommandTest(unittest.TestCase):
 
         self.assertEqual(result_code, 0)
         self.assertEqual(check_output_mock.call_count, 1)
+
+
+class SessionNameResolutionTest(unittest.TestCase):
+    def test_resolves_codex_thread_name_from_matching_index_record(self) -> None:
+        with tempfile.NamedTemporaryFile(mode="w", encoding="utf-8") as index_file:
+            index_file.write('{"id":"other-thread","thread_name":"Other"}\n')
+            index_file.write('{"id":"thread-123","thread_name":"Codex Session"}\n')
+            index_file.flush()
+
+            session_name = notify.get_codex_session_name(
+                "thread-123", session_index_path=index_file.name
+            )
+
+        self.assertEqual(session_name, "Codex Session")
+
+    def test_falls_back_to_codex_id_for_unusable_or_unmatched_index_records(self) -> None:
+        with tempfile.NamedTemporaryFile(mode="w", encoding="utf-8") as index_file:
+            index_file.write("not json\n")
+            index_file.write('{"id":"thread-123","thread_name":"  "}\n')
+            index_file.write('{"id":"other-thread","thread_name":"Other"}\n')
+            index_file.flush()
+
+            session_name = notify.get_codex_session_name(
+                "thread-123", session_index_path=index_file.name
+            )
+
+        self.assertEqual(session_name, "thread-123")
+
+    def test_falls_back_to_codex_id_when_index_is_missing(self) -> None:
+        session_name = notify.get_codex_session_name(
+            "thread-123", session_index_path="/missing/session_index.jsonl"
+        )
+
+        self.assertEqual(session_name, "thread-123")
 
 
 class NotifyHookHarnessTest(unittest.TestCase):

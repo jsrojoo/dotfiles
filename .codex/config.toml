@@ -1,6 +1,6 @@
 notify = [
   "python3",
-  "/Users/josephrojo/dotfiles/.codex/notify.py"
+  "/Users/josephrojo/.agents/notify.py"
 ]
 
 model = "gpt-5.6-sol"

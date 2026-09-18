@@ -18,6 +18,7 @@ COMMAND_NAME_OSASCRIPT = "osascript"
 COMMAND_NAME_TMUX = "tmux"
 NOTIFIER_GROUP_PREFIX = "codex-"
 NOTIFIER_SOUND_NAME = "Bell"
+SESSION_INDEX_PATH = os.path.expanduser("~/.agents/session_index.jsonl")
 TMUX_FORMAT_CLIENT_TTY = "#{client_tty}"
 TMUX_FORMAT_MESSAGE = "#{session_name}:#{window_index}.#{pane_index} #{window_name}"
 TMUX_FORMAT_PANE_TARGET = "#{session_name}:#{window_index}.#{pane_index}"
@@ -132,21 +133,61 @@ def build_resume_command(resume_context: ResumeContext) -> str:
     return " ; ".join(command_items)
 
 
-def get_notification_message(notification: dict) -> str:
+def get_notification_message(session_name: str) -> str:
     message_lines: list[str] = []
 
     if get_tmux_environment() and (tmux_message := get_tmux_value(TMUX_FORMAT_MESSAGE)):
         message_lines.append(tmux_message)
 
-    input_messages = notification.get("input-messages")
-    if isinstance(input_messages, list):
-        message_lines.extend(str(message_item) for message_item in input_messages if message_item)
-    elif input_messages:
-        message_lines.append(str(input_messages))
-    elif assistant_message := notification.get("last-assistant-message"):
-        message_lines.append(str(assistant_message))
-
+    message_lines.append(session_name)
     return "\n".join(message_lines)
+
+
+def get_notification_identifier(notification: dict) -> str:
+    identifier = notification.get("thread-id") or notification.get("session_id")
+    return str(identifier) if identifier else ""
+
+
+def get_session_name_candidate(value: object) -> str | None:
+    if not isinstance(value, str):
+        return None
+
+    normalized_value = value.strip()
+    return normalized_value or None
+
+
+def get_codex_session_name(
+    identifier: str, *, session_index_path: str = SESSION_INDEX_PATH
+) -> str:
+    try:
+        with open(session_index_path, encoding="utf-8") as session_index_file:
+            for record_line in session_index_file:
+                try:
+                    record = json.loads(record_line)
+                except json.JSONDecodeError:
+                    LOGGER.debug("ignoring malformed Codex session index record")
+                    continue
+
+                if not isinstance(record, dict) or record.get("id") != identifier:
+                    continue
+
+                if session_name := get_session_name_candidate(record.get("thread_name")):
+                    return session_name
+    except OSError as error:
+        LOGGER.debug("Codex session index lookup failed for %s: %s", identifier, error)
+
+    return identifier
+
+
+def get_pi_session_name(notification: dict, identifier: str) -> str:
+    return get_session_name_candidate(notification.get("session_name")) or identifier
+
+
+def get_notification_session_name(notification: dict, identifier: str) -> str:
+    if notification.get("client") == "pi":
+        return get_pi_session_name(notification, identifier)
+
+    return get_codex_session_name(identifier)
 
 
 def get_app_name(notification: dict) -> str:
@@ -156,18 +197,14 @@ def get_app_name(notification: dict) -> str:
     return "Claude Code" if notification.get("hook_event_name") else "Codex"
 
 
-def get_notification_title(notification: dict) -> str:
+def get_notification_title(notification: dict, session_name: str) -> str:
     app_name = get_app_name(notification)
 
     if get_tmux_environment():
         tmux_title = get_tmux_title()
         return f"{app_name}: {tmux_title}" if tmux_title else app_name
 
-    assistant_message = notification.get("last-assistant-message")
-    if assistant_message:
-        return f"{app_name}: {assistant_message}"
-
-    return f"{app_name}: Turn Complete!"
+    return f"{app_name}: {session_name}"
 
 
 def get_resume_context() -> ResumeContext:
@@ -239,13 +276,14 @@ def main() -> int:
         print(f"not sending a push notification for: {notification.get('type')}")
         return 0
 
-    title = get_notification_title(notification)
-    thread_id = notification.get("thread-id") or notification.get("session_id", "")
+    identifier = get_notification_identifier(notification)
+    session_name = get_notification_session_name(notification, identifier)
+    title = get_notification_title(notification, session_name)
 
     notifier_command = build_notifier_command(
-        message=get_notification_message(notification),
+        message=get_notification_message(session_name),
         resume_command=build_resume_command(get_resume_context()),
-        thread_id=thread_id,
+        thread_id=identifier,
         title=title,
     )
 

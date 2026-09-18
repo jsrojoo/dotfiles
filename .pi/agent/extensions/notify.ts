@@ -3,6 +3,7 @@ import * as os from "node:os";
 import * as path from "node:path";
 import { promisify } from "node:util";
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
+import { piSessionNameResolve } from "./notify/session_name.ts";
 
 const NOTIFIER_PATH = path.join(os.homedir(), ".agents", "notify.py");
 const notifierExecute = promisify(execFile);
@@ -11,10 +12,13 @@ export default function notifyRegister(pi: ExtensionAPI) {
 	pi.on("agent_settled", async (_event, ctx) => {
 		if (ctx.mode !== "tui") return;
 
+		const sessionId = ctx.sessionManager.getSessionId();
+		const sessionName = piSessionNameResolve(pi.getSessionName(), sessionId);
 		const notificationPayload = JSON.stringify({
 			type: "agent-turn-complete",
 			client: "pi",
-			session_id: ctx.sessionManager.getSessionId(),
+			session_id: sessionId,
+			session_name: sessionName,
 		});
 
 		try {
