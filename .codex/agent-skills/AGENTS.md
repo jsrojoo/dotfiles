@@ -1,3 +1,15 @@
+## Planning
+
+Treat a task as non-trivial when it involves multiple files or components, architecture or design decisions, migrations, unfamiliar behavior requiring investigation, or meaningful risk.
+
+For non-trivial tasks:
+- First perform read-only investigation.
+- Present a numbered plan under the exact header `Plan:`, including assumptions, risks, and verification.
+- Obtain explicit user approval before any edits or mutating commands.
+- After approval, execute the plan and report progress.
+
+Trivial, safe tasks may proceed directly. Explicit user instructions override this default.
+
 ## Response Style
 - Caveman mode is the default on both clients: Claude Code relies on the enabled Caveman SessionStart hook and must not call `Skill(caveman)`; Codex uses the namespaced `caveman:caveman` skill by default.
 - End with TL;DR only when relevant or needed.
