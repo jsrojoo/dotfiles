@@ -6,21 +6,12 @@ import * as fs from "node:fs";
 import * as os from "node:os";
 import * as path from "node:path";
 import { CONFIG_DIR_NAME, getAgentDir, parseFrontmatter } from "@earendil-works/pi-coding-agent";
+import { agentConfigsMerge, type AgentConfig, type AgentScope } from "./agent-configs.ts";
 import { sharedAgentModelSelectorBuild } from "./model-selector.ts";
 
+export { type AgentConfig, type AgentScope } from "./agent-configs.ts";
+
 const SHARED_AGENTS_DIR = path.join(os.homedir(), ".agents", "agents");
-
-export type AgentScope = "user" | "project" | "both";
-
-export interface AgentConfig {
-	name: string;
-	description: string;
-	tools?: string[];
-	model?: string;
-	systemPrompt: string;
-	source: "user" | "project";
-	filePath: string;
-}
 
 export interface AgentDiscoveryResult {
 	agents: AgentConfig[];
@@ -121,7 +112,7 @@ function parseSharedAgentString(content: string, key: string): string | undefine
 	}
 }
 
-function loadSharedAgents(dir: string): AgentConfig[] {
+function loadSharedAgents(dir: string, mainProvider: string | undefined): AgentConfig[] {
 	if (!fs.existsSync(dir)) return [];
 
 	let entries: fs.Dirent[];
@@ -159,7 +150,7 @@ function loadSharedAgents(dir: string): AgentConfig[] {
 			name,
 			description,
 			tools: sandboxMode === "read-only" ? ["read", "grep", "find", "ls"] : undefined,
-			model: sharedAgentModelSelectorBuild(model, modelProvider),
+			model: sharedAgentModelSelectorBuild(model, modelProvider, mainProvider),
 			systemPrompt: prompt,
 			source: "user",
 			filePath: tomlPath,
@@ -189,28 +180,19 @@ function findNearestProjectAgentsDir(cwd: string): string | null {
 	}
 }
 
-export function discoverAgents(cwd: string, scope: AgentScope): AgentDiscoveryResult {
+export function discoverAgents(
+	cwd: string,
+	scope: AgentScope,
+	mainProvider: string | undefined,
+): AgentDiscoveryResult {
 	const userDir = path.join(getAgentDir(), "agents");
 	const projectAgentsDir = findNearestProjectAgentsDir(cwd);
 
-	const sharedAgents = scope === "project" ? [] : loadSharedAgents(SHARED_AGENTS_DIR);
+	const sharedAgents = scope === "project" ? [] : loadSharedAgents(SHARED_AGENTS_DIR, mainProvider);
 	const userAgents = scope === "project" ? [] : loadAgentsFromDir(userDir, "user");
 	const projectAgents = scope === "user" || !projectAgentsDir ? [] : loadAgentsFromDir(projectAgentsDir, "project");
 
-	const agentMap = new Map<string, AgentConfig>();
-
-	if (scope === "both") {
-		for (const agent of sharedAgents) agentMap.set(agent.name, agent);
-		for (const agent of userAgents) agentMap.set(agent.name, agent);
-		for (const agent of projectAgents) agentMap.set(agent.name, agent);
-	} else if (scope === "user") {
-		for (const agent of sharedAgents) agentMap.set(agent.name, agent);
-		for (const agent of userAgents) agentMap.set(agent.name, agent);
-	} else {
-		for (const agent of projectAgents) agentMap.set(agent.name, agent);
-	}
-
-	return { agents: Array.from(agentMap.values()), projectAgentsDir };
+	return { agents: agentConfigsMerge(scope, sharedAgents, userAgents, projectAgents), projectAgentsDir };
 }
 
 export function formatAgentList(agents: AgentConfig[], maxItems: number): { text: string; remaining: number } {

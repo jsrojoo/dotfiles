@@ -1,13 +1,18 @@
-const SHARED_PROVIDER_OVERRIDES: Readonly<Record<string, string>> = {
-	atlas: "azure",
-};
+const MAIN_PROVIDER_CHILD_SUPPORTED = new Set(["atlas", "azure"]);
+
+function sharedAgentProviderChildCompute(
+	mainProvider: string | undefined,
+	sharedProvider: string | undefined,
+): string | undefined {
+	return mainProvider && MAIN_PROVIDER_CHILD_SUPPORTED.has(mainProvider) ? mainProvider : sharedProvider;
+}
 
 export function sharedAgentModelSelectorBuild(
 	model: string | undefined,
-	provider: string | undefined,
+	sharedProvider: string | undefined,
+	mainProvider: string | undefined,
 ): string | undefined {
 	if (!model) return undefined;
-	if (!provider) return model;
-	const providerResolved = SHARED_PROVIDER_OVERRIDES[provider] ?? provider;
-	return `${providerResolved}/${model}`;
+	const childProvider = sharedAgentProviderChildCompute(mainProvider, sharedProvider);
+	return childProvider ? `${childProvider}/${model}` : model;
 }
