@@ -11,6 +11,7 @@
 [core]
 	pager = delta --line-numbers
 	excludesfile = /Users/josephrojo/.git/ignore
+	hooksPath = /Users/josephrojo/.config/git/hooks
 [color]
 	pager = no
 [credential]
