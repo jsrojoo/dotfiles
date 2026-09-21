@@ -5,10 +5,8 @@
   "defaultModel": "gpt-5.6-sol",
   "defaultThinkingLevel": "medium",
   "enabledModels": [
-    "azure/gpt-5.6-*:medium"
-  ],
-  "extensions": [
-    "-extensions/atlas.ts"
+    "azure/gpt-5.6-*:medium",
+    "atlas/gpt-5.6-*:medium"
   ],
   "hideThinkingBlock": false
 }

@@ -7,6 +7,8 @@ import {
 } from "@earendil-works/pi-ai";
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
 
+import { atlasPayloadReasoningStatusRemove } from "./atlas/request-payload.ts";
+
 const ATLAS_API_VERSION = "2025-04-01-preview";
 const ATLAS_BASE_URL = "https://apis.aitrium.app.atlas.gfs-emea-ai-platform.aws.fisv.cloud/v1/codex";
 
@@ -25,6 +27,11 @@ const responsesApi = openAIResponsesApi();
 const atlasModels = ["gpt-5.6-sol", "gpt-5.6-terra", "gpt-5.6-luna"] as const;
 
 export default function atlasProviderRegister(pi: ExtensionAPI) {
+	pi.on("before_provider_request", (event, ctx) => {
+		if (ctx.model?.provider !== "atlas") return;
+		return atlasPayloadReasoningStatusRemove(event.payload);
+	});
+
 	pi.registerProvider("atlas", {
 		name: "Atlas",
 		baseUrl: ATLAS_BASE_URL,
