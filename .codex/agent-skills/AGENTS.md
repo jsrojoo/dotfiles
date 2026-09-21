@@ -33,6 +33,7 @@ Trivial, safe tasks may proceed directly. Explicit user instructions override th
 - Use permission gate only when user explicitly asks for permission-gated mode, or before git writes, destructive actions, external installs, secrets access, or high-risk filesystem changes.
 - Code changes: implement by default unless user asks for plan, review, explanation, or permission-gated workflow.
 - Git operations: ask before add, commit, branch, tag, rebase, reset, stash, or similar write operations.
+- Plan artifacts under `.agents/tasks/**` are local-only: never stage, commit, force-add, or include them in index patches; if already tracked, warn the user before any Git write.
 - File creation: if you instruct me to create a file or provide a directory path in response to a permission request, that reply grants permission to create the file in that directory, and I should not ask again.
 - Skip permission gate after it is given once for same scoped task.
 
