@@ -34,6 +34,13 @@ Plan:
 5. During execution, the agent marks steps complete with `[DONE:n]` tags
 6. Progress widget shows completion status
 
+### Required Mermaid Diagrams and Termaid Validation
+
+- Every plan requires at least one compact standard Mermaid diagram that explains its flow, scope, dependencies, or boundaries.
+- Put the Mermaid diagram in `plan.md`; `tasks.md` tracks actionable tasks only and must remain diagram-free.
+- Render and inspect every plan diagram with the `termaid` skill.
+- `uvx termaid` remains unavailable in plan mode because environment provisioning and interactive editing are outside the read-only Bash allowlist; render and inspect the diagram after leaving plan mode without changing plan-mode safety.
+
 ## How It Works
 
 ### Plan Mode (Read-Only)

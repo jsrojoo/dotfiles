@@ -221,6 +221,10 @@ Plan:
 2. Second step description
 ...
 
+Every plan requires at least one compact standard Mermaid diagram in plan.md that clarifies its flow, scope, dependencies, or boundaries. tasks.md tracks actionable tasks only and must remain diagram-free.
+
+Termaid rendering and inspection are required for every plan. Do not run uvx termaid in plan mode: Bash remains read-only and interactive rendering is unavailable. Carry the Mermaid diagram forward for required termaid rendering and inspection after leaving plan mode.
+
 Do NOT attempt to make changes - just describe what you would do.`,
 					display: false,
 				},
