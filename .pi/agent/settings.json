@@ -8,8 +8,5 @@
     "azure/gpt-5.6-luna:medium",
     "atlas/gpt-5.6-luna:medium"
   ],
-  "hideThinkingBlock": false,
-  "packages": [
-    "npm:pi-sub-agent"
-  ]
+  "hideThinkingBlock": false
 }
