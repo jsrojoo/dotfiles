@@ -19,7 +19,7 @@ import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
 const ANTHROPIC_VERSION = "bedrock-2023-05-31";
 const DEFAULT_MAX_TOKENS = 64000;
 const DEFAULT_TEMPERATURE = 1;
-const DEFAULT_THINKING_BUDGET = 8192;
+const DEFAULT_THINKING_BUDGET = 16000;
 const CLAUDE_CONTEXT_WINDOW = 700_000;
 const CLAUDE_MAX_TOKENS = 64000;
 const EVENT_STREAM_CONTENT_TYPE = "application/vnd.amazon.eventstream";
@@ -361,7 +361,7 @@ export default function claudeBedrockProvidersRegister(pi: ExtensionAPI) {
 				cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 },
 				contextWindow: CLAUDE_CONTEXT_WINDOW,
 				maxTokens: CLAUDE_MAX_TOKENS,
-				thinkingLevelMap: { medium: "medium" },
+				thinkingLevelMap: { off: null, minimal: "minimal", low: "low", medium: "medium", high: "high" },
 			})),
 			streamSimple: claudeBedrockStream,
 		});
