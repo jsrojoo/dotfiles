@@ -50,3 +50,6 @@
 .pytest_cache/
 graphify-out/
 .DS_Store
+
+# pi local extension fork (external path)
+pi-background-tasks/
