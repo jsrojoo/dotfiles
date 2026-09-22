@@ -11,6 +11,9 @@
     "atlas-bedrock/claude-sonnet-5:medium"
   ],
   "hideThinkingBlock": false,
+  "skills": [
+    "/Users/josephrojo/dotfiles/.codex/plugins/cache/aitrium-dev-workspace-local/aitrium-dev-workspace/0.1.0+codex.20260603191627/skills"
+  ],
   "packages": [
     "/Users/josephrojo/pi-background-tasks",
     "../../dotfiles/.codex/plugins/cache/ponytail/ponytail/4.10.0"
