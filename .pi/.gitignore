@@ -11,6 +11,10 @@ agent/models-store.json
 # Pi-managed package installations
 agent/git/
 agent/npm/
+agent/tmp/
+
+# Nested pi task state (created when cwd is inside .pi/)
+.pi/
 
 # General local artifacts
 .DS_Store
