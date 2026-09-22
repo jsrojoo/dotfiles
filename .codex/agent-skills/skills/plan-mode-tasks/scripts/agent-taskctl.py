@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import os
 import re
+import subprocess
 import sys
 import tempfile
 from dataclasses import dataclass
@@ -19,6 +20,9 @@ PLAN_FILE_NAME = "plan.md"
 TASKS_FILE_NAME = "tasks.md"
 TASKS_DIR_PARTS = (".agents", "tasks")
 ARCHIVE_DIR_NAME = ".archive"
+MERMAID_FENCE_PATTERN = re.compile(r"^```mermaid[ \t]*\n(.*?)^```[ \t]*$", re.MULTILINE | re.DOTALL)
+TERMAID_COMMAND = ("uvx", "--offline", "termaid", "--ascii")
+TERMAID_TIMEOUT_SECONDS = 30
 
 LIST_FILTER_ACTIVE = "active"
 LIST_FILTER_ARCHIVED = "archived"
@@ -78,6 +82,12 @@ TBD
 # Tests
 
 TBD
+
+```mermaid
+flowchart TD
+    Plan[Approved plan] --> Validate[Validate artifacts]
+    Validate --> Implement[Implementation]
+```
 """
 
 TASKS_TEMPLATE = """- [ ] Replace with approved first task
@@ -581,11 +591,45 @@ def _plan_validation_errors_build(plan_text: str) -> list[str]:
     if not _text_fence_has_content(pseudo_text):
         errors.append("plan.md Plain-English Pseudocode needs non-empty fenced text block")
 
+    mermaid_sources = _mermaid_sources_extract(plan_text)
+    if not mermaid_sources:
+        errors.append("plan.md needs at least one Mermaid block")
+    for mermaid_index, mermaid_source in enumerate(mermaid_sources, start=1):
+        errors.extend(_mermaid_render_errors_build(mermaid_source, mermaid_index))
+
     return errors
+
+
+def _mermaid_sources_extract(plan_text: str) -> tuple[str, ...]:
+    return tuple(match.group(1) for match in MERMAID_FENCE_PATTERN.finditer(plan_text))
+
+
+def _mermaid_render_errors_build(mermaid_source: str, mermaid_index: int) -> list[str]:
+    try:
+        result = subprocess.run(
+            TERMAID_COMMAND,
+            input=mermaid_source,
+            text=True,
+            capture_output=True,
+            check=False,
+            timeout=TERMAID_TIMEOUT_SECONDS,
+        )
+    except OSError:
+        return ["Mermaid render unavailable: install uvx and cache termaid; validation never installs it"]
+    except subprocess.TimeoutExpired:
+        return [f"Mermaid render timed out after {TERMAID_TIMEOUT_SECONDS}s for block {mermaid_index}"]
+
+    if result.returncode == 0:
+        return []
+
+    error_text = result.stderr.strip() or result.stdout.strip() or "no renderer output"
+    return [f"Mermaid render failed for block {mermaid_index}: {error_text}"]
 
 
 def _tasks_validation_errors_build(lines: tuple[str, ...]) -> list[str]:
     errors: list[str] = []
+    if any(line.strip() == "```mermaid" for line in lines):
+        errors.append("tasks.md must not contain Mermaid blocks")
     entries = _task_entries_prepare(lines)
     if not entries:
         return ["tasks.md has no top-level checkbox tasks"]

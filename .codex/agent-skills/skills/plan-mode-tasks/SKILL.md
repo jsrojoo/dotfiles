@@ -67,7 +67,17 @@ Return [output value] without mutating inputs.
 # Risks
 
 # Tests
+
+```mermaid
+flowchart TD
+    Plan[Approved plan] --> Validate[Validate artifacts]
+    Validate --> Implement[Implementation]
+```
 ````
+
+- `plan.md` must contain at least one standard fenced `mermaid` block copied exactly from inspected pre-approval draft.
+- Before approval, drafting and rendering belongs to `termaid`; this skill persists only approved diagram source.
+- Keep `tasks.md` Mermaid-free.
 
 ### `tasks.md`
 
@@ -189,13 +199,13 @@ python scripts/agent-taskctl.py --root <workspace> restore <slug>
 - `status <slug> --done` shows checked count and checked top-level tasks with original 1-based numbers; empty result prints `done:` then `none`.
 - `--next`, `--all`, `--todo`, and `--done` are mutually exclusive status filters and may appear before or after `<slug>`.
 - `check` and `uncheck` use 1-based top-level task numbers and preserve all unrelated Markdown.
-- `validate` checks required plan headings, non-empty fenced `text` pseudocode in `plan.md`, top-level checkbox task lines, nested `Verify:` lines, and any present nested `Pseudo:` fenced `text` blocks.
+- `validate` checks required plan headings, non-empty fenced `text` pseudocode in `plan.md`, at least one rendered fenced Mermaid block in `plan.md`, top-level checkbox task lines, nested `Verify:` lines, and any present nested `Pseudo:` fenced `text` blocks.
 
 ## Lifecycle
 
 1. Confirm approved plan and slug.
 2. Run `agent-taskctl init <slug>` to create the task directory when needed.
-3. Write approved `plan.md` and `tasks.md` with `write-plan` and `write-tasks`.
+3. Write approved `plan.md` with exact inspected Mermaid source and diagram-free `tasks.md` using `write-plan` and `write-tasks`.
 4. Run `agent-taskctl validate <slug>` before handing artifacts back.
 5. Use `list` state filters, `status`, `status --next`, `status --all`, `status --todo`, `status --done`, and `next` to report progress without editing plan content.
 6. Use `check` and `uncheck` only for proven progress updates on top-level task lines.

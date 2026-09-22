@@ -9,7 +9,9 @@ Use `termaid` to render **standard Mermaid** syntax while planning, implementing
 
 ## Planning Requirement
 
-Every planning conversation must include at least one compact standard Mermaid diagram in `plan.md` and must render and inspect it with `termaid`.
+Before requesting approval for a non-trivial plan, draft at least one compact standard Mermaid diagram and render it with `uvx --offline termaid --ascii` through stdin or a safe temporary file. Inspect result, then show rendered Termaid output in chat; do not show raw Mermaid source unless user asks. Do not request approval if rendering fails.
+
+After approval, persist exact inspected Mermaid source in `plan.md`. `agent-taskctl validate` renders every Mermaid block offline; it must pass before implementation.
 
 Keep `tasks.md` diagram-free; it tracks actionable work only.
 
@@ -45,39 +47,28 @@ flowchart TD
 
 ## Commands
 
-Inspect the installed command surface before relying on a version-specific option:
+Render offline from stdin; this never installs or accesses network:
 
 ```bash
-uvx termaid --help
-```
-
-Launch the interactive termaid workflow with Mermaid source available to inspect or edit:
-
-```bash
-uvx termaid
-```
-
-Use the renderer command and options reported by the installed version for file-based output:
-
-```bash
-uvx termaid render --help
+uvx --offline termaid --ascii
 ```
 
 ## Interactive Workflow
 
 ### Planning
 
-1. Write the smallest standard Mermaid diagram that captures the planned flow, scope, or dependencies in `plan.md`.
-2. Invoke `uvx termaid` and render or inspect that diagram interactively.
-3. Update the Mermaid source until the rendered diagram accurately communicates the plan.
-4. Keep the inspected Mermaid diagram in `plan.md`; keep `tasks.md` diagram-free.
+1. Draft smallest standard Mermaid diagram that captures plan flow, scope, or dependencies.
+2. Pipe source to `uvx --offline termaid --ascii`, then inspect rendered output.
+3. Update source until rendered diagram accurately communicates plan.
+4. Show rendered output—not source—in approval request.
+5. After approval, keep exact inspected Mermaid source in `plan.md`; keep `tasks.md` diagram-free.
 
 ### Implementation and Review
 
 1. Write the smallest standard Mermaid diagram that captures the current flow.
-2. Invoke `uvx termaid` and render or inspect that diagram interactively.
+2. Render and inspect it with `uvx --offline termaid --ascii`.
 3. Update the Mermaid source to represent the proposed flow.
-4. Invoke `uvx termaid` again to compare the after-change diagram.
+4. Render with `uvx --offline termaid --ascii` again to compare after-change diagram.
 5. Keep only the diagram that improves implementation, review, or documentation clarity.
 
 Do not modify implementation solely to make a diagram prettier.

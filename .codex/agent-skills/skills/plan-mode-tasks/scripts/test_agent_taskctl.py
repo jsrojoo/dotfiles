@@ -4,7 +4,9 @@ import subprocess
 import sys
 import tempfile
 import unittest
+import importlib.util
 from pathlib import Path
+from unittest import mock
 
 
 SCRIPT_PATH = Path(__file__).resolve().parent / "agent-taskctl.py"
@@ -47,6 +49,11 @@ Parser too broad.
 # Tests
 
 Focused unittest.
+
+```mermaid
+flowchart TD
+    Plan[Plan] --> Validate[Validate]
+```
 """
 
 TASKS_VALID = """- [ ] Add CLI commands
@@ -92,6 +99,23 @@ TASKS_STATUS_WITH_NESTED_CHECKBOXES = """- [x] Parent done
 
 
 class AgentTaskctlTests(unittest.TestCase):
+    def agent_taskctl_module_load(self):
+        module_name = f"agent_taskctl_test_{id(self)}"
+        spec = importlib.util.spec_from_file_location(module_name, SCRIPT_PATH)
+        self.assertIsNotNone(spec)
+        self.assertIsNotNone(spec.loader)
+        module = importlib.util.module_from_spec(spec)
+        sys.modules[module_name] = module
+        spec.loader.exec_module(module)
+        return module
+
+    def task_path_create(self, root_path: Path, plan_text: str = PLAN_VALID) -> Path:
+        task_path = root_path / ".agents" / "tasks" / "demo-task"
+        task_path.mkdir(parents=True)
+        (task_path / "plan.md").write_text(plan_text, encoding="utf-8")
+        (task_path / "tasks.md").write_text(TASKS_VALID, encoding="utf-8")
+        return task_path
+
     def run_agent_taskctl(self, root_path: Path, *args: str, stdin: str | None = None) -> subprocess.CompletedProcess[str]:
         command = [
             sys.executable,
@@ -532,6 +556,67 @@ class AgentTaskctlTests(unittest.TestCase):
             self.assertEqual(result.returncode, 2)
             self.assertIn("missing plan.md", result.stderr)
             self.assertIn("task 1 missing nested Verify", result.stderr)
+
+    def test_validate_renders_valid_mermaid_plan(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root_path = Path(temp_dir)
+            task_path = self.task_path_create(root_path)
+            module = self.agent_taskctl_module_load()
+
+            with mock.patch("subprocess.run", return_value=subprocess.CompletedProcess([], 0)) as run_mock:
+                result = module._task_validate(task_path, "demo-task")
+
+            self.assertEqual(result, "valid demo-task")
+            run_mock.assert_called_once()
+            command = run_mock.call_args.args[0]
+            self.assertIn("uvx", command)
+            self.assertIn("termaid", command)
+            self.assertTrue(task_path.exists())
+
+    def test_validate_rejects_plan_without_mermaid(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root_path = Path(temp_dir)
+            plan_without_mermaid = PLAN_VALID.replace(
+                "\n```mermaid\nflowchart TD\n    Plan[Plan] --> Validate[Validate]\n```\n",
+                "\n",
+            )
+            task_path = self.task_path_create(root_path, plan_without_mermaid)
+            module = self.agent_taskctl_module_load()
+
+            with self.assertRaises(module.TaskctlError) as raised:
+                module._task_validate(task_path, "demo-task")
+
+            self.assertIn("plan.md needs at least one Mermaid block", str(raised.exception))
+
+    def test_validate_reports_mermaid_renderer_failure(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root_path = Path(temp_dir)
+            invalid_plan = PLAN_VALID.replace("Plan[Plan]", "Plan[")
+            task_path = self.task_path_create(root_path, invalid_plan)
+            module = self.agent_taskctl_module_load()
+
+            with mock.patch(
+                "subprocess.run",
+                return_value=subprocess.CompletedProcess([], 1, stderr="syntax error"),
+            ), self.assertRaises(module.TaskctlError) as raised:
+                module._task_validate(task_path, "demo-task")
+
+            self.assertIn("Mermaid render failed", str(raised.exception))
+            self.assertIn("syntax error", str(raised.exception))
+
+    def test_validate_reports_actionable_uvx_unavailable(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root_path = Path(temp_dir)
+            task_path = self.task_path_create(root_path)
+            module = self.agent_taskctl_module_load()
+
+            with mock.patch("subprocess.run", side_effect=FileNotFoundError("uvx")), self.assertRaises(
+                module.TaskctlError
+            ) as raised:
+                module._task_validate(task_path, "demo-task")
+
+            self.assertIn("uvx", str(raised.exception))
+            self.assertIn("install", str(raised.exception))
 
 
 if __name__ == "__main__":
