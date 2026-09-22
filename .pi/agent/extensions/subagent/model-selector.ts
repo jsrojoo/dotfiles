@@ -1,4 +1,4 @@
-const MAIN_PROVIDER_CHILD_SUPPORTED = new Set(["atlas", "azure"]);
+const MAIN_PROVIDER_CHILD_SUPPORTED = new Set(["atlas", "azure", "atlas-bedrock"]);
 
 function sharedAgentProviderChildCompute(
 	mainProvider: string | undefined,

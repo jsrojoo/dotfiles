@@ -22,7 +22,7 @@ Pi-native user agents override shared agents with the same name. With `agentScop
 | `sandbox_mode = "read-only"` | Restricts tools to `read`, `grep`, `find`, and `ls` |
 | Other `sandbox_mode` values | Uses Pi's default tool set |
 
-Provider and model values are converted to Pi model selectors. When Pi's active main provider is exactly `azure` or `atlas`, shared child agents use that provider while preserving their TOML model ID. Otherwise, including when the active provider is unavailable, shared agents retain their TOML provider behavior. Pi-native and project-local agent model selectors are not rewritten and retain discovery precedence.
+Provider and model values are converted to Pi model selectors. When Pi's active main provider is exactly `azure`, `atlas`, or `atlas-bedrock`, shared child agents use that provider while preserving their TOML model ID. Otherwise, including when the active provider is unavailable, shared agents retain their TOML provider behavior. Pi-native and project-local agent model selectors are not rewritten and retain discovery precedence.
 
 ## Current limitations
 

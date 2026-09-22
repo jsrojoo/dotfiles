@@ -298,10 +298,9 @@ async function runSingleAgent(
 	}
 
 	const args: string[] = ["--mode", "json", "-p", "--no-session"];
-	const inheritsDispatchConfig = !agent.model;
 	const model = agent.model ?? dispatchDefaults.model;
 	if (model) args.push("--model", model);
-	if (inheritsDispatchConfig && dispatchDefaults.thinkingLevel) {
+	if (dispatchDefaults.thinkingLevel) {
 		args.push("--thinking", dispatchDefaults.thinkingLevel);
 	}
 	if (agent.tools && agent.tools.length > 0) args.push("--tools", agent.tools.join(","));
@@ -469,6 +468,11 @@ const SubagentParams = Type.Object({
 });
 
 export default function (pi: ExtensionAPI) {
+	const initAgents = discoverAgents(process.cwd(), "user", undefined).agents;
+	const agentList = initAgents.length > 0
+		? `Available agents: ${initAgents.map((a) => `${a.name} (${a.description})`).join("; ")}.`
+		: "";
+
 	pi.registerTool({
 		name: "subagent",
 		label: "Subagent",
@@ -477,7 +481,8 @@ export default function (pi: ExtensionAPI) {
 			"Modes: single (agent + task), parallel (tasks array), chain (sequential with {previous} placeholder).",
 			`Default agent scope is "user" (from ${path.join(getAgentDir(), "agents")}).`,
 			`To enable project-local agents in ${CONFIG_DIR_NAME}/agents, set agentScope: "both" (or "project").`,
-		].join(" "),
+			agentList,
+		].filter(Boolean).join(" "),
 		parameters: SubagentParams,
 
 		async execute(_toolCallId, params, signal, onUpdate, ctx) {
