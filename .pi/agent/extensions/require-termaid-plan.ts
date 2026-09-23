@@ -5,9 +5,8 @@
  * (bash call containing "termaid" and "--ascii") during the same agent run,
  * shown under "Before", "After", and "What changed" headings, each pasted verbatim
  * from a captured termaid render output (hand-redrawn diagrams fail).
- * If missing, the draft is hidden while streaming and message_end swaps it for a
- * short placeholder (so the user sees one plan, not two), and turn_end injects a hidden reminder
- * carrying the draft text and forces one continuation turn.
+ * If missing, turn_end injects a hidden reminder and forces one continuation turn.
+ * Never mask or replace streamed assistant text: failed masking caused stuck placeholder output.
  *
  * Uses turn_end so the continuation stays inside the same agent run.
  * Skipped in print/json modes: their prompt() resolves before extension
@@ -53,8 +52,6 @@ const REMINDER =
 	"Plan response is missing the required termaid diagrams. Read the `Planning Requirement` section of " +
 	"~/.agents/skills/termaid/SKILL.md, follow it, then resend the full Plan response.";
 
-const PLACEHOLDER = "Plan draft withheld: adding required termaid diagrams, full plan follows.";
-
 function isAssistantMessage(m: AgentMessage): m is AssistantMessage {
 	return m.role === "assistant" && Array.isArray(m.content);
 }
@@ -70,22 +67,23 @@ function hasToolCalls(message: AssistantMessage): boolean {
 	return message.content.some((block) => block.type === "toolCall");
 }
 
-// Swap visible text for the placeholder; keep thinking (signatures) and tool calls intact.
-function withPlaceholder(content: AssistantMessage["content"]): AssistantMessage["content"] {
-	return [...content.filter((block) => block.type !== "text"), { type: "text" as const, text: PLACEHOLDER }];
-}
-
 export default function requireTermaidPlan(pi: ExtensionAPI): void {
 	let termaidRenders = 0;
 	let renderOutputs: string[] = [];
 	let retried = false;
-	let withheldDraft: string | undefined;
 
 	pi.on("agent_start", async () => {
 		termaidRenders = 0;
 		renderOutputs = [];
-		retried = false;
-		withheldDraft = undefined;
+	});
+
+	// Reset only for a new user request. Continuation agent_start events must retain retry state.
+	pi.on("input", async (event) => {
+		if (event.source !== "extension") {
+			retried = false;
+			termaidRenders = 0;
+			renderOutputs = [];
+		}
 	});
 
 	pi.on("tool_call", async (event) => {
@@ -103,47 +101,23 @@ export default function requireTermaidPlan(pi: ExtensionAPI): void {
 		renderOutputs.push(normalizeRender(output));
 	});
 
-	// Hide a plan draft while it streams when it is already known to fail (renders not done yet),
-	// so the TUI never flashes the draft before message_end swaps it.
-	// ponytail: relies on message_update carrying a per-event shallow copy that listeners render after
-	// extensions run (pi-agent-core agent-loop.js, agent-session.js emit order); if pi changes that,
-	// the draft just streams visibly again, enforcement is unaffected.
-	pi.on("message_update", async (event, ctx) => {
+	pi.on("turn_end", async (event, ctx) => {
 		if (ctx.mode === "print" || ctx.mode === "json") return;
-		if (retried || termaidRenders >= REQUIRED_RENDERS) return;
+		if (retried) return;
 		const message = event.message;
-		if (!isAssistantMessage(message) || !PLAN_HEADER_RE.test(getText(message))) return;
-		message.content = withPlaceholder(message.content);
-	});
-
-	// Decide here, before the TUI finalizes the message, so the non-compliant draft
-	// can be replaced in place instead of shown twice.
-	pi.on("message_end", async (event, ctx) => {
-		if (ctx.mode === "print" || ctx.mode === "json") return;
-		if (retried || withheldDraft !== undefined) return;
-		const message = event.message;
-		// Only judge a completed final answer: skip tool-use turns and aborted/error/length stops,
-		// so a user abort (Esc) never triggers a forced continuation.
+		// Judge only completed final answers, not intermediate tool-use turns or aborts.
 		if (!isAssistantMessage(message) || message.stopReason !== "stop" || hasToolCalls(message)) return;
 		const text = getText(message);
 		if (!PLAN_HEADER_RE.test(text)) return;
 		if (termaidRenders >= REQUIRED_RENDERS && sectionsMatchRenders(text, renderOutputs)) return;
 
-		withheldDraft = text;
-		return { message: { ...message, content: withPlaceholder(message.content) } };
-	});
-
-	pi.on("turn_end", async () => {
-		if (withheldDraft === undefined) return;
-		const draft = withheldDraft;
-		withheldDraft = undefined;
 		retried = true;
 		return {
 			entries: [
 				{
 					type: "custom_message",
 					customType: "require-termaid-plan",
-					content: `${REMINDER}\n\nYour withheld draft (not shown to the user):\n\n${draft}`,
+					content: REMINDER,
 					display: false,
 				},
 			],
