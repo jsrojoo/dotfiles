@@ -1,6 +1,6 @@
 name = "workflow_execution"
 description = "Execution-focused worker for environment setup, tmux discipline, temp files, and command-running hygiene."
-model = "claude-sonnet-4-6"
+model = "claude-sonnet-5"
 model_provider = "atlas-bedrock"
 model_reasoning_effort = "medium"
 sandbox_mode = "danger-full-access"

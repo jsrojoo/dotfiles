@@ -1,6 +1,6 @@
 name = "codebase_understanding"
 description = "Understanding-focused worker for implementation walkthroughs, flow tracing, diagrams, and reusable artifacts."
-model = "claude-sonnet-4-6"
+model = "claude-sonnet-5"
 model_provider = "atlas-bedrock"
 model_reasoning_effort = "medium"
 sandbox_mode = "danger-full-access"

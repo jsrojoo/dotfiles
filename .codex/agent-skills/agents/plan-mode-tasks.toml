@@ -1,6 +1,6 @@
 name = "plan_mode_tasks"
 description = "Plan-mode worker for creating, validating, updating progress, and archiving plan.md and tasks.md artifacts for approved plans."
-model = "claude-sonnet-4-6"
+model = "claude-sonnet-5"
 model_provider = "atlas-bedrock"
 model_reasoning_effort = "medium"
 sandbox_mode = "danger-full-access"

@@ -1,6 +1,6 @@
 name = "context_retriever"
 description = "Read-only repo investigator for gathering minimal context and returning compact findings with exact file references."
-model = "claude-sonnet-4-6"
+model = "claude-sonnet-5"
 model_provider = "atlas-bedrock"
 model_reasoning_effort = "medium"
 sandbox_mode = "read-only"
