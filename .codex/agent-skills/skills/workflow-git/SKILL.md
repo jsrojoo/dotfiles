@@ -62,3 +62,15 @@ git apply --cached /tmp/patches/api.patch
 - Default to conventional, atomic commits without asking; ask only when user explicitly requests different approach.
 - Prefer many small commits while iterating, then group related work using `fixup!`/`squash!` and `git rebase -i --autosquash` before sharing.
 - Use `git commit --amend` only for most recent local commit; otherwise use `fixup!` commits intended for autosquash.
+
+## MR Title and Description Hygiene
+- After every push to a branch, run `glab mr list --source-branch <branch>` to check for an open MR targeting that branch.
+- If an open MR exists, review whether the new commits change what the MR covers: new scope, renamed or removed features, revised approach, or a materially different summary.
+- If the MR title or description no longer accurately reflects the full current scope, update both using:
+```bash
+glab mr update <number> --title "..." --description "..." --repo <group/project>
+```
+- Write the updated title and description in normal clear prose — same standard as commit messages.
+- If the existing title and description already accurately cover the new commits, leave them unchanged and note that no update was needed.
+- Always pass `--repo <group/project>` explicitly to avoid writing to the wrong project.
+- Report the MR number, whether it was updated or left unchanged, and the final title when handing off push results.
