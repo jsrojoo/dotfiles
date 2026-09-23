@@ -15,7 +15,7 @@
     "/Users/josephrojo/dotfiles/.codex/plugins/cache/aitrium-dev-workspace-local/aitrium-dev-workspace/0.1.0+codex.20260603191627/skills"
   ],
   "packages": [
-    "/Users/josephrojo/pi-background-tasks",
-    "/Users/josephrojo/dotfiles/.codex/plugins/cache/ponytail/ponytail/4.10.0"
+    "/Users/josephrojo/dotfiles/.codex/plugins/cache/ponytail/ponytail/4.10.0",
+    "npm:pi-patty-bg-tasks"
   ]
 }
