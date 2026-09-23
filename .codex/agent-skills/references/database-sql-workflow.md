@@ -11,6 +11,8 @@ For SQL work, use task-workspace artifacts:
 - For agent-permitted read-only SQL, execute exact `query.sql`, pipe output to `query.result`, then inspect that file. For mutative or destructive SQL, user performs execution and piping manually.
 - Before any statement targeting data, prove its predicate with simple read-only `SELECT ... WHERE ...` query that returns intended rows; capture proof in `query.result`.
 - Never assume SQL is valid. Validate and test it before treating it as usable.
+- Pi SQL guard rail: agent-executed SQL is limited to read-only probes; mutative SQL and DDL are prepared for manual user execution only.
+- A data-targeting SQL response requires successful `SELECT ... WHERE ...` proof through the same driver before it is presented as validated; dynamic or unparseable SQL remains compatibility-unverified.
 - Generated-SQL assertions and unit tests are necessary checks, not proof target warehouse accepts SQL.
 
 ## Live SQL Checks
