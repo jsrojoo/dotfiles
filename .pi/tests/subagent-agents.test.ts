@@ -23,9 +23,9 @@ test("uses the Atlas main provider for an Atlas shared child", () => {
 	assert.equal(sharedAgentModelSelectorBuild("gpt-5.6-luna", "atlas", "atlas"), "atlas/gpt-5.6-luna");
 });
 
-test("active Azure or Atlas overrides the shared TOML provider", () => {
-	assert.equal(sharedAgentModelSelectorBuild("gpt-5.6-luna", "openai", "azure"), "azure/gpt-5.6-luna");
-	assert.equal(sharedAgentModelSelectorBuild("gpt-5.6-luna", "openai", "atlas"), "atlas/gpt-5.6-luna");
+test("shared TOML provider overrides the active main provider", () => {
+	assert.equal(sharedAgentModelSelectorBuild("claude-sonnet-5", "atlas-bedrock", "atlas"), "atlas-bedrock/claude-sonnet-5");
+	assert.equal(sharedAgentModelSelectorBuild("gpt-5.6-luna", "openai", "azure"), "openai/gpt-5.6-luna");
 });
 
 test("unsupported or missing main providers preserve the shared TOML provider", () => {
@@ -33,8 +33,9 @@ test("unsupported or missing main providers preserve the shared TOML provider", 
 	assert.equal(sharedAgentModelSelectorBuild("gpt-5.6-luna", "atlas"), "atlas/gpt-5.6-luna");
 });
 
-test("preserves bare model selectors and missing models", () => {
+test("uses the active main provider only when shared provider is missing", () => {
 	assert.equal(sharedAgentModelSelectorBuild("gpt-5.6-luna", undefined, "azure"), "azure/gpt-5.6-luna");
+	assert.equal(sharedAgentModelSelectorBuild("gpt-5.6-luna", undefined, "unsupported"), "gpt-5.6-luna");
 	assert.equal(sharedAgentModelSelectorBuild(undefined, "atlas", "azure"), undefined);
 });
 

@@ -4,7 +4,7 @@ function sharedAgentProviderChildCompute(
 	mainProvider: string | undefined,
 	sharedProvider: string | undefined,
 ): string | undefined {
-	return mainProvider && MAIN_PROVIDER_CHILD_SUPPORTED.has(mainProvider) ? mainProvider : sharedProvider;
+	return sharedProvider ?? (mainProvider && MAIN_PROVIDER_CHILD_SUPPORTED.has(mainProvider) ? mainProvider : undefined);
 }
 
 export function sharedAgentModelSelectorBuild(

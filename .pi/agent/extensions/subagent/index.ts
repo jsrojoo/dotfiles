@@ -35,6 +35,32 @@ const MAX_CONCURRENCY = 4;
 const COLLAPSED_ITEM_COUNT = 10;
 const PER_TASK_OUTPUT_CAP = 50 * 1024;
 
+// Child pi runs skip extension discovery and load only local user extensions.
+// Why: package extensions (pi-patty-bg-tasks replaces `bash` with an unref'd
+// detached spawn) let `pi -p` exit mid tool call, so children returned no output.
+// "subagent" is excluded so children cannot spawn nested subagents.
+// ponytail: local files only; package extensions are dropped for children, add an allowlist if one is needed.
+function childExtensionArgs(): string[] {
+	const dir = path.join(getAgentDir(), "extensions");
+	let entries: fs.Dirent[];
+	try {
+		entries = fs.readdirSync(dir, { withFileTypes: true });
+	} catch {
+		return ["-ne"];
+	}
+	const args = ["-ne"];
+	for (const entry of entries) {
+		const full = path.join(dir, entry.name);
+		if (entry.isFile() && /\.(ts|js)$/.test(entry.name)) {
+			args.push("-e", full);
+		} else if (entry.isDirectory() && entry.name !== "subagent") {
+			const index = ["index.ts", "index.js"].map((f) => path.join(full, f)).find((f) => fs.existsSync(f));
+			if (index) args.push("-e", index);
+		}
+	}
+	return args;
+}
+
 function formatTokens(count: number): string {
 	if (count < 1000) return count.toString();
 	if (count < 10000) return `${(count / 1000).toFixed(1)}k`;
@@ -297,7 +323,7 @@ async function runSingleAgent(
 		};
 	}
 
-	const args: string[] = ["--mode", "json", "-p", "--no-session"];
+	const args: string[] = ["--mode", "json", "-p", "--no-session", ...childExtensionArgs()];
 	const model = agent.model ?? dispatchDefaults.model;
 	if (model) args.push("--model", model);
 	if (dispatchDefaults.thinkingLevel) {

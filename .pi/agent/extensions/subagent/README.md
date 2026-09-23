@@ -22,7 +22,14 @@ Pi-native user agents override shared agents with the same name. With `agentScop
 | `sandbox_mode = "read-only"` | Restricts tools to `read`, `grep`, `find`, and `ls` |
 | Other `sandbox_mode` values | Uses Pi's default tool set |
 
-Provider and model values are converted to Pi model selectors. When Pi's active main provider is exactly `azure`, `atlas`, or `atlas-bedrock`, shared child agents use that provider while preserving their TOML model ID. Otherwise, including when the active provider is unavailable, shared agents retain their TOML provider behavior. Pi-native and project-local agent model selectors are not rewritten and retain discovery precedence.
+Provider and model values are converted to Pi model selectors. Shared child agents use their explicit TOML `model_provider` when set. When it is missing, an active main provider of exactly `azure`, `atlas`, or `atlas-bedrock` supplies the provider while preserving the TOML model ID. Otherwise, the model remains bare. Pi-native and project-local agent model selectors are not rewritten and retain discovery precedence.
+
+## Child extensions
+
+Child `pi` processes start with `-ne` (no extension discovery) plus `-e` for each local file or directory `index.ts`/`index.js` under `~/.pi/agent/extensions/`, except `subagent` itself.
+
+- Package extensions from `settings.json` (for example `pi-patty-bg-tasks`, ponytail) do not load in children. `pi-patty-bg-tasks` replaces `bash` with an unref'd detached spawn, which made `pi -p` exit mid tool call and return no output.
+- Excluding `subagent` blocks nested subagent spawns.
 
 ## Current limitations
 
