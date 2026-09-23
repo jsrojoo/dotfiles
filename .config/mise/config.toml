@@ -23,6 +23,7 @@ _.file = [
   '~/.config/mise/.envars/.atlas.env',
   '~/.config/mise/.envars/.walle.env',
   '~/.config/mise/.envars/.ameca.env',
+  '~/.config/mise/.envars/.huggingface.env',
 ]
 _.source = '~/.config/mise/.envars/.secrets.sh'
 
