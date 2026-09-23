@@ -19,7 +19,6 @@ import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
 const ANTHROPIC_VERSION = "bedrock-2023-05-31";
 const DEFAULT_MAX_TOKENS = 64000;
 const DEFAULT_TEMPERATURE = 1;
-const DEFAULT_THINKING_BUDGET = 16000;
 const CLAUDE_CONTEXT_WINDOW = 700_000;
 const CLAUDE_MAX_TOKENS = 64000;
 const EVENT_STREAM_CONTENT_TYPE = "application/vnd.amazon.eventstream";
@@ -36,11 +35,18 @@ const claudeBedrockProviders = [
 		baseUrl: "https://apis.aitrium.app.atlas.gfs-emea-ai-platform.aws.fisv.cloud/v1/claude/chat/completions",
 		apiKey: "$AITRIUM_LLM_PASSTHROUGH",
 	},
-] as const;
+	{
+		id: "ameca-bedrock",
+		name: "Ameca Bedrock Claude",
+		baseUrl: "https://apis.aitrium.app.ameca.gfsemea-ai-platform-cat.aws.fisv.cloud/v1/claude/chat/completions",
+		apiKey: "$AITRIUM_AMECA_LLM_PASSTHROUGH",
+	},
+];
 
 const claudeBedrockModelPhysicalIdByLogicalId = Object.freeze({
 	"claude-sonnet-4-6": "eu.anthropic.claude-sonnet-4-6",
 	"claude-sonnet-5": "eu.anthropic.claude-sonnet-5",
+	"claude-opus-5-5": "eu.anthropic.claude-opus-5-5",
 });
 const claudeBedrockModels = Object.freeze(Object.keys(claudeBedrockModelPhysicalIdByLogicalId));
 
@@ -163,10 +169,9 @@ const claudePayloadCreate = (context: TranscriptContext, model: Model<Api>, opti
 	if (systemPrompt) payload.system = systemPrompt;
 	if (tools.length > 0) payload.tools = claudeToolsCreate(tools);
 	if (options?.reasoning && model.reasoning) {
-		payload.thinking = {
-			type: "enabled",
-			budget_tokens: options.thinkingBudgets?.[options.reasoning] ?? DEFAULT_THINKING_BUDGET,
-		};
+		// Opus 5.5 / Sonnet 5 reject type "enabled" (budget_tokens); adaptive + effort works on all mapped models.
+		payload.thinking = { type: "adaptive", display: "summarized" };
+		payload.output_config = { effort: options.reasoning === "minimal" ? "low" : options.reasoning };
 	}
 
 	return payload;
@@ -356,12 +361,21 @@ export default function claudeBedrockProvidersRegister(pi: ExtensionAPI) {
 			models: claudeBedrockModels.map((id) => ({
 				id,
 				name: `${id} (${provider.name})`,
-				reasoning: id === "claude-sonnet-4-6",
+				reasoning: true,
 				input: ["text", "image"],
 				cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 },
 				contextWindow: CLAUDE_CONTEXT_WINDOW,
 				maxTokens: CLAUDE_MAX_TOKENS,
-				thinkingLevelMap: { off: null, minimal: "minimal", low: "low", medium: "medium", high: "high" },
+				// Hidden on purpose. Gateway accepts max on all three and xhigh on all but Sonnet 4.6.
+				thinkingLevelMap: {
+					off: null,
+					minimal: "minimal",
+					low: "low",
+					medium: "medium",
+					high: "high",
+					xhigh: null,
+					max: null,
+				},
 			})),
 			streamSimple: claudeBedrockStream,
 		});
