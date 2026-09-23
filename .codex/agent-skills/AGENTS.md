@@ -8,7 +8,7 @@ Treat a task as non-trivial when it involves multiple files or components, archi
 
 For non-trivial tasks:
 - First perform read-only investigation.
-- Present a numbered plan under the exact header `Plan:`, including assumptions, risks, and verification.
+- Present a numbered plan under the exact header `Plan:`, including assumptions, risks, verification, and diagrams per the `termaid` skill's `Planning Requirement` (`~/.agents/skills/termaid/SKILL.md`).
 - Obtain explicit user approval before any edits or mutating commands.
 - After approval, execute the plan and report progress.
 

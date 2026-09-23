@@ -50,9 +50,25 @@ Parser too broad.
 
 Focused unittest.
 
+## Before
+
 ```mermaid
 flowchart TD
     Plan[Plan] --> Validate[Validate]
+```
+
+## After
+
+```mermaid
+flowchart TD
+    Plan[Plan] --> Validate[Validate] --> Done[Done]
+```
+
+## What changed
+
+```mermaid
+flowchart TD
+    Validate[Validate] --> Done[Done]
 ```
 """
 
@@ -567,7 +583,7 @@ class AgentTaskctlTests(unittest.TestCase):
                 result = module._task_validate(task_path, "demo-task")
 
             self.assertEqual(result, "valid demo-task")
-            run_mock.assert_called_once()
+            self.assertEqual(run_mock.call_count, 3)
             command = run_mock.call_args.args[0]
             self.assertIn("uvx", command)
             self.assertIn("termaid", command)
@@ -576,17 +592,28 @@ class AgentTaskctlTests(unittest.TestCase):
     def test_validate_rejects_plan_without_mermaid(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             root_path = Path(temp_dir)
-            plan_without_mermaid = PLAN_VALID.replace(
-                "\n```mermaid\nflowchart TD\n    Plan[Plan] --> Validate[Validate]\n```\n",
-                "\n",
-            )
+            plan_without_mermaid = PLAN_VALID.split("\n## Before\n", 1)[0] + "\n"
             task_path = self.task_path_create(root_path, plan_without_mermaid)
             module = self.agent_taskctl_module_load()
 
             with self.assertRaises(module.TaskctlError) as raised:
                 module._task_validate(task_path, "demo-task")
 
-            self.assertIn("plan.md needs at least one Mermaid block", str(raised.exception))
+            self.assertIn("plan.md needs 3 Mermaid blocks (Before, After, What changed), found 0", str(raised.exception))
+
+    def test_validate_rejects_plan_with_one_mermaid_block(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root_path = Path(temp_dir)
+            plan_one_block = PLAN_VALID.split("\n## After\n", 1)[0] + "\n"
+            task_path = self.task_path_create(root_path, plan_one_block)
+            module = self.agent_taskctl_module_load()
+
+            with mock.patch("subprocess.run", return_value=subprocess.CompletedProcess([], 0)), self.assertRaises(
+                module.TaskctlError
+            ) as raised:
+                module._task_validate(task_path, "demo-task")
+
+            self.assertIn("found 1", str(raised.exception))
 
     def test_validate_reports_mermaid_renderer_failure(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:

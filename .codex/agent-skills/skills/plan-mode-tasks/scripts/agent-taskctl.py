@@ -23,6 +23,8 @@ ARCHIVE_DIR_NAME = ".archive"
 MERMAID_FENCE_PATTERN = re.compile(r"^```mermaid[ \t]*\n(.*?)^```[ \t]*$", re.MULTILINE | re.DOTALL)
 TERMAID_COMMAND = ("uvx", "--offline", "termaid", "--ascii")
 TERMAID_TIMEOUT_SECONDS = 30
+# Matches the termaid skill Planning Requirement: Before, After, What changed.
+MERMAID_BLOCKS_REQUIRED = 3
 
 LIST_FILTER_ACTIVE = "active"
 LIST_FILTER_ARCHIVED = "archived"
@@ -83,10 +85,26 @@ TBD
 
 TBD
 
+## Before
+
 ```mermaid
 flowchart TD
-    Plan[Approved plan] --> Validate[Validate artifacts]
-    Validate --> Implement[Implementation]
+    Current[Current flow] --> Result[Current result]
+```
+
+## After
+
+```mermaid
+flowchart TD
+    Current[Current flow] --> Change[Planned change]
+    Change --> Result[New result]
+```
+
+## What changed
+
+```mermaid
+flowchart TD
+    Change[Planned change] --> File[Changed file or component]
 ```
 """
 
@@ -592,8 +610,11 @@ def _plan_validation_errors_build(plan_text: str) -> list[str]:
         errors.append("plan.md Plain-English Pseudocode needs non-empty fenced text block")
 
     mermaid_sources = _mermaid_sources_extract(plan_text)
-    if not mermaid_sources:
-        errors.append("plan.md needs at least one Mermaid block")
+    if len(mermaid_sources) < MERMAID_BLOCKS_REQUIRED:
+        errors.append(
+            f"plan.md needs {MERMAID_BLOCKS_REQUIRED} Mermaid blocks (Before, After, What changed), "
+            f"found {len(mermaid_sources)}"
+        )
     for mermaid_index, mermaid_source in enumerate(mermaid_sources, start=1):
         errors.extend(_mermaid_render_errors_build(mermaid_source, mermaid_index))
 

@@ -68,16 +68,30 @@ Return [output value] without mutating inputs.
 
 # Tests
 
+## Before
+
 ```mermaid
 flowchart TD
-    Plan[Approved plan] --> Validate[Validate artifacts]
-    Validate --> Implement[Implementation]
+    Current[Current flow] --> Result[Current result]
+```
+
+## After
+
+```mermaid
+flowchart TD
+    Current[Current flow] --> Change[Planned change]
+    Change --> Result[New result]
+```
+
+## What changed
+
+```mermaid
+flowchart TD
+    Change[Planned change] --> File[Changed file or component]
 ```
 ````
 
-- `plan.md` must contain at least one standard fenced `mermaid` block copied exactly from inspected pre-approval draft.
-- Before approval, drafting and rendering belongs to `termaid`; this skill persists only approved diagram source.
-- Keep `tasks.md` Mermaid-free.
+- Diagram content and format come from the `termaid` skill's `Planning Requirement`; this skill only persists the approved Mermaid source in `plan.md` and keeps `tasks.md` Mermaid-free.
 
 ### `tasks.md`
 
@@ -199,7 +213,7 @@ python scripts/agent-taskctl.py --root <workspace> restore <slug>
 - `status <slug> --done` shows checked count and checked top-level tasks with original 1-based numbers; empty result prints `done:` then `none`.
 - `--next`, `--all`, `--todo`, and `--done` are mutually exclusive status filters and may appear before or after `<slug>`.
 - `check` and `uncheck` use 1-based top-level task numbers and preserve all unrelated Markdown.
-- `validate` checks required plan headings, non-empty fenced `text` pseudocode in `plan.md`, at least one rendered fenced Mermaid block in `plan.md`, top-level checkbox task lines, nested `Verify:` lines, and any present nested `Pseudo:` fenced `text` blocks.
+- `validate` checks required plan headings, non-empty fenced `text` pseudocode in `plan.md`, the three rendered fenced Mermaid blocks the termaid `Planning Requirement` asks for in `plan.md`, top-level checkbox task lines, nested `Verify:` lines, and any present nested `Pseudo:` fenced `text` blocks.
 
 ## Lifecycle
 

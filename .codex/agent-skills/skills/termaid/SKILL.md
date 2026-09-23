@@ -9,9 +9,15 @@ Use `termaid` to render **standard Mermaid** syntax while planning, implementing
 
 ## Planning Requirement
 
-Before requesting approval for a non-trivial plan, draft at least one compact standard Mermaid diagram and render it with `uvx --offline termaid --ascii` through stdin or a safe temporary file. Inspect result, then show rendered Termaid output in chat; do not show raw Mermaid source unless user asks. Do not request approval if rendering fails.
+Every proposed plan response must include three compact standard Mermaid diagrams, each rendered with `uvx --offline termaid --ascii` through stdin or a safe temporary file, shown in this order under these exact headings:
 
-After approval, persist exact inspected Mermaid source in `plan.md`. `agent-taskctl validate` renders every Mermaid block offline; it must pass before implementation.
+1. `Before` - current flow, ownership, or state the plan touches.
+2. `After` - proposed flow once the plan is done.
+3. `What changed` - only the added, removed, or modified pieces, grouped by file or component.
+
+Inspect each render, then paste each renderer output into chat verbatim, character for character, inside a fenced block; never redraw, re-space, abbreviate, or hand-tidy it. If a render is too wide or unclear, change the Mermaid source and re-render instead. Do not show raw Mermaid source unless user asks. Do not request approval if any render fails.
+
+After approval, persist exact inspected Mermaid source for all three diagrams in `plan.md`. `agent-taskctl validate` renders every Mermaid block offline; it must pass before implementation.
 
 Keep `tasks.md` diagram-free; it tracks actionable work only.
 
@@ -24,7 +30,7 @@ For implementation or review, create separate compact before-and-after diagrams 
 - State transitions, asynchronous work, or failure paths.
 - Database, service, or deployment topology.
 
-Skip before-and-after diagrams for a local, obvious implementation or review change whose control flow and boundaries do not change.
+Skip before-and-after diagrams for a local, obvious implementation or review change whose control flow and boundaries do not change. This skip never applies to proposed plan responses; those always use the `Before`, `After`, `What changed` format.
 
 ## Diagram Guidance
 
@@ -57,11 +63,7 @@ uvx --offline termaid --ascii
 
 ### Planning
 
-1. Draft smallest standard Mermaid diagram that captures plan flow, scope, or dependencies.
-2. Pipe source to `uvx --offline termaid --ascii`, then inspect rendered output.
-3. Update source until rendered diagram accurately communicates plan.
-4. Show rendered output—not source—in approval request.
-5. After approval, keep exact inspected Mermaid source in `plan.md`; keep `tasks.md` diagram-free.
+Follow `Planning Requirement` above; revise each source until its render accurately communicates the plan.
 
 ### Implementation and Review
 
