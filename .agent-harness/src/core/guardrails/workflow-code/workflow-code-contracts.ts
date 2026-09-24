@@ -67,18 +67,11 @@ export interface WorkflowCodeJudgeEvidence {
 }
 
 export interface WorkflowCodeJudgeVerdict {
-	verdict: "aligned" | "revise";
+	align: boolean;
 	summary: string;
 	evidence: WorkflowCodeJudgeEvidence[];
 	required_changes: string[];
 }
 
-export interface WorkflowCodeJudgeUnavailable {
-	verdict: "unavailable";
-	summary: string;
-	evidence: [];
-	required_changes: [];
-}
-
-export type WorkflowCodeJudgeOutcome = WorkflowCodeJudgeVerdict | WorkflowCodeJudgeUnavailable;
+export type WorkflowCodeJudgeOutcome = WorkflowCodeJudgeVerdict;
 export type WorkflowCodeJudgeComplete = (prompt: string) => Promise<string>;

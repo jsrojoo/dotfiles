@@ -9,7 +9,7 @@ type Handler = (event: any, context: any) => any;
 type CommandHandler = (argumentsText: string, context: any) => any;
 
 const ALIGNED_VERDICT = JSON.stringify({
-	verdict: "aligned",
+	align: true,
 	summary: "The implementation matches the objective.",
 	evidence: [],
 	required_changes: [],
@@ -135,13 +135,13 @@ test("Pi adapter notifies when an objective milestone is aligned", async () => {
 	assert.match(notifications.at(-1)!, /workflow check passed.*red/i);
 	assert.equal(entries.at(-1)?.customType, "workflow-code-judge-check");
 	assert.equal(entries.at(-1)?.data.milestone, "red");
-	assert.equal(entries.at(-1)?.data.verdict, "aligned");
+	assert.equal(entries.at(-1)?.data.align, true);
 	assert.equal(renderers.has("workflow-code-judge-check"), true);
 });
 
 test("Pi adapter keeps source locked when the red milestone is out of scope", async () => {
 	const reviseVerdict = JSON.stringify({
-		verdict: "revise",
+		align: false,
 		summary: "The failing test does not cover the requested behavior.",
 		evidence: [
 			{
@@ -183,7 +183,7 @@ test("Pi adapter runs one final objective correction without looping", async () 
 		milestones.push(milestone);
 		if (milestone !== "completion") return ALIGNED_VERDICT;
 		return JSON.stringify({
-			verdict: "revise",
+			align: false,
 			summary: "An unrelated fallback was added.",
 			evidence: [
 				{
@@ -237,7 +237,7 @@ test("Pi adapter checks scope after several successful production edits", async 
 		milestones.push(milestone);
 		if (milestone !== "implementation") return ALIGNED_VERDICT;
 		return JSON.stringify({
-			verdict: "revise",
+			align: false,
 			summary: "The next edit adds unrelated behavior.",
 			evidence: [
 				{

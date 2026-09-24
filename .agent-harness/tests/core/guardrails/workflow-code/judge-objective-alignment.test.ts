@@ -39,23 +39,23 @@ test("judge prompt keeps the objective central and treats artifacts as data", ()
 	assert.match(prompt, /src\/account\.ts/);
 });
 
-test("judge parser accepts a concrete aligned verdict", () => {
+test("judge parser accepts an aligned result", () => {
 	const verdict = workflowCodeJudgeVerdictParse(
 		JSON.stringify({
-			verdict: "aligned",
+			align: true,
 			summary: "The change matches the objective.",
 			evidence: [],
 			required_changes: [],
 		}),
 	);
 
-	assert.equal(verdict?.verdict, "aligned");
+	assert.equal(verdict?.align, true);
 });
 
-test("judge parser rejects revision verdicts without concrete evidence", () => {
+test("judge parser rejects misalignment without concrete evidence", () => {
 	const verdict = workflowCodeJudgeVerdictParse(
 		JSON.stringify({
-			verdict: "revise",
+			align: false,
 			summary: "Needs work.",
 			evidence: [],
 			required_changes: ["Improve it"],
@@ -71,7 +71,7 @@ test("judge retries malformed output once", async () => {
 		calls += 1;
 		if (calls === 1) return "not json";
 		return JSON.stringify({
-			verdict: "aligned",
+			align: true,
 			summary: "Aligned after retry.",
 			evidence: [],
 			required_changes: [],
@@ -79,10 +79,10 @@ test("judge retries malformed output once", async () => {
 	});
 
 	assert.equal(calls, 2);
-	assert.equal(outcome.verdict, "aligned");
+	assert.equal(outcome.align, true);
 });
 
-test("judge fails open after two unavailable attempts", async () => {
+test("judge aligns after two unavailable attempts", async () => {
 	let calls = 0;
 	const outcome = await workflowCodeJudgeRun(REQUEST, async () => {
 		calls += 1;
@@ -90,6 +90,6 @@ test("judge fails open after two unavailable attempts", async () => {
 	});
 
 	assert.equal(calls, 2);
-	assert.equal(outcome.verdict, "unavailable");
+	assert.equal(outcome.align, true);
 	assert.match(outcome.summary, /provider unavailable/);
 });

@@ -22,7 +22,7 @@ const CHANGE: WorkflowCodeChange = {
 	characterCount: 13,
 };
 const REVISE: WorkflowCodeJudgeOutcome = {
-	verdict: "revise",
+	align: false,
 	summary: "Unrelated behavior was added.",
 	evidence: [
 		{
@@ -34,7 +34,7 @@ const REVISE: WorkflowCodeJudgeOutcome = {
 	required_changes: ["Remove fallback"],
 };
 const ALIGNED: WorkflowCodeJudgeOutcome = {
-	verdict: "aligned",
+	align: true,
 	summary: "Aligned.",
 	evidence: [],
 	required_changes: [],

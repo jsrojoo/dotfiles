@@ -37,10 +37,10 @@ interface SessionScopeState {
 type PiJudgeComplete = (prompt: string, ctx: ExtensionContext) => Promise<string>;
 
 interface WorkflowCodeJudgeCheckEntry {
+	align: boolean;
 	milestone: WorkflowCodeJudgeRequest["milestone"];
 	summary: string;
 	timestamp: number;
-	verdict: WorkflowCodeJudgeOutcome["verdict"];
 }
 
 interface WorkflowCodeObjectiveEntry {
@@ -128,9 +128,7 @@ function judgeFeedbackBuild(outcome: WorkflowCodeJudgeOutcome): string {
 	return [
 		`Workflow-code judge: ${outcome.summary}`,
 		requiredChanges ? `Required changes:\n${requiredChanges}` : "",
-		outcome.verdict === "revise"
-			? "Stop and ask the user for feedback before using more tools."
-			: "",
+		!outcome.align ? "Stop and ask the user for feedback before using more tools." : "",
 	]
 		.filter(Boolean)
 		.join("\n");
@@ -142,15 +140,11 @@ function judgeOutcomeNotify(
 	outcome: WorkflowCodeJudgeOutcome,
 ): void {
 	const summary = outcome.summary.replace(/\s+/g, " ").trim();
-	if (outcome.verdict === "aligned") {
+	if (outcome.align) {
 		ctx.ui.notify(`Workflow check passed (${milestone}): ${summary}`, "info");
 		return;
 	}
-	if (outcome.verdict === "revise") {
-		ctx.ui.notify(`Workflow drift detected (${milestone}): ${summary}`, "warning");
-		return;
-	}
-	ctx.ui.notify(summary, "warning");
+	ctx.ui.notify(`Workflow drift detected (${milestone}): ${summary}`, "warning");
 }
 
 async function piJudgeComplete(prompt: string, ctx: ExtensionContext): Promise<string> {
@@ -190,7 +184,7 @@ export function objectiveAlignmentEnforcementCreate(
 				const data = entry.data;
 				return {
 					render: () => [
-						`[workflow ${data.verdict}] ${data.milestone}`,
+						`[workflow align:${data.align}] ${data.milestone}`,
 						...(expanded
 							? [data.summary, new Date(data.timestamp).toLocaleString()]
 							: []),
@@ -240,10 +234,10 @@ export function objectiveAlignmentEnforcementCreate(
 			);
 			session.judgeCache.set(key, outcome);
 			pi.appendEntry<WorkflowCodeJudgeCheckEntry>(JUDGE_CHECK_ENTRY, {
+				align: outcome.align,
 				milestone: request.milestone,
 				summary: outcome.summary,
 				timestamp: Date.now(),
-				verdict: outcome.verdict,
 			});
 			judgeOutcomeNotify(ctx, request.milestone, outcome);
 			return outcome;
@@ -351,7 +345,7 @@ export function objectiveAlignmentEnforcementCreate(
 						outcome,
 						feedback,
 					);
-					if (outcome.verdict === "revise") {
+					if (!outcome.align) {
 						return { block: true, reason: feedback, terminate: true };
 					}
 				}
@@ -401,7 +395,7 @@ export function objectiveAlignmentEnforcementCreate(
 					outcome,
 					feedback,
 				);
-				if (outcome.verdict !== "revise") return;
+				if (outcome.align) return;
 				return {
 					content: [...event.content, { type: "text", text: feedback }],
 				};
@@ -426,7 +420,7 @@ export function objectiveAlignmentEnforcementCreate(
 				outcome,
 				feedback,
 			);
-			if (outcome.verdict !== "revise") return;
+			if (outcome.align) return;
 
 			return {
 				entries: [

@@ -95,7 +95,7 @@ export function objectiveAlignmentOutcomeApply(
 	outcome: WorkflowCodeJudgeOutcome,
 	feedback: string = outcome.summary,
 ): ObjectiveAlignmentState {
-	if (outcome.verdict === "revise") {
+	if (!outcome.align) {
 		return {
 			...state,
 			haltedFeedback: feedback,
