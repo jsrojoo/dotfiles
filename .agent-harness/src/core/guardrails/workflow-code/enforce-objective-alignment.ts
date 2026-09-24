@@ -1,4 +1,4 @@
-import { workflowCodePathClassify } from "./policy.ts";
+import { workflowCodePathClassify } from "./enforce-test-driven-development.ts";
 import type {
 	ObjectiveAlignmentChangeDecision,
 	ObjectiveAlignmentState,
@@ -6,7 +6,7 @@ import type {
 	WorkflowCodeImplementationProgress,
 	WorkflowCodeJudgeOutcome,
 	WorkflowCodeMilestone,
-} from "./types.ts";
+} from "./workflow-code-contracts.ts";
 
 const IMPLEMENTATION_CHARACTER_MILESTONE = 4_000;
 const IMPLEMENTATION_EDIT_MILESTONE = 3;

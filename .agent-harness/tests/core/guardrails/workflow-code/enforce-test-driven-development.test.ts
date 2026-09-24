@@ -9,7 +9,7 @@ import {
 	workflowCodeTestCommandIsRecognized,
 	workflowCodeTestResultApply,
 	workflowCodeWriteEvaluate,
-} from "#agent-harness/core/guardrails/workflow-code/policy";
+} from "#agent-harness/core/guardrails/workflow-code/enforce-test-driven-development";
 
 test("classifies source, test, and non-code paths", () => {
 	assert.equal(workflowCodePathClassify("src/account.ts"), "source");

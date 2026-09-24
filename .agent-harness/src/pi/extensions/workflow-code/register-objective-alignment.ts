@@ -6,7 +6,7 @@ import type {
 	ToolResultEvent,
 	ToolResultEventResult,
 } from "@earendil-works/pi-coding-agent";
-import { workflowCodeJudgeRun } from "#agent-harness/core/guardrails/workflow-code/judge";
+import { workflowCodeJudgeRun } from "#agent-harness/core/guardrails/workflow-code/judge-objective-alignment";
 import {
 	objectiveAlignmentChangeEvaluate,
 	objectiveAlignmentChangeRecord,
@@ -16,14 +16,14 @@ import {
 	objectiveAlignmentStateCreate,
 	objectiveAlignmentTestMilestoneSelect,
 } from "#agent-harness/core/guardrails/workflow-code/enforce-objective-alignment";
-import { workflowCodeTestCommandIsRecognized } from "#agent-harness/core/guardrails/workflow-code/policy";
+import { workflowCodeTestCommandIsRecognized } from "#agent-harness/core/guardrails/workflow-code/enforce-test-driven-development";
 import type {
 	ObjectiveAlignmentState,
 	WorkflowCodeChange,
 	WorkflowCodeJudgeOutcome,
 	WorkflowCodeJudgeRequest,
 	WorkflowCodeTestEvidence,
-} from "#agent-harness/core/guardrails/workflow-code/types";
+} from "#agent-harness/core/guardrails/workflow-code/workflow-code-contracts";
 
 interface SessionScopeState {
 	alignment: ObjectiveAlignmentState;

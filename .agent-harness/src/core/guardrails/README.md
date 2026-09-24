@@ -2,18 +2,19 @@
 
 Core guardrails are deterministic, runtime-independent policies. They do not import Pi, Codex, Claude, UI, session, or filesystem APIs. Harness adapters translate native events into core state transitions, supply model completion, and own per-session storage and user interaction.
 
-Pi keeps its responsibilities separate:
+Pi keeps registration separate from reusable enforcement:
 
-- `enforce-test-driven-development.ts` owns red-green state and `/tdd-skip`.
-- `enforce-objective-alignment.ts` owns change journaling, LLM milestones, corrective feedback, and drift notifications.
+- `pi/extensions/workflow-code/register-test-driven-development.ts` maps Pi events to core TDD enforcement.
+- `pi/extensions/workflow-code/register-objective-alignment.ts` maps Pi events to core alignment enforcement, model calls, corrective feedback, and drift notifications.
 
 ## Workflow-code guardrail
 
-The workflow-code guardrail has two complementary parts:
+The workflow-code guardrail has three complementary parts:
 
-- `workflow-code/policy.ts` enforces the deterministic red-green lifecycle.
-- `workflow-code/judge.ts` checks semantic alignment with the user's objective at stable milestones.
-- `workflow-code/types.ts` defines the shared adapter contract.
+- `workflow-code/enforce-test-driven-development.ts` enforces the deterministic red-green lifecycle.
+- `workflow-code/enforce-objective-alignment.ts` owns objective state and milestone transitions.
+- `workflow-code/judge-objective-alignment.ts` checks semantic alignment with the user's objective.
+- `workflow-code/workflow-code-contracts.ts` defines the shared adapter contract.
 
 A harness adapter follows this lifecycle:
 

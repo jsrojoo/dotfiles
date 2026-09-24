@@ -2,8 +2,8 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
 
-import { objectiveAlignmentEnforcementCreate } from "#agent-harness/pi/extensions/workflow-code/enforce-objective-alignment";
-import { testDrivenDevelopmentEnforcementCreate } from "#agent-harness/pi/extensions/workflow-code/enforce-test-driven-development";
+import { objectiveAlignmentEnforcementCreate } from "#agent-harness/pi/extensions/workflow-code/register-objective-alignment";
+import { testDrivenDevelopmentEnforcementCreate } from "#agent-harness/pi/extensions/workflow-code/register-test-driven-development";
 
 type Handler = (event: any, context: any) => any;
 type CommandHandler = (argumentsText: string, context: any) => any;
@@ -22,8 +22,8 @@ test("Pi settings load shared extensions independently of the working directory"
 	assert.deepEqual(settings.extensions, [
 		"~/dotfiles/.agent-harness/src/pi/extensions/notify.ts",
 		"~/dotfiles/.agent-harness/src/pi/extensions/sql-validation/enforce-read-only-and-proof.ts",
-		"~/dotfiles/.agent-harness/src/pi/extensions/workflow-code/enforce-test-driven-development.ts",
-		"~/dotfiles/.agent-harness/src/pi/extensions/workflow-code/enforce-objective-alignment.ts",
+		"~/dotfiles/.agent-harness/src/pi/extensions/workflow-code/register-test-driven-development.ts",
+		"~/dotfiles/.agent-harness/src/pi/extensions/workflow-code/register-objective-alignment.ts",
 	]);
 });
 

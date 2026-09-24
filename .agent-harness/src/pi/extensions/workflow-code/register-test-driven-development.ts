@@ -12,8 +12,8 @@ import {
 	workflowCodeTestCommandIsRecognized,
 	workflowCodeTestResultApply,
 	workflowCodeWriteEvaluate,
-} from "#agent-harness/core/guardrails/workflow-code/policy";
-import type { WorkflowCodeState } from "#agent-harness/core/guardrails/workflow-code/types";
+} from "#agent-harness/core/guardrails/workflow-code/enforce-test-driven-development";
+import type { WorkflowCodeState } from "#agent-harness/core/guardrails/workflow-code/workflow-code-contracts";
 
 const GREEN_REMINDER =
 	"Workflow-code guardrail: production code changed without a subsequent passing test. " +
