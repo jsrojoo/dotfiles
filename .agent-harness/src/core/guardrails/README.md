@@ -26,8 +26,14 @@ A harness adapter follows this lifecycle:
 7. Before completion, call `workflowCodeCompletionEvaluate()`, then run the completion judge when deterministic verification is satisfied.
 8. Use `workflowCodeStateSkip()` when the user activates a one-request TDD kill switch.
 
-The judge receives bounded objective, conversation, change-journal, test, and prior-feedback data. It may request revision only with concrete evidence tied to the user's objective. It must not invent requirements, redesign the solution, reject a coherent change merely because it is large, or block subjective improvements. Harness adapters surface every `revise` verdict as a visible warning in addition to agent-facing corrective feedback. Malformed or unavailable judge responses fail open after one retry so model availability cannot deadlock implementation.
+The judge receives bounded objective, conversation, change-journal, test, and prior-feedback data. It may request revision only with concrete evidence tied to the user's objective. It must not invent requirements, redesign the solution, reject a coherent change merely because it is large, or block subjective improvements. Harness adapters show an immediate milestone notification and persist each verdict as a session entry; `revise` verdicts also produce agent-facing corrective feedback. Malformed or unavailable judge responses fail open after one retry so model availability cannot deadlock implementation.
 
 Implementation progress becomes due after three successful production edits or 4,000 characters of new production content. The current edit is never rejected merely for crossing that threshold; the judge checks alignment before the following production edit. An aligned checkpoint resets the progress counters.
 
 The core policy does not claim that a failing test is relevant solely from its exit code; the red milestone judge performs that semantic check. Harness adapters may add persistence, notifications, and kill switches, but must not duplicate or redefine core policy.
+
+## SQL validation guardrail
+
+- `sql-validation/classify-sql.ts` identifies SQL execution, mutation, proof queries, and SQL presented in answers.
+- `sql-validation/require-validation-proof.ts` records successful read-only proof and allows one corrective continuation when proof is missing.
+- Pi loads `sql-validation/enforce-read-only-and-proof.ts`, which blocks agent-executed writes and DDL while requiring `SELECT ... WHERE` evidence before presenting data-targeting SQL.

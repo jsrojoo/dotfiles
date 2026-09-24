@@ -38,6 +38,15 @@ interface SessionScopeState {
 
 type PiJudgeComplete = (prompt: string, ctx: ExtensionContext) => Promise<string>;
 
+interface WorkflowCodeJudgeCheckEntry {
+	milestone: WorkflowCodeJudgeRequest["milestone"];
+	summary: string;
+	timestamp: number;
+	verdict: WorkflowCodeJudgeOutcome["verdict"];
+}
+
+const JUDGE_CHECK_ENTRY = "workflow-code-judge-check";
+
 function guardrailDisabled(): boolean {
 	return (
 		process.env.AGENT_HARNESS_GUARDRAIL_OFF === "1" ||
@@ -168,6 +177,22 @@ export function objectiveScopeEnforcementCreate(
 	return function objectiveScopeEnforcementRegister(pi: ExtensionAPI): void {
 		const sessions = new Map<string, SessionScopeState>();
 
+		pi.registerEntryRenderer<WorkflowCodeJudgeCheckEntry>(
+			JUDGE_CHECK_ENTRY,
+			(entry, { expanded }) => {
+				const data = entry.data;
+				return {
+					render: () => [
+						`[workflow ${data.verdict}] ${data.milestone}`,
+						...(expanded
+							? [data.summary, new Date(data.timestamp).toLocaleString()]
+							: []),
+					],
+					invalidate: () => undefined,
+				};
+			},
+		);
+
 		function sessionGet(ctx: ExtensionContext): SessionScopeState {
 			const sessionId = ctx.sessionManager.getSessionId();
 			const existing = sessions.get(sessionId);
@@ -201,6 +226,12 @@ export function objectiveScopeEnforcementCreate(
 				judgeComplete(prompt, ctx),
 			);
 			session.judgeCache.set(key, outcome);
+			pi.appendEntry<WorkflowCodeJudgeCheckEntry>(JUDGE_CHECK_ENTRY, {
+				milestone: request.milestone,
+				summary: outcome.summary,
+				timestamp: Date.now(),
+				verdict: outcome.verdict,
+			});
 			judgeOutcomeNotify(ctx, request.milestone, outcome);
 			return outcome;
 		}

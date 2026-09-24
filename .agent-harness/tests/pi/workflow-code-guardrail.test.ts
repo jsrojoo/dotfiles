@@ -21,6 +21,7 @@ test("Pi settings load shared extensions independently of the working directory"
 
 	assert.deepEqual(settings.extensions, [
 		"~/dotfiles/.agent-harness/src/pi/extensions/notify.ts",
+		"~/dotfiles/.agent-harness/src/pi/extensions/sql-validation/enforce-read-only-and-proof.ts",
 		"~/dotfiles/.agent-harness/src/pi/extensions/workflow-code/enforce-test-driven-development.ts",
 		"~/dotfiles/.agent-harness/src/pi/extensions/workflow-code/enforce-objective-scope.ts",
 	]);
@@ -29,8 +30,13 @@ test("Pi settings load shared extensions independently of the working directory"
 function harnessCreate(judgeComplete = async () => ALIGNED_VERDICT) {
 	const handlers = new Map<string, Handler>();
 	const commands = new Map<string, CommandHandler>();
+	const entries: Array<{ customType: string; data: any }> = [];
 	const notifications: string[] = [];
+	const renderers = new Map<string, Function>();
 	const pi = {
+		appendEntry(customType: string, data: any) {
+			entries.push({ customType, data });
+		},
 		on(name: string, handler: Handler) {
 			const previous = handlers.get(name);
 			handlers.set(name, async (event, context) => {
@@ -43,6 +49,9 @@ function harnessCreate(judgeComplete = async () => ALIGNED_VERDICT) {
 		registerCommand(name: string, options: { handler: CommandHandler }) {
 			commands.set(name, options.handler);
 		},
+		registerEntryRenderer(name: string, renderer: Function) {
+			renderers.set(name, renderer);
+		},
 	};
 	const context = {
 		sessionManager: {
@@ -54,7 +63,7 @@ function harnessCreate(judgeComplete = async () => ALIGNED_VERDICT) {
 
 	testDrivenDevelopmentEnforcementCreate()(pi as any);
 	objectiveScopeEnforcementCreate(judgeComplete)(pi as any);
-	return { commands, context, handlers, notifications };
+	return { commands, context, entries, handlers, notifications, renderers };
 }
 
 test("Pi adapter enforces red before source edits and green before completion", async () => {
@@ -98,7 +107,7 @@ test("Pi adapter enforces red before source edits and green before completion", 
 });
 
 test("Pi adapter notifies when an objective milestone is aligned", async () => {
-	const { context, handlers, notifications } = harnessCreate();
+	const { context, entries, handlers, notifications, renderers } = harnessCreate();
 	await handlers.get("tool_result")!(
 		{
 			toolName: "bash",
@@ -110,6 +119,10 @@ test("Pi adapter notifies when an objective milestone is aligned", async () => {
 	);
 
 	assert.match(notifications.at(-1)!, /workflow check passed.*red/i);
+	assert.equal(entries.at(-1)?.customType, "workflow-code-judge-check");
+	assert.equal(entries.at(-1)?.data.milestone, "red");
+	assert.equal(entries.at(-1)?.data.verdict, "aligned");
+	assert.equal(renderers.has("workflow-code-judge-check"), true);
 });
 
 test("Pi adapter keeps source locked when the red milestone is out of scope", async () => {

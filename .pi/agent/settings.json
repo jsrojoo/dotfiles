@@ -18,6 +18,7 @@
   "hideThinkingBlock": false,
   "extensions": [
     "~/dotfiles/.agent-harness/src/pi/extensions/notify.ts",
+    "~/dotfiles/.agent-harness/src/pi/extensions/sql-validation/enforce-read-only-and-proof.ts",
     "~/dotfiles/.agent-harness/src/pi/extensions/workflow-code/enforce-test-driven-development.ts",
     "~/dotfiles/.agent-harness/src/pi/extensions/workflow-code/enforce-objective-scope.ts"
   ],
