@@ -16,11 +16,9 @@ import {
 import type { WorkflowCodeState } from "#agent-harness/core/guardrails/workflow-code/workflow-code-contracts";
 
 const GREEN_REMINDER =
-	"Workflow-code guardrail: production code changed without a subsequent passing test. " +
-	"Run the narrowest relevant test now. If verification is unavailable, explain why before completing.";
-const RED_ESTABLISHED =
-	"TDD guardrail: red established; production-code edits unlocked.";
-const GREEN_ESTABLISHED = "TDD guardrail: green established.";
+	"TDD guardrail: run a relevant test and confirm it passes.";
+const RED_ESTABLISHED = "TDD guardrail: red";
+const GREEN_ESTABLISHED = "TDD guardrail: green";
 
 interface SessionTddState {
 	cycle: WorkflowCodeState;
@@ -85,10 +83,7 @@ export function testDrivenDevelopmentEnforcementCreate(): (pi: ExtensionAPI) => 
 				const path = String((event.input as { path?: string }).path ?? "");
 				const session = sessionGet(ctx);
 				const decision = workflowCodeWriteEvaluate(session.cycle, path);
-				if (decision.block) {
-					ctx.ui.notify(decision.reason!, "warning");
-					return { block: true, reason: decision.reason };
-				}
+				if (decision.block) return { block: true, reason: decision.reason };
 				session.pendingPaths.set(event.toolCallId, path);
 			},
 		);
@@ -125,7 +120,6 @@ export function testDrivenDevelopmentEnforcementCreate(): (pi: ExtensionAPI) => 
 			const completion = workflowCodeCompletionEvaluate(session.cycle);
 			session.cycle = completion.state;
 			if (!completion.remind) return;
-			ctx.ui.notify(GREEN_REMINDER, "warning");
 
 			return {
 				entries: [

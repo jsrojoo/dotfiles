@@ -96,16 +96,13 @@ test("Pi adapter enforces and notifies red before source edits and green before 
 		context,
 	);
 	assert.equal(blocked.block, true);
-	assert.equal(notifications.at(-1), blocked.reason);
+	assert.equal(notifications.at(-1), undefined);
 
 	await toolResult(
 		{ toolName: "bash", input: { command: "node --test account.test.ts" }, isError: true },
 		context,
 	);
-	assert.equal(
-		notifications.at(-1),
-		"TDD guardrail: red established; production-code edits unlocked.",
-	);
+	assert.equal(notifications.at(-1), "TDD guardrail: red");
 	assert.equal(
 		await toolCall(
 			{ toolCallId: "edit-1", toolName: "edit", input: { path: "src/account.ts", edits: [] } },
@@ -121,14 +118,18 @@ test("Pi adapter enforces and notifies red before source edits and green before 
 	const reminder = await beforeSettle({}, context);
 	assert.equal(reminder.continue, true);
 	assert.equal(reminder.entries[0].customType, "workflow-code-guardrail");
-	assert.match(notifications.at(-1)!, /passing test/);
+	assert.equal(
+		reminder.entries[0].content,
+		"TDD guardrail: run a relevant test and confirm it passes.",
+	);
+	assert.equal(notifications.at(-1), "TDD guardrail: red");
 	assert.equal(await beforeSettle({}, context), undefined);
 
 	await toolResult(
 		{ toolName: "bash", input: { command: "node --test account.test.ts" }, isError: false },
 		context,
 	);
-	assert.equal(notifications.at(-1), "TDD guardrail: green established.");
+	assert.equal(notifications.at(-1), "TDD guardrail: green");
 	assert.equal(await beforeSettle({}, context), undefined);
 });
 
@@ -144,9 +145,7 @@ test("Pi adapter keeps aligned objective checks invisible", async () => {
 		context,
 	);
 
-	assert.deepEqual(notifications, [
-		"TDD guardrail: red established; production-code edits unlocked.",
-	]);
+	assert.deepEqual(notifications, ["TDD guardrail: red"]);
 	assert.equal(
 		entries.some((entry) => entry.customType === "workflow-code-judge-check"),
 		false,
