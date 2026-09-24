@@ -31,6 +31,7 @@ type AgentFrontmatter = {
 	description?: unknown;
 	tools?: unknown;
 	model?: unknown;
+	max_output_tokens?: unknown;
 };
 
 /**
@@ -91,6 +92,7 @@ function loadAgentsFromDir(dir: string, source: "user" | "project"): AgentConfig
 			description: frontmatter.description,
 			tools: parseToolList(frontmatter.tools),
 			model: typeof frontmatter.model === "string" ? frontmatter.model : undefined,
+			maxOutputTokens: typeof frontmatter.max_output_tokens === "number" ? frontmatter.max_output_tokens : undefined,
 			systemPrompt: body,
 			source,
 			filePath,
@@ -145,12 +147,15 @@ function loadSharedAgents(dir: string, mainProvider: string | undefined): AgentC
 		const model = parseSharedAgentString(toml, "model");
 		const modelProvider = parseSharedAgentString(toml, "model_provider");
 		const sandboxMode = parseSharedAgentString(toml, "sandbox_mode");
+		const maxOutputTokensRaw = toml.match(/^\s*max_output_tokens\s*=\s*(\d+)\s*$/m);
+		const maxOutputTokens = maxOutputTokensRaw ? Number(maxOutputTokensRaw[1]) : undefined;
 
 		agents.push({
 			name,
 			description,
 			tools: sandboxMode === "read-only" ? ["read", "grep", "find", "ls"] : undefined,
 			model: sharedAgentModelSelectorBuild(model, modelProvider, mainProvider),
+			maxOutputTokens,
 			systemPrompt: prompt,
 			source: "user",
 			filePath: tomlPath,

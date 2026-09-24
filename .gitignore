@@ -54,3 +54,4 @@ graphify-out/
 # pi local extension fork (external path)
 pi-background-tasks/
 .pi/agent/crashes.json
+.pi/agent/guardrail-data/
