@@ -5,7 +5,7 @@ import {
 	sqlCommandExecutes,
 	sqlCommandMutates,
 	sqlTextNeedsProof,
-} from "#agent-harness/core/guardrails/sql-guardrail/classify-sql";
+} from "#agent-harness/core/guardrails/sql/classify-sql";
 
 test("recognizes database execution without treating inspection commands as execution", () => {
 	assert.equal(sqlCommandExecutes('psql -c "SELECT 1"'), true);

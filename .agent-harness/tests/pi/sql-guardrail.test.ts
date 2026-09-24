@@ -2,8 +2,8 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import test from "node:test";
 
-import mutativeSqlBlockingRegister from "#agent-harness/pi/extensions/sql-guardrail/block-mutative-sql";
-import sqlValidationRequirementRegister from "#agent-harness/pi/extensions/sql-guardrail/require-sql-validation";
+import mutativeSqlBlockingRegister from "#agent-harness/pi/extensions/sql/register-mutative-sql-blocking";
+import sqlValidationRequirementRegister from "#agent-harness/pi/extensions/sql/register-sql-validation";
 
 type Handler = (event: any, context: any) => any;
 
@@ -25,7 +25,7 @@ function harnessCreate() {
 }
 
 test("SQL proof reminder points to coding skill", () => {
-	const source = fs.readFileSync(new URL("../../src/pi/extensions/sql-guardrail/require-sql-validation.ts", import.meta.url), "utf8");
+	const source = fs.readFileSync(new URL("../../src/pi/extensions/sql/register-sql-validation.ts", import.meta.url), "utf8");
 	assert.match(source, /~\/\.agents\/skills\/coding\/references\/database-sql-workflow\.md/);
 });
 

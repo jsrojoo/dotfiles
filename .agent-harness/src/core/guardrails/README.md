@@ -43,10 +43,11 @@ The core policy does not claim that a failing test is relevant solely from its e
 
 Core policy:
 
-- `sql-guardrail/classify-sql.ts` identifies SQL execution, mutation, proof queries, and SQL presented in answers.
-- `sql-guardrail/require-validation-proof.ts` records successful read-only proof and allows one corrective continuation when proof is missing.
+- `sql/classify-sql.ts` identifies SQL execution, mutation, proof queries, and SQL presented in answers.
+- `sql/block-mutative-sql.ts` decides whether an executed command must be blocked.
+- `sql/require-sql-validation.ts` records successful read-only proof and allows one corrective continuation when proof is missing.
 
-Pi adapters:
+Pi consumes that policy through thin adapters:
 
-- `pi/extensions/sql-guardrail/block-mutative-sql.ts` blocks agent-executed writes and DDL.
-- `pi/extensions/sql-guardrail/require-sql-validation.ts` requires `SELECT ... WHERE` evidence before presenting data-targeting SQL.
+- `pi/extensions/sql/register-mutative-sql-blocking.ts`
+- `pi/extensions/sql/register-sql-validation.ts`

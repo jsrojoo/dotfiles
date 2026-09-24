@@ -5,7 +5,7 @@ import {
 	sqlValidationCompletionEvaluate,
 	sqlValidationProofRecord,
 	sqlValidationStateCreate,
-} from "#agent-harness/core/guardrails/sql-guardrail/require-validation-proof";
+} from "#agent-harness/core/guardrails/sql/require-sql-validation";
 
 test("records proof only from a successful SELECT WHERE execution with output", () => {
 	const initial = sqlValidationStateCreate();

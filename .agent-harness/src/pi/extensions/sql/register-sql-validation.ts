@@ -6,7 +6,7 @@ import {
 	sqlValidationCompletionEvaluate,
 	sqlValidationProofRecord,
 	sqlValidationStateCreate,
-} from "#agent-harness/core/guardrails/sql-guardrail/require-validation-proof";
+} from "#agent-harness/core/guardrails/sql/require-sql-validation";
 
 const REMINDER =
 	"SQL validation required. Read `~/.agents/skills/coding/references/database-sql-workflow.md`. " +

@@ -21,8 +21,8 @@ test("Pi settings load shared extensions independently of the working directory"
 
 	assert.deepEqual(settings.extensions, [
 		"~/dotfiles/.agent-harness/src/pi/extensions/notify.ts",
-		"~/dotfiles/.agent-harness/src/pi/extensions/sql-guardrail/block-mutative-sql.ts",
-		"~/dotfiles/.agent-harness/src/pi/extensions/sql-guardrail/require-sql-validation.ts",
+		"~/dotfiles/.agent-harness/src/pi/extensions/sql/register-mutative-sql-blocking.ts",
+		"~/dotfiles/.agent-harness/src/pi/extensions/sql/register-sql-validation.ts",
 		"~/dotfiles/.agent-harness/src/pi/extensions/workflow-code/register-test-driven-development.ts",
 	]);
 });
