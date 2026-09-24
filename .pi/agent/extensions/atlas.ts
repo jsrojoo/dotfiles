@@ -43,7 +43,7 @@ export default function atlasProviderRegister(pi: ExtensionAPI) {
 			reasoning: true,
 			input: ["text", "image"],
 			cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 },
-			contextWindow: 872000,
+			contextWindow: 300000,
 			maxTokens: 128000,
 			thinkingLevelMap: { off: "none", minimal: null, xhigh: "xhigh", max: "max" },
 		})),

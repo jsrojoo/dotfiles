@@ -8,17 +8,17 @@
         {
           "id": "gpt-5.6-sol",
           "reasoning": true,
-          "contextWindow": 872000
+          "contextWindow": 300000
         },
         {
           "id": "gpt-5.6-terra",
           "reasoning": true,
-          "contextWindow": 872000
+          "contextWindow": 300000
         },
         {
           "id": "gpt-5.6-luna",
           "reasoning": true,
-          "contextWindow": 872000
+          "contextWindow": 300000
         }
       ]
     }
