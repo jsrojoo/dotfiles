@@ -39,8 +39,14 @@ Implementation progress becomes due after three successful production edits or 4
 
 The core policy does not claim that a failing test is relevant solely from its exit code; the red milestone judge performs that semantic check. Harness adapters may add persistence, notifications, and kill switches, but must not duplicate or redefine core policy.
 
-## SQL validation guardrail
+## SQL guardrail
 
-- `sql-validation/classify-sql.ts` identifies SQL execution, mutation, proof queries, and SQL presented in answers.
-- `sql-validation/require-validation-proof.ts` records successful read-only proof and allows one corrective continuation when proof is missing.
-- Pi loads `sql-validation/enforce-read-only-and-proof.ts`, which blocks agent-executed writes and DDL while requiring `SELECT ... WHERE` evidence before presenting data-targeting SQL.
+Core policy:
+
+- `sql-guardrail/classify-sql.ts` identifies SQL execution, mutation, proof queries, and SQL presented in answers.
+- `sql-guardrail/require-validation-proof.ts` records successful read-only proof and allows one corrective continuation when proof is missing.
+
+Pi adapters:
+
+- `pi/extensions/sql-guardrail/block-mutative-sql.ts` blocks agent-executed writes and DDL.
+- `pi/extensions/sql-guardrail/require-sql-validation.ts` requires `SELECT ... WHERE` evidence before presenting data-targeting SQL.

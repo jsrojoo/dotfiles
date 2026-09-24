@@ -18,6 +18,9 @@ import type { WorkflowCodeState } from "#agent-harness/core/guardrails/workflow-
 const GREEN_REMINDER =
 	"Workflow-code guardrail: production code changed without a subsequent passing test. " +
 	"Run the narrowest relevant test now. If verification is unavailable, explain why before completing.";
+const RED_ESTABLISHED =
+	"TDD guardrail: red established; production-code edits unlocked.";
+const GREEN_ESTABLISHED = "TDD guardrail: green established.";
 
 interface SessionTddState {
 	cycle: WorkflowCodeState;
@@ -82,7 +85,10 @@ export function testDrivenDevelopmentEnforcementCreate(): (pi: ExtensionAPI) => 
 				const path = String((event.input as { path?: string }).path ?? "");
 				const session = sessionGet(ctx);
 				const decision = workflowCodeWriteEvaluate(session.cycle, path);
-				if (decision.block) return { block: true, reason: decision.reason };
+				if (decision.block) {
+					ctx.ui.notify(decision.reason!, "warning");
+					return { block: true, reason: decision.reason };
+				}
 				session.pendingPaths.set(event.toolCallId, path);
 			},
 		);
@@ -102,7 +108,14 @@ export function testDrivenDevelopmentEnforcementCreate(): (pi: ExtensionAPI) => 
 			if (event.toolName !== "bash") return;
 			const command = String((event.input as { command?: string }).command ?? "");
 			if (!workflowCodeTestCommandIsRecognized(command)) return;
+			const previousPhase = session.cycle.phase;
 			session.cycle = workflowCodeTestResultApply(session.cycle, command, event.isError);
+			if (previousPhase !== "red" && session.cycle.phase === "red") {
+				ctx.ui.notify(RED_ESTABLISHED, "info");
+			}
+			if (previousPhase !== "green" && session.cycle.phase === "green") {
+				ctx.ui.notify(GREEN_ESTABLISHED, "info");
+			}
 		});
 
 		pi.on("agent_before_settle", (_event, ctx) => {
@@ -112,6 +125,7 @@ export function testDrivenDevelopmentEnforcementCreate(): (pi: ExtensionAPI) => 
 			const completion = workflowCodeCompletionEvaluate(session.cycle);
 			session.cycle = completion.state;
 			if (!completion.remind) return;
+			ctx.ui.notify(GREEN_REMINDER, "warning");
 
 			return {
 				entries: [

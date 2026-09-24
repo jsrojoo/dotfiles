@@ -2,15 +2,11 @@ import type { AgentMessage } from "@earendil-works/pi-agent-core";
 import type { AssistantMessage, TextContent } from "@earendil-works/pi-ai";
 import type { ExtensionAPI, ExtensionContext } from "@earendil-works/pi-coding-agent";
 import {
-	sqlCommandExecutes,
-	sqlCommandMutates,
-} from "#agent-harness/core/guardrails/sql-validation/classify-sql";
-import {
 	type SqlValidationState,
 	sqlValidationCompletionEvaluate,
 	sqlValidationProofRecord,
 	sqlValidationStateCreate,
-} from "#agent-harness/core/guardrails/sql-validation/require-validation-proof";
+} from "#agent-harness/core/guardrails/sql-guardrail/require-validation-proof";
 
 const REMINDER =
 	"SQL validation required. Read `~/.agents/skills/coding/references/database-sql-workflow.md`. " +
@@ -28,7 +24,7 @@ function assistantTextExtract(message: AssistantMessage): string {
 		.join("\n");
 }
 
-export default function sqlValidationEnforcementRegister(pi: ExtensionAPI): void {
+export default function sqlValidationRequirementRegister(pi: ExtensionAPI): void {
 	const sessions = new Map<string, SqlValidationState>();
 
 	function sessionGet(ctx: ExtensionContext): SqlValidationState {
@@ -42,17 +38,6 @@ export default function sqlValidationEnforcementRegister(pi: ExtensionAPI): void
 	pi.on("input", (event, ctx) => {
 		if (event.source === "extension" || event.streamingBehavior !== undefined) return;
 		sessionSet(ctx, sqlValidationStateCreate());
-	});
-
-	pi.on("tool_call", (event) => {
-		if (event.toolName !== "bash") return;
-		const command = String((event.input as { command?: string }).command ?? "");
-		if (!sqlCommandExecutes(command) || !sqlCommandMutates(command)) return;
-		return {
-			block: true,
-			reason:
-				"SQL guardrail: the agent cannot execute mutative SQL or DDL. Prepare exact SQL for user execution after SELECT ... WHERE validation.",
-		};
 	});
 
 	pi.on("tool_result", (event, ctx) => {

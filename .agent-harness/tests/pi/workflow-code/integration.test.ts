@@ -21,7 +21,8 @@ test("Pi settings load shared extensions independently of the working directory"
 
 	assert.deepEqual(settings.extensions, [
 		"~/dotfiles/.agent-harness/src/pi/extensions/notify.ts",
-		"~/dotfiles/.agent-harness/src/pi/extensions/sql-validation/enforce-read-only-and-proof.ts",
+		"~/dotfiles/.agent-harness/src/pi/extensions/sql-guardrail/block-mutative-sql.ts",
+		"~/dotfiles/.agent-harness/src/pi/extensions/sql-guardrail/require-sql-validation.ts",
 		"~/dotfiles/.agent-harness/src/pi/extensions/workflow-code/register-test-driven-development.ts",
 	]);
 });
@@ -84,8 +85,8 @@ function harnessCreate(
 	};
 }
 
-test("Pi adapter enforces red before source edits and green before completion", async () => {
-	const { context, handlers } = harnessCreate();
+test("Pi adapter enforces and notifies red before source edits and green before completion", async () => {
+	const { context, handlers, notifications } = harnessCreate();
 	const toolCall = handlers.get("tool_call")!;
 	const toolResult = handlers.get("tool_result")!;
 	const beforeSettle = handlers.get("agent_before_settle")!;
@@ -95,10 +96,15 @@ test("Pi adapter enforces red before source edits and green before completion", 
 		context,
 	);
 	assert.equal(blocked.block, true);
+	assert.equal(notifications.at(-1), blocked.reason);
 
 	await toolResult(
 		{ toolName: "bash", input: { command: "node --test account.test.ts" }, isError: true },
 		context,
+	);
+	assert.equal(
+		notifications.at(-1),
+		"TDD guardrail: red established; production-code edits unlocked.",
 	);
 	assert.equal(
 		await toolCall(
@@ -115,12 +121,14 @@ test("Pi adapter enforces red before source edits and green before completion", 
 	const reminder = await beforeSettle({}, context);
 	assert.equal(reminder.continue, true);
 	assert.equal(reminder.entries[0].customType, "workflow-code-guardrail");
+	assert.match(notifications.at(-1)!, /passing test/);
 	assert.equal(await beforeSettle({}, context), undefined);
 
 	await toolResult(
 		{ toolName: "bash", input: { command: "node --test account.test.ts" }, isError: false },
 		context,
 	);
+	assert.equal(notifications.at(-1), "TDD guardrail: green established.");
 	assert.equal(await beforeSettle({}, context), undefined);
 });
 
@@ -136,7 +144,9 @@ test("Pi adapter keeps aligned objective checks invisible", async () => {
 		context,
 	);
 
-	assert.deepEqual(notifications, []);
+	assert.deepEqual(notifications, [
+		"TDD guardrail: red established; production-code edits unlocked.",
+	]);
 	assert.equal(
 		entries.some((entry) => entry.customType === "workflow-code-judge-check"),
 		false,

@@ -2,7 +2,8 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import test from "node:test";
 
-import sqlValidationEnforcementRegister from "#agent-harness/pi/extensions/sql-validation/enforce-read-only-and-proof";
+import mutativeSqlBlockingRegister from "#agent-harness/pi/extensions/sql-guardrail/block-mutative-sql";
+import sqlValidationRequirementRegister from "#agent-harness/pi/extensions/sql-guardrail/require-sql-validation";
 
 type Handler = (event: any, context: any) => any;
 
@@ -18,13 +19,14 @@ function harnessCreate() {
 		mode: "tui",
 		sessionManager: { getSessionId: () => "session-1" },
 	};
-	sqlValidationEnforcementRegister(pi as any);
+	mutativeSqlBlockingRegister(pi as any);
+	sqlValidationRequirementRegister(pi as any);
 	return { context, handlers };
 }
 
 test("SQL proof reminder points to coding skill", () => {
-	const source = fs.readFileSync(new URL("../../src/pi/extensions/sql-validation/enforce-read-only-and-proof.ts", import.meta.url), "utf8");
-	assert.match(source, /~\\/.agents\\/skills\\/coding\\/references\\/database-sql-workflow\\.md/);
+	const source = fs.readFileSync(new URL("../../src/pi/extensions/sql-guardrail/require-sql-validation.ts", import.meta.url), "utf8");
+	assert.match(source, /~\/\.agents\/skills\/coding\/references\/database-sql-workflow\.md/);
 });
 
 test("Pi adapter blocks agent-executed mutative SQL", async () => {
