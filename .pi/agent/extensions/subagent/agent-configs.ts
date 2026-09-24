@@ -4,6 +4,8 @@ export interface AgentConfig {
 	name: string;
 	description: string;
 	tools?: string[];
+	skills?: string[];
+	extensions?: string[];
 	model?: string;
 	systemPrompt: string;
 	source: "user" | "project";

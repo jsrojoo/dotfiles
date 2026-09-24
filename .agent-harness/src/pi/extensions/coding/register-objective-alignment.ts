@@ -33,7 +33,7 @@ import type {
 	WorkflowCodeJudgeOutcome,
 	WorkflowCodeJudgeRequest,
 	WorkflowCodeTestEvidence,
-} from "#agent-harness/core/guardrails/skills/coding/workflow-code-contracts";
+} from "#agent-harness/core/guardrails/skills/coding/coding-contracts";
 
 type WorkflowCodeObjectiveStatus = "active" | "completed" | "abandoned";
 

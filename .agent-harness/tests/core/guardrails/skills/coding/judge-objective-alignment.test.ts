@@ -6,7 +6,7 @@ import {
 	workflowCodeJudgeRun,
 	workflowCodeJudgeVerdictParse,
 } from "#agent-harness/core/guardrails/skills/coding/objective-alignment/llm";
-import type { WorkflowCodeJudgeRequest } from "#agent-harness/core/guardrails/skills/coding/workflow-code-contracts";
+import type { WorkflowCodeJudgeRequest } from "#agent-harness/core/guardrails/skills/coding/coding-contracts";
 
 const REQUEST: WorkflowCodeJudgeRequest = {
 	milestone: "green",

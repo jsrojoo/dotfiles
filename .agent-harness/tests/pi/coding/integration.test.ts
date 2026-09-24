@@ -2,8 +2,8 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
 
-import { objectiveAlignmentEnforcementCreate } from "#agent-harness/pi/extensions/workflow-code/register-objective-alignment";
-import { testDrivenDevelopmentEnforcementCreate } from "#agent-harness/pi/extensions/workflow-code/register-test-driven-development";
+import { objectiveAlignmentEnforcementCreate } from "#agent-harness/pi/extensions/coding/register-objective-alignment";
+import { testDrivenDevelopmentEnforcementCreate } from "#agent-harness/pi/extensions/coding/register-test-driven-development";
 
 type Handler = (event: any, context: any) => any;
 type CommandHandler = (argumentsText: string, context: any) => any;
@@ -26,9 +26,9 @@ test("Pi settings load shared extensions independently of the working directory"
 		"~/dotfiles/.agent-harness/src/pi/extensions/sql/register-mutative-sql-blocking.ts",
 		"~/dotfiles/.agent-harness/src/pi/extensions/sql/register-sql-validation.ts",
 	]);
-	assert.equal(
+	assert.match(
 		tddWrapper,
-		'export { default } from "#agent-harness/pi/extensions/workflow-code/register-test-driven-development";\n',
+		/join\(homedir\(\), "dotfiles\/\.agent-harness\/src\/pi\/extensions\/coding\/register-test-driven-development\.ts"\)/,
 	);
 	assert.equal(typeof (await import(tddWrapperUrl.href)).default, "function");
 });
@@ -584,11 +584,13 @@ test("Pi adapter loads the current objective for external editing", async () => 
 	assert.equal(entries.at(-1)?.data.objective, "Corrected objective");
 });
 
-test("editor subagent has tools needed for guarded TDD", () => {
+test("editor subagent selects only coding resources needed for guarded TDD", () => {
 	const editorUrl = new URL("../../../../.pi/agent/agents/editor.md", import.meta.url);
 	const editor = readFileSync(editorUrl, "utf8");
 
 	assert.match(editor, /^tools: read, bash, edit$/m);
+	assert.match(editor, /^skills: coding$/m);
+	assert.match(editor, /^extensions: coding-tdd$/m);
 	assert.match(editor, /Use `bash` only to run tests/);
 });
 

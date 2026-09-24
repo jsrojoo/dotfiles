@@ -13,7 +13,7 @@ import {
 import type {
 	WorkflowCodeChange,
 	WorkflowCodeJudgeOutcome,
-} from "#agent-harness/core/guardrails/skills/coding/workflow-code-contracts";
+} from "#agent-harness/core/guardrails/skills/coding/coding-contracts";
 
 const CHANGE: WorkflowCodeChange = {
 	operation: "edit",

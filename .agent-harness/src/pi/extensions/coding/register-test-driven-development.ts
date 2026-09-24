@@ -13,7 +13,7 @@ import {
 	workflowCodeTestResultApply,
 	workflowCodeWriteEvaluate,
 } from "#agent-harness/core/guardrails/skills/coding/enforce-test-driven-development";
-import type { WorkflowCodeState } from "#agent-harness/core/guardrails/skills/coding/workflow-code-contracts";
+import type { WorkflowCodeState } from "#agent-harness/core/guardrails/skills/coding/coding-contracts";
 
 const GREEN_REMINDER =
 	"TDD guardrail: run a relevant test and confirm it passes.";

@@ -30,6 +30,8 @@ type AgentFrontmatter = {
 	name?: unknown;
 	description?: unknown;
 	tools?: unknown;
+	skills?: unknown;
+	extensions?: unknown;
 	model?: unknown;
 };
 
@@ -45,13 +47,20 @@ type AgentFrontmatter = {
  * tools rather than throwing: this runs inside agent discovery, where a single
  * bad file must not take down every other agent in the same directory.
  */
-function parseToolList(value: unknown): string[] | undefined {
-	const raw = Array.isArray(value) ? value : typeof value === "string" ? value.split(",") : [];
-	const tools = raw
-		.filter((t): t is string => typeof t === "string")
-		.map((t) => t.trim())
+function parseResourceList(value: unknown): string[] | undefined {
+	if (value === undefined) return undefined;
+	if (!Array.isArray(value) && typeof value !== "string") return undefined;
+
+	const raw = Array.isArray(value) ? value : value.split(",");
+	return raw
+		.filter((item): item is string => typeof item === "string")
+		.map((item) => item.trim())
 		.filter(Boolean);
-	return tools.length > 0 ? tools : undefined;
+}
+
+function parseToolList(value: unknown): string[] | undefined {
+	const tools = parseResourceList(value);
+	return tools?.length ? tools : undefined;
 }
 
 function loadAgentsFromDir(dir: string, source: "user" | "project"): AgentConfig[] {
@@ -90,6 +99,8 @@ function loadAgentsFromDir(dir: string, source: "user" | "project"): AgentConfig
 			name: frontmatter.name,
 			description: frontmatter.description,
 			tools: parseToolList(frontmatter.tools),
+			skills: parseResourceList(frontmatter.skills),
+			extensions: parseResourceList(frontmatter.extensions),
 			model: typeof frontmatter.model === "string" ? frontmatter.model : undefined,
 			systemPrompt: body,
 			source,

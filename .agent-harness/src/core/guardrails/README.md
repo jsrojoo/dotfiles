@@ -4,13 +4,13 @@ Core guardrails are deterministic, runtime-independent policies. They do not imp
 
 Pi keeps registration separate from reusable enforcement:
 
-- `pi/extensions/workflow-code/register-test-driven-development.ts` maps Pi events to core TDD enforcement.
-- `pi/extensions/workflow-code/register-objective-alignment.ts` maps Pi events to core alignment enforcement, model calls, corrective feedback, and drift notifications.
+- `pi/extensions/coding/register-test-driven-development.ts` maps Pi events to core TDD enforcement.
+- `pi/extensions/coding/register-objective-alignment.ts` maps Pi events to core alignment enforcement, model calls, corrective feedback, and drift notifications.
 
 Objective alignment is disabled in default Pi settings while it remains experimental. Enable it for one Pi process when developing or testing:
 
 ```bash
-pi -e ~/dotfiles/.agent-harness/src/pi/extensions/workflow-code/register-objective-alignment.ts
+pi -e ~/dotfiles/.agent-harness/src/pi/extensions/coding/register-objective-alignment.ts
 ```
 
 ## Coding skill guardrail
@@ -20,7 +20,7 @@ The coding skill guardrail has three complementary parts:
 - `skills/coding/enforce-test-driven-development.ts` enforces the deterministic red-green lifecycle.
 - `skills/coding/objective-alignment/state-machine.ts` owns objective state and milestone transitions.
 - `skills/coding/objective-alignment/llm.ts` checks semantic alignment with the user's objective.
-- `skills/coding/workflow-code-contracts.ts` defines the shared adapter contract.
+- `skills/coding/coding-contracts.ts` defines the shared adapter contract.
 
 A harness adapter follows this lifecycle:
 

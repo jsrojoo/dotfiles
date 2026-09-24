@@ -22,11 +22,13 @@ Pi-native user agents override shared agents with the same name. With `agentScop
 | `sandbox_mode = "read-only"` | Restricts tools to `read`, `grep`, `find`, and `ls` |
 | Other `sandbox_mode` values | Uses Pi's default tool set |
 
+Pi-native agent frontmatter also accepts comma-separated or YAML-array `skills` and `extensions` fields. Omit a field to preserve normal child discovery, use an empty array to load none, or list names to load only matching resources. Skill names resolve from project and user skill directories; extension names resolve from `~/.pi/agent/extensions`. Explicit paths are also accepted.
+
 Provider and model values are converted to Pi model selectors. Shared child agents use their explicit TOML `model_provider` when set. When it is missing, an active main provider of exactly `azure`, `atlas`, or `atlas-bedrock` supplies the provider while preserving the TOML model ID. Otherwise, the model remains bare. Pi-native and project-local agent model selectors are not rewritten and retain discovery precedence.
 
 ## Child extensions
 
-Child `pi` processes start with `-ne` (no extension discovery) plus `-e` for each local file or directory `index.ts`/`index.js` under `~/.pi/agent/extensions/`, except `subagent` itself.
+Child `pi` processes start with `-ne` (no extension discovery). By default they add `-e` for each local file or directory `index.ts`/`index.js` under `~/.pi/agent/extensions/`, except `subagent` itself. An agent's `extensions` field replaces that default list. Its `skills` field adds `-ns` plus one explicit `--skill` per selected skill.
 
 - Package extensions from `settings.json` (for example `pi-patty-bg-tasks`, ponytail) do not load in children. `pi-patty-bg-tasks` replaces `bash` with an unref'd detached spawn, which made `pi -p` exit mid tool call and return no output.
 - `coding-tdd.ts` is a local wrapper around the shared TDD adapter, so both parent and child Pi processes load the guardrail.

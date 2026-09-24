@@ -40,15 +40,25 @@ const PER_TASK_OUTPUT_CAP = 50 * 1024;
 // detached spawn) let `pi -p` exit mid tool call, so children returned no output.
 // "subagent" is excluded so children cannot spawn nested subagents.
 // ponytail: local files only; package extensions are dropped for children, add an allowlist if one is needed.
-function childExtensionArgs(): string[] {
+function childExtensionArgs(selected: string[] | undefined, cwd: string): string[] {
 	const dir = path.join(getAgentDir(), "extensions");
+	const args = ["-ne"];
+	if (selected !== undefined) {
+		for (const name of selected) {
+			const candidates = path.isAbsolute(name) || name.includes(path.sep)
+				? [path.resolve(cwd, name)]
+				: [path.join(dir, `${name}.ts`), path.join(dir, `${name}.js`), path.join(dir, name)];
+			args.push("-e", candidates.find((candidate) => fs.existsSync(candidate)) ?? candidates[0]);
+		}
+		return args;
+	}
+
 	let entries: fs.Dirent[];
 	try {
 		entries = fs.readdirSync(dir, { withFileTypes: true });
 	} catch {
-		return ["-ne"];
+		return args;
 	}
-	const args = ["-ne"];
 	for (const entry of entries) {
 		const full = path.join(dir, entry.name);
 		if (entry.isFile() && /\.(ts|js)$/.test(entry.name)) {
@@ -57,6 +67,24 @@ function childExtensionArgs(): string[] {
 			const index = ["index.ts", "index.js"].map((f) => path.join(full, f)).find((f) => fs.existsSync(f));
 			if (index) args.push("-e", index);
 		}
+	}
+	return args;
+}
+
+function childSkillArgs(selected: string[] | undefined, cwd: string): string[] {
+	if (selected === undefined) return [];
+
+	const args = ["-ns"];
+	for (const name of selected) {
+		const candidates = path.isAbsolute(name) || name.includes(path.sep)
+			? [path.resolve(cwd, name)]
+			: [
+				path.join(cwd, ".agents", "skills", name),
+				path.join(cwd, CONFIG_DIR_NAME, "skills", name),
+				path.join(os.homedir(), ".agents", "skills", name),
+				path.join(getAgentDir(), "skills", name),
+			];
+		args.push("--skill", candidates.find((candidate) => fs.existsSync(candidate)) ?? candidates[0]);
 	}
 	return args;
 }
@@ -323,7 +351,15 @@ async function runSingleAgent(
 		};
 	}
 
-	const args: string[] = ["--mode", "json", "-p", "--no-session", ...childExtensionArgs()];
+	const childCwd = cwd ?? defaultCwd;
+	const args: string[] = [
+		"--mode",
+		"json",
+		"-p",
+		"--no-session",
+		...childExtensionArgs(agent.extensions, childCwd),
+		...childSkillArgs(agent.skills, childCwd),
+	];
 	const model = agent.model ?? dispatchDefaults.model;
 	if (model) args.push("--model", model);
 	if (dispatchDefaults.thinkingLevel) {
@@ -369,7 +405,7 @@ async function runSingleAgent(
 		const exitCode = await new Promise<number>((resolve) => {
 			const invocation = getPiInvocation(args);
 			const proc = spawn(invocation.command, invocation.args, {
-				cwd: cwd ?? defaultCwd,
+				cwd: childCwd,
 				shell: false,
 				stdio: ["ignore", "pipe", "pipe"],
 				env: process.env,

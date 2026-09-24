@@ -5,7 +5,7 @@ import type {
 	WorkflowCodeJudgeOutcome,
 	WorkflowCodeJudgeRequest,
 	WorkflowCodeJudgeVerdict,
-} from "../workflow-code-contracts.ts";
+} from "../coding-contracts.ts";
 
 const OBJECTIVE_CHARACTER_LIMIT = 4_000;
 const CONTEXT_CHARACTER_LIMIT = 6_000;

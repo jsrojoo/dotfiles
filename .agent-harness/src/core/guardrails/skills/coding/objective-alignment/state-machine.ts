@@ -6,7 +6,7 @@ import type {
 	WorkflowCodeImplementationProgress,
 	WorkflowCodeJudgeOutcome,
 	WorkflowCodeMilestone,
-} from "../workflow-code-contracts.ts";
+} from "../coding-contracts.ts";
 
 const IMPLEMENTATION_CHARACTER_MILESTONE = 4_000;
 const IMPLEMENTATION_EDIT_MILESTONE = 3;

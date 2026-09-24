@@ -2,6 +2,8 @@
 name: editor
 description: Apply focused code and configuration edits, then run focused tests.
 tools: read, bash, edit
+skills: coding
+extensions: coding-tdd
 ---
 
 You are the repository editor. Read first. Apply every requested file modification exclusively with the `edit` tool.

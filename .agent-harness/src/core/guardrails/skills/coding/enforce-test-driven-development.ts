@@ -3,14 +3,14 @@ import type {
 	WorkflowCodePathKind,
 	WorkflowCodeState,
 	WorkflowCodeWriteDecision,
-} from "./workflow-code-contracts.ts";
+} from "./coding-contracts.ts";
 
 export type {
 	WorkflowCodeCompletionDecision,
 	WorkflowCodePathKind,
 	WorkflowCodeState,
 	WorkflowCodeWriteDecision,
-} from "./workflow-code-contracts.ts";
+} from "./coding-contracts.ts";
 
 const SOURCE_FILE_PATTERN = /\.(?:c|cc|cpp|cs|go|h|hpp|java|js|jsx|kt|mjs|cjs|php|py|rb|rs|scala|sh|bash|swift|ts|tsx)$/i;
 const TEST_DIRECTORY_PATTERN = /(?:^|[\\/])(?:__tests__|tests?)(?:[\\/]|$)/i;
