@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
 
-import { objectiveScopeEnforcementCreate } from "#agent-harness/pi/extensions/workflow-code/enforce-objective-scope";
+import { objectiveAlignmentEnforcementCreate } from "#agent-harness/pi/extensions/workflow-code/enforce-objective-alignment";
 import { testDrivenDevelopmentEnforcementCreate } from "#agent-harness/pi/extensions/workflow-code/enforce-test-driven-development";
 
 type Handler = (event: any, context: any) => any;
@@ -16,14 +16,14 @@ const ALIGNED_VERDICT = JSON.stringify({
 });
 
 test("Pi settings load shared extensions independently of the working directory", () => {
-	const settingsUrl = new URL("../../../.pi/agent/settings.json", import.meta.url);
+	const settingsUrl = new URL("../../../../.pi/agent/settings.json", import.meta.url);
 	const settings = JSON.parse(readFileSync(settingsUrl, "utf8"));
 
 	assert.deepEqual(settings.extensions, [
 		"~/dotfiles/.agent-harness/src/pi/extensions/notify.ts",
 		"~/dotfiles/.agent-harness/src/pi/extensions/sql-validation/enforce-read-only-and-proof.ts",
 		"~/dotfiles/.agent-harness/src/pi/extensions/workflow-code/enforce-test-driven-development.ts",
-		"~/dotfiles/.agent-harness/src/pi/extensions/workflow-code/enforce-objective-scope.ts",
+		"~/dotfiles/.agent-harness/src/pi/extensions/workflow-code/enforce-objective-alignment.ts",
 	]);
 });
 
@@ -31,6 +31,7 @@ function harnessCreate(judgeComplete = async () => ALIGNED_VERDICT) {
 	const handlers = new Map<string, Handler>();
 	const commands = new Map<string, CommandHandler>();
 	const entries: Array<{ customType: string; data: any }> = [];
+	let editorText = "";
 	const notifications: string[] = [];
 	const renderers = new Map<string, Function>();
 	const pi = {
@@ -58,12 +59,25 @@ function harnessCreate(judgeComplete = async () => ALIGNED_VERDICT) {
 			getBranch: () => [],
 			getSessionId: () => "session-1",
 		},
-		ui: { notify: (message: string) => notifications.push(message) },
+		ui: {
+			notify: (message: string) => notifications.push(message),
+			setEditorText: (text: string) => {
+				editorText = text;
+			},
+		},
 	};
 
 	testDrivenDevelopmentEnforcementCreate()(pi as any);
-	objectiveScopeEnforcementCreate(judgeComplete)(pi as any);
-	return { commands, context, entries, handlers, notifications, renderers };
+	objectiveAlignmentEnforcementCreate(judgeComplete)(pi as any);
+	return {
+		commands,
+		context,
+		entries,
+		getEditorText: () => editorText,
+		handlers,
+		notifications,
+		renderers,
+	};
 }
 
 test("Pi adapter enforces red before source edits and green before completion", async () => {
@@ -153,15 +167,12 @@ test("Pi adapter keeps source locked when the red milestone is out of scope", as
 	);
 	assert.match(feedback.content.at(-1).text, /does not cover/i);
 	assert.match(notifications.at(-1)!, /workflow drift detected.*red/i);
-	assert.equal(
-		(
-			await toolCall(
-				{ toolName: "edit", input: { path: "src/account.ts" } },
-				context,
-			)
-		).block,
-		true,
+	const blocked = await toolCall(
+		{ toolName: "edit", input: { path: "src/account.ts" } },
+		context,
 	);
+	assert.equal(blocked.block, true);
+	assert.equal(blocked.terminate, true);
 });
 
 test("Pi adapter runs one final objective correction without looping", async () => {
@@ -276,6 +287,7 @@ test("Pi adapter checks scope after several successful production edits", async 
 		context,
 	);
 	assert.equal(blocked.block, true);
+	assert.equal(blocked.terminate, true);
 	assert.match(blocked.reason, /unrelated behavior/i);
 	assert.match(notifications.at(-1)!, /workflow drift detected.*implementation/i);
 	assert.deepEqual(milestones, ["red", "implementation"]);
@@ -364,6 +376,45 @@ test("Pi adapter honors the guardrail kill switch", async () => {
 		if (previousValue === undefined) delete process.env.AGENT_HARNESS_GUARDRAIL_OFF;
 		else process.env.AGENT_HARNESS_GUARDRAIL_OFF = previousValue;
 	}
+});
+
+test("Pi adapter changes an active objective only through explicit editing", async () => {
+	const prompts: string[] = [];
+	const { context, handlers } = harnessCreate(async (prompt: string) => {
+		prompts.push(prompt);
+		return ALIGNED_VERDICT;
+	});
+	const input = handlers.get("input")!;
+
+	await input({ source: "interactive", text: "Refactor workflow guardrails" }, context);
+	await input({ source: "interactive", text: "Keep the preferred factory name" }, context);
+	await handlers.get("tool_result")!(
+		{ toolName: "bash", input: { command: "node --test" }, isError: true, content: [] },
+		context,
+	);
+
+	assert.match(prompts[0], /Refactor workflow guardrails/);
+	assert.doesNotMatch(prompts[0], /Keep the preferred factory name/);
+});
+
+test("Pi adapter loads the current objective for external editing", async () => {
+	const { commands, context, entries, getEditorText, handlers, notifications } = harnessCreate();
+	await handlers.get("input")!(
+		{ source: "interactive", text: "Original objective" },
+		context,
+	);
+
+	await commands.get("workflow-objective-edit")!("", context);
+
+	assert.equal(getEditorText(), "Original objective");
+	assert.match(notifications.at(-1)!, /Ctrl\+G/);
+
+	await handlers.get("input")!(
+		{ source: "interactive", text: "Corrected objective" },
+		context,
+	);
+	assert.equal(entries.at(-1)?.customType, "workflow-code-objective");
+	assert.equal(entries.at(-1)?.data.objective, "Corrected objective");
 });
 
 test("Pi adapter applies a one-request TDD kill switch", async () => {

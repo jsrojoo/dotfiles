@@ -20,7 +20,7 @@
     "~/dotfiles/.agent-harness/src/pi/extensions/notify.ts",
     "~/dotfiles/.agent-harness/src/pi/extensions/sql-validation/enforce-read-only-and-proof.ts",
     "~/dotfiles/.agent-harness/src/pi/extensions/workflow-code/enforce-test-driven-development.ts",
-    "~/dotfiles/.agent-harness/src/pi/extensions/workflow-code/enforce-objective-scope.ts"
+    "~/dotfiles/.agent-harness/src/pi/extensions/workflow-code/enforce-objective-alignment.ts"
   ],
   "skills": [
     "/Users/josephrojo/dotfiles/.codex/plugins/cache/aitrium-dev-workspace-local/aitrium-dev-workspace/0.1.0+codex.20260603191627/skills"

@@ -3,10 +3,6 @@ import test from "node:test";
 
 import {
 	workflowCodeCompletionEvaluate,
-	workflowCodeImplementationProgressCreate,
-	workflowCodeImplementationProgressDue,
-	workflowCodeImplementationProgressRecord,
-	workflowCodeImplementationProgressReset,
 	workflowCodePathClassify,
 	workflowCodeStateCreate,
 	workflowCodeStateSkip,
@@ -87,53 +83,6 @@ test("a failing test after production changes still requires green", () => {
 
 	assert.equal(stillFailing.phase, "code-changed");
 	assert.equal(workflowCodeCompletionEvaluate(stillFailing).remind, true);
-});
-
-test("implementation progress becomes due after several source edits", () => {
-	let progress = workflowCodeImplementationProgressCreate();
-	for (let index = 0; index < 3; index += 1) {
-		progress = workflowCodeImplementationProgressRecord(progress, {
-			operation: "edit",
-			path: "src/account.ts",
-			excerpt: "return valid;",
-			characterCount: 13,
-		});
-	}
-
-	assert.equal(workflowCodeImplementationProgressDue(progress), true);
-	assert.equal(
-		workflowCodeImplementationProgressDue(workflowCodeImplementationProgressReset(progress)),
-		false,
-	);
-});
-
-test("one coherent large edit is recorded but never rejected by size", () => {
-	const progress = workflowCodeImplementationProgressRecord(
-		workflowCodeImplementationProgressCreate(),
-		{
-			operation: "write",
-			path: "src/parser.ts",
-			excerpt: "x".repeat(5_000),
-			characterCount: 5_000,
-		},
-	);
-
-	assert.equal(progress.productionEditCount, 1);
-	assert.equal(workflowCodeImplementationProgressDue(progress), true);
-});
-
-test("test and documentation edits do not consume implementation progress", () => {
-	let progress = workflowCodeImplementationProgressCreate();
-	for (const path of ["tests/account.test.ts", "README.md"]) {
-		progress = workflowCodeImplementationProgressRecord(progress, {
-			operation: "edit",
-			path,
-			excerpt: "changed",
-			characterCount: 7,
-		});
-	}
-
-	assert.deepEqual(progress, workflowCodeImplementationProgressCreate());
 });
 
 test("green and explicitly skipped cycles can complete", () => {

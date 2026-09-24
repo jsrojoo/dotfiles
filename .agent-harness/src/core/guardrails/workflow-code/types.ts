@@ -36,6 +36,21 @@ export interface WorkflowCodeTestEvidence {
 	output: string;
 }
 
+export interface ObjectiveAlignmentState {
+	changes: WorkflowCodeChange[];
+	completed: boolean;
+	haltedFeedback?: string;
+	implementationProgress: WorkflowCodeImplementationProgress;
+	previousFeedback: string[];
+	sourceChangedSinceGreen: boolean;
+}
+
+export interface ObjectiveAlignmentChangeDecision {
+	block: boolean;
+	milestone?: "implementation";
+	reason?: string;
+}
+
 export interface WorkflowCodeJudgeRequest {
 	milestone: WorkflowCodeMilestone;
 	objective: string;

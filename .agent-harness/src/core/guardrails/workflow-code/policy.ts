@@ -1,16 +1,12 @@
 import type {
-	WorkflowCodeChange,
 	WorkflowCodeCompletionDecision,
-	WorkflowCodeImplementationProgress,
 	WorkflowCodePathKind,
 	WorkflowCodeState,
 	WorkflowCodeWriteDecision,
 } from "./types.ts";
 
 export type {
-	WorkflowCodeChange,
 	WorkflowCodeCompletionDecision,
-	WorkflowCodeImplementationProgress,
 	WorkflowCodePathKind,
 	WorkflowCodeState,
 	WorkflowCodeWriteDecision,
@@ -19,8 +15,6 @@ export type {
 const SOURCE_FILE_PATTERN = /\.(?:c|cc|cpp|cs|go|h|hpp|java|js|jsx|kt|mjs|cjs|php|py|rb|rs|scala|sh|bash|swift|ts|tsx)$/i;
 const TEST_DIRECTORY_PATTERN = /(?:^|[\\/])(?:__tests__|tests?)(?:[\\/]|$)/i;
 const TEST_FILE_PATTERN = /(?:^|[\\/])(?:test_[^\\/]+|[^\\/]+\.(?:test|spec)\.[a-z0-9]+|[^\\/]+_test\.[a-z0-9]+)$/i;
-const IMPLEMENTATION_CHARACTER_MILESTONE = 4_000;
-const IMPLEMENTATION_EDIT_MILESTONE = 3;
 const TEST_COMMAND_PATTERNS = [
 	/\b(?:pytest|py\.test|jest|vitest|mocha|rspec|phpunit)\b/i,
 	/\bpython(?:\d+(?:\.\d+)*)?\s+-m\s+(?:pytest|unittest)\b/i,
@@ -35,36 +29,6 @@ const TEST_COMMAND_PATTERNS = [
 	/\bswift\s+test\b/i,
 	/\bmake\s+test\b/i,
 ];
-
-export function workflowCodeImplementationProgressCreate(): WorkflowCodeImplementationProgress {
-	return { productionCharacterCount: 0, productionEditCount: 0 };
-}
-
-export function workflowCodeImplementationProgressRecord(
-	progress: WorkflowCodeImplementationProgress,
-	change: WorkflowCodeChange,
-): WorkflowCodeImplementationProgress {
-	if (workflowCodePathClassify(change.path) !== "source") return progress;
-	return {
-		productionCharacterCount: progress.productionCharacterCount + change.characterCount,
-		productionEditCount: progress.productionEditCount + 1,
-	};
-}
-
-export function workflowCodeImplementationProgressDue(
-	progress: WorkflowCodeImplementationProgress,
-): boolean {
-	return (
-		progress.productionCharacterCount >= IMPLEMENTATION_CHARACTER_MILESTONE ||
-		progress.productionEditCount >= IMPLEMENTATION_EDIT_MILESTONE
-	);
-}
-
-export function workflowCodeImplementationProgressReset(
-	_progress: WorkflowCodeImplementationProgress,
-): WorkflowCodeImplementationProgress {
-	return workflowCodeImplementationProgressCreate();
-}
 
 export function workflowCodeStateCreate(): WorkflowCodeState {
 	return { phase: "locked", reminderSent: false };

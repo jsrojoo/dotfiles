@@ -8,32 +8,30 @@ import type {
 } from "@earendil-works/pi-coding-agent";
 import { workflowCodeJudgeRun } from "#agent-harness/core/guardrails/workflow-code/judge";
 import {
-	workflowCodeImplementationProgressCreate,
-	workflowCodeImplementationProgressDue,
-	workflowCodeImplementationProgressRecord,
-	workflowCodeImplementationProgressReset,
-	workflowCodePathClassify,
-	workflowCodeTestCommandIsRecognized,
-} from "#agent-harness/core/guardrails/workflow-code/policy";
+	objectiveAlignmentChangeEvaluate,
+	objectiveAlignmentChangeRecord,
+	objectiveAlignmentCompletionDue,
+	objectiveAlignmentCourseCorrect,
+	objectiveAlignmentOutcomeApply,
+	objectiveAlignmentStateCreate,
+	objectiveAlignmentTestMilestoneSelect,
+} from "#agent-harness/core/guardrails/workflow-code/enforce-objective-alignment";
+import { workflowCodeTestCommandIsRecognized } from "#agent-harness/core/guardrails/workflow-code/policy";
 import type {
+	ObjectiveAlignmentState,
 	WorkflowCodeChange,
-	WorkflowCodeImplementationProgress,
 	WorkflowCodeJudgeOutcome,
 	WorkflowCodeJudgeRequest,
 	WorkflowCodeTestEvidence,
 } from "#agent-harness/core/guardrails/workflow-code/types";
 
 interface SessionScopeState {
-	changes: WorkflowCodeChange[];
-	completionCorrectionSent: boolean;
+	alignment: ObjectiveAlignmentState;
 	conversationContext: string[];
-	implementationProgress: WorkflowCodeImplementationProgress;
 	judgeCache: Map<string, WorkflowCodeJudgeOutcome>;
 	objective: string;
+	objectiveEditArmed?: boolean;
 	pendingChanges: Map<string, WorkflowCodeChange>;
-	previousFeedback: string[];
-	redRevisionFeedback?: string;
-	sourceChangedSinceGreen: boolean;
 }
 
 type PiJudgeComplete = (prompt: string, ctx: ExtensionContext) => Promise<string>;
@@ -45,7 +43,13 @@ interface WorkflowCodeJudgeCheckEntry {
 	verdict: WorkflowCodeJudgeOutcome["verdict"];
 }
 
+interface WorkflowCodeObjectiveEntry {
+	objective: string;
+	timestamp: number;
+}
+
 const JUDGE_CHECK_ENTRY = "workflow-code-judge-check";
+const OBJECTIVE_ENTRY = "workflow-code-objective";
 
 function guardrailDisabled(): boolean {
 	return (
@@ -124,6 +128,9 @@ function judgeFeedbackBuild(outcome: WorkflowCodeJudgeOutcome): string {
 	return [
 		`Workflow-code judge: ${outcome.summary}`,
 		requiredChanges ? `Required changes:\n${requiredChanges}` : "",
+		outcome.verdict === "revise"
+			? "Stop and ask the user for feedback before using more tools."
+			: "",
 	]
 		.filter(Boolean)
 		.join("\n");
@@ -171,10 +178,10 @@ async function piJudgeComplete(prompt: string, ctx: ExtensionContext): Promise<s
 	return text;
 }
 
-export function objectiveScopeEnforcementCreate(
+export function objectiveAlignmentEnforcementCreate(
 	judgeComplete: PiJudgeComplete = piJudgeComplete,
 ): (pi: ExtensionAPI) => void {
-	return function objectiveScopeEnforcementRegister(pi: ExtensionAPI): void {
+	return function objectiveAlignmentEnforcementRegister(pi: ExtensionAPI): void {
 		const sessions = new Map<string, SessionScopeState>();
 
 		pi.registerEntryRenderer<WorkflowCodeJudgeCheckEntry>(
@@ -192,6 +199,16 @@ export function objectiveScopeEnforcementCreate(
 				};
 			},
 		);
+		pi.registerEntryRenderer<WorkflowCodeObjectiveEntry>(
+			OBJECTIVE_ENTRY,
+			(entry, { expanded }) => ({
+				render: () => [
+					"[workflow objective]",
+					...(expanded ? [entry.data.objective] : []),
+				],
+				invalidate: () => undefined,
+			}),
+		);
 
 		function sessionGet(ctx: ExtensionContext): SessionScopeState {
 			const sessionId = ctx.sessionManager.getSessionId();
@@ -199,15 +216,11 @@ export function objectiveScopeEnforcementCreate(
 			if (existing) return existing;
 
 			const created: SessionScopeState = {
-				changes: [],
-				completionCorrectionSent: false,
+				alignment: objectiveAlignmentStateCreate(),
 				conversationContext: [],
-				implementationProgress: workflowCodeImplementationProgressCreate(),
 				judgeCache: new Map(),
 				objective: "",
 				pendingChanges: new Map(),
-				previousFeedback: [],
-				sourceChangedSinceGreen: false,
 			};
 			sessions.set(sessionId, created);
 			return created;
@@ -245,11 +258,39 @@ export function objectiveScopeEnforcementCreate(
 				milestone,
 				objective: session.objective,
 				conversationContext: session.conversationContext,
-				changes: session.changes,
+				changes: session.alignment.changes,
 				test,
-				previousFeedback: session.previousFeedback,
+				previousFeedback: session.alignment.previousFeedback,
 			};
 		}
+
+		pi.on("session_start", (_event, ctx) => {
+			const latest = ctx.sessionManager
+				.getBranch()
+				.slice()
+				.reverse()
+				.find(
+					(entry) =>
+						entry.type === "custom" && entry.customType === OBJECTIVE_ENTRY,
+				);
+			if (!latest || latest.type !== "custom") return;
+			const data = latest.data as Partial<WorkflowCodeObjectiveEntry> | undefined;
+			if (typeof data?.objective === "string") sessionGet(ctx).objective = data.objective;
+		});
+
+		pi.registerCommand("workflow-objective-edit", {
+			description: "Load the current workflow objective into the editor",
+			handler: async (_args, ctx) => {
+				const session = sessionGet(ctx);
+				if (!session.objective.trim()) {
+					ctx.ui.notify("No workflow objective is active.", "warning");
+					return;
+				}
+				session.objectiveEditArmed = true;
+				ctx.ui.setEditorText(session.objective);
+				ctx.ui.notify("Objective loaded. Press Ctrl+G to edit externally, then submit.", "info");
+			},
+		});
 
 		pi.on("input", (event, ctx) => {
 			if (
@@ -259,16 +300,27 @@ export function objectiveScopeEnforcementCreate(
 			) return;
 
 			const session = sessionGet(ctx);
-			session.changes = [];
-			session.completionCorrectionSent = false;
+			const objectiveComplete = session.alignment.completed;
+			const objectiveEdited = session.objectiveEditArmed === true;
+			const courseCorrection = objectiveEdited || Boolean(session.alignment.haltedFeedback);
+			session.alignment = courseCorrection
+				? objectiveAlignmentCourseCorrect(session.alignment)
+				: objectiveComplete
+					? objectiveAlignmentStateCreate()
+					: session.alignment;
 			session.conversationContext = conversationContextBuild(ctx);
-			session.implementationProgress = workflowCodeImplementationProgressCreate();
 			session.judgeCache.clear();
-			session.objective = event.text;
+			if (!session.objective || objectiveComplete || objectiveEdited) {
+				session.objective = event.text;
+			}
+			if (objectiveEdited) {
+				pi.appendEntry<WorkflowCodeObjectiveEntry>(OBJECTIVE_ENTRY, {
+					objective: session.objective,
+					timestamp: Date.now(),
+				});
+			}
+			session.objectiveEditArmed = false;
 			session.pendingChanges.clear();
-			session.previousFeedback = [];
-			session.redRevisionFeedback = undefined;
-			session.sourceChangedSinceGreen = false;
 		});
 
 		pi.on(
@@ -282,27 +334,26 @@ export function objectiveScopeEnforcementCreate(
 				if (!change) return;
 
 				const session = sessionGet(ctx);
-				const sourceChange = workflowCodePathClassify(change.path) === "source";
-				if (sourceChange && session.redRevisionFeedback) {
-					return { block: true, reason: session.redRevisionFeedback };
+				const decision = objectiveAlignmentChangeEvaluate(session.alignment, change);
+				if (decision.block) {
+					return { block: true, reason: decision.reason, terminate: true };
 				}
 
-				if (
-					sourceChange &&
-					workflowCodeImplementationProgressDue(session.implementationProgress)
-				) {
+				if (decision.milestone) {
 					const outcome = await judgeRun(session, ctx, {
-						...requestBuild(session, "implementation"),
-						changes: [...session.changes, change],
+						...requestBuild(session, decision.milestone),
+						changes: [...session.alignment.changes, change],
 					});
-					if (outcome.verdict === "revise") {
-						const feedback = judgeFeedbackBuild(outcome);
-						session.previousFeedback.push(feedback);
-						return { block: true, reason: feedback };
-					}
-					session.implementationProgress = workflowCodeImplementationProgressReset(
-						session.implementationProgress,
+					const feedback = judgeFeedbackBuild(outcome);
+					session.alignment = objectiveAlignmentOutcomeApply(
+						session.alignment,
+						decision.milestone,
+						outcome,
+						feedback,
 					);
+					if (outcome.verdict === "revise") {
+						return { block: true, reason: feedback, terminate: true };
+					}
 				}
 
 				session.pendingChanges.set(event.toolCallId, change);
@@ -322,29 +373,20 @@ export function objectiveScopeEnforcementCreate(
 					const change = session.pendingChanges.get(event.toolCallId);
 					session.pendingChanges.delete(event.toolCallId);
 					if (!change || event.isError) return;
-
-					session.changes.push(change);
-					session.implementationProgress = workflowCodeImplementationProgressRecord(
-						session.implementationProgress,
+					session.alignment = objectiveAlignmentChangeRecord(
+						session.alignment,
 						change,
 					);
-					if (workflowCodePathClassify(change.path) === "source") {
-						session.sourceChangedSinceGreen = true;
-					}
 					return;
 				}
 
 				if (event.toolName !== "bash") return;
 				const test = testEvidenceBuild(event);
 				if (!workflowCodeTestCommandIsRecognized(test.command)) return;
-
-				const milestone = event.isError
-					? session.sourceChangedSinceGreen
-						? undefined
-						: "red"
-					: session.sourceChangedSinceGreen
-						? "green"
-						: undefined;
+				const milestone = objectiveAlignmentTestMilestoneSelect(
+					session.alignment,
+					event.isError,
+				);
 				if (!milestone) return;
 
 				const outcome = await judgeRun(
@@ -352,15 +394,14 @@ export function objectiveScopeEnforcementCreate(
 					ctx,
 					requestBuild(session, milestone, test),
 				);
-				if (outcome.verdict !== "revise") {
-					if (milestone === "red") session.redRevisionFeedback = undefined;
-					if (milestone === "green") session.sourceChangedSinceGreen = false;
-					return;
-				}
-
 				const feedback = judgeFeedbackBuild(outcome);
-				session.previousFeedback.push(feedback);
-				if (milestone === "red") session.redRevisionFeedback = feedback;
+				session.alignment = objectiveAlignmentOutcomeApply(
+					session.alignment,
+					milestone,
+					outcome,
+					feedback,
+				);
+				if (outcome.verdict !== "revise") return;
 				return {
 					content: [...event.content, { type: "text", text: feedback }],
 				};
@@ -371,21 +412,22 @@ export function objectiveScopeEnforcementCreate(
 			if (guardrailDisabled()) return;
 
 			const session = sessionGet(ctx);
-			const sourceChanged = session.changes.some(
-				(change) => workflowCodePathClassify(change.path) === "source",
-			);
-			if (!sourceChanged || session.completionCorrectionSent) return;
+			if (!objectiveAlignmentCompletionDue(session.alignment)) return;
 
 			const outcome = await judgeRun(
 				session,
 				ctx,
 				requestBuild(session, "completion"),
 			);
+			const feedback = judgeFeedbackBuild(outcome);
+			session.alignment = objectiveAlignmentOutcomeApply(
+				session.alignment,
+				"completion",
+				outcome,
+				feedback,
+			);
 			if (outcome.verdict !== "revise") return;
 
-			const feedback = judgeFeedbackBuild(outcome);
-			session.previousFeedback.push(feedback);
-			session.completionCorrectionSent = true;
 			return {
 				entries: [
 					{
@@ -401,4 +443,4 @@ export function objectiveScopeEnforcementCreate(
 	};
 }
 
-export default objectiveScopeEnforcementCreate();
+export default objectiveAlignmentEnforcementCreate();

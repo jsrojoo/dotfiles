@@ -5,7 +5,7 @@ Core guardrails are deterministic, runtime-independent policies. They do not imp
 Pi keeps its responsibilities separate:
 
 - `enforce-test-driven-development.ts` owns red-green state and `/tdd-skip`.
-- `enforce-objective-scope.ts` owns change journaling, LLM milestones, corrective feedback, and drift notifications.
+- `enforce-objective-alignment.ts` owns change journaling, LLM milestones, corrective feedback, and drift notifications.
 
 ## Workflow-code guardrail
 
