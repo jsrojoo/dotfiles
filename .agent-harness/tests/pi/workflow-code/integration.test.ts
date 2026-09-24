@@ -23,7 +23,6 @@ test("Pi settings load shared extensions independently of the working directory"
 		"~/dotfiles/.agent-harness/src/pi/extensions/notify.ts",
 		"~/dotfiles/.agent-harness/src/pi/extensions/sql-validation/enforce-read-only-and-proof.ts",
 		"~/dotfiles/.agent-harness/src/pi/extensions/workflow-code/register-test-driven-development.ts",
-		"~/dotfiles/.agent-harness/src/pi/extensions/workflow-code/register-objective-alignment.ts",
 	]);
 });
 

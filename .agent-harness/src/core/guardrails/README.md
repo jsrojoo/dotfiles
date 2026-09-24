@@ -7,6 +7,12 @@ Pi keeps registration separate from reusable enforcement:
 - `pi/extensions/workflow-code/register-test-driven-development.ts` maps Pi events to core TDD enforcement.
 - `pi/extensions/workflow-code/register-objective-alignment.ts` maps Pi events to core alignment enforcement, model calls, corrective feedback, and drift notifications.
 
+Objective alignment is disabled in default Pi settings while it remains experimental. Enable it for one Pi process when developing or testing:
+
+```bash
+pi -e ~/dotfiles/.agent-harness/src/pi/extensions/workflow-code/register-objective-alignment.ts
+```
+
 ## Workflow-code guardrail
 
 The workflow-code guardrail has three complementary parts:

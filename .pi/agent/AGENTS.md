@@ -6,6 +6,5 @@
 
 ## Code Editing
 
-- Delegate code changes to `editor` subagent.
-- `editor` must apply changes exclusively through `edit`; never use `bash`, `write`, or generated rewrites for code edits.
-- `editor` follows `coding` skill at `.agent-harness/src/skills/coding/SKILL.md`.
+- Apply file edits in the main agent session so guardrails observe them.
+- Do not delegate file mutations to subagents.
