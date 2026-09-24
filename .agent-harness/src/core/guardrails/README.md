@@ -1,6 +1,11 @@
 # Core guardrails
 
-Core guardrails are deterministic, runtime-independent policies. They do not import Pi, Codex, Claude, UI, session, or filesystem APIs. A harness adapter translates native events into core state transitions, supplies model completion, and owns per-session storage and user interaction.
+Core guardrails are deterministic, runtime-independent policies. They do not import Pi, Codex, Claude, UI, session, or filesystem APIs. Harness adapters translate native events into core state transitions, supply model completion, and own per-session storage and user interaction.
+
+Pi keeps its responsibilities separate:
+
+- `enforce-test-driven-development.ts` owns red-green state and `/tdd-skip`.
+- `enforce-objective-scope.ts` owns change journaling, LLM milestones, corrective feedback, and drift notifications.
 
 ## Workflow-code guardrail
 

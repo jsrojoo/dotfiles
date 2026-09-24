@@ -2,7 +2,8 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
 
-import { workflowCodeGuardrailCreate } from "#agent-harness/pi/extensions/workflow-code-guardrail";
+import { objectiveScopeEnforcementCreate } from "#agent-harness/pi/extensions/workflow-code/enforce-objective-scope";
+import { testDrivenDevelopmentEnforcementCreate } from "#agent-harness/pi/extensions/workflow-code/enforce-test-driven-development";
 
 type Handler = (event: any, context: any) => any;
 type CommandHandler = (argumentsText: string, context: any) => any;
@@ -20,7 +21,8 @@ test("Pi settings load shared extensions independently of the working directory"
 
 	assert.deepEqual(settings.extensions, [
 		"~/dotfiles/.agent-harness/src/pi/extensions/notify.ts",
-		"~/dotfiles/.agent-harness/src/pi/extensions/workflow-code-guardrail.ts",
+		"~/dotfiles/.agent-harness/src/pi/extensions/workflow-code/enforce-test-driven-development.ts",
+		"~/dotfiles/.agent-harness/src/pi/extensions/workflow-code/enforce-objective-scope.ts",
 	]);
 });
 
@@ -30,7 +32,12 @@ function harnessCreate(judgeComplete = async () => ALIGNED_VERDICT) {
 	const notifications: string[] = [];
 	const pi = {
 		on(name: string, handler: Handler) {
-			handlers.set(name, handler);
+			const previous = handlers.get(name);
+			handlers.set(name, async (event, context) => {
+				const previousResult = await previous?.(event, context);
+				const result = await handler(event, context);
+				return result ?? previousResult;
+			});
 			return () => undefined;
 		},
 		registerCommand(name: string, options: { handler: CommandHandler }) {
@@ -45,7 +52,8 @@ function harnessCreate(judgeComplete = async () => ALIGNED_VERDICT) {
 		ui: { notify: (message: string) => notifications.push(message) },
 	};
 
-	workflowCodeGuardrailCreate(judgeComplete)(pi as any);
+	testDrivenDevelopmentEnforcementCreate()(pi as any);
+	objectiveScopeEnforcementCreate(judgeComplete)(pi as any);
 	return { commands, context, handlers, notifications };
 }
 
@@ -87,6 +95,21 @@ test("Pi adapter enforces red before source edits and green before completion", 
 		context,
 	);
 	assert.equal(await beforeSettle({}, context), undefined);
+});
+
+test("Pi adapter notifies when an objective milestone is aligned", async () => {
+	const { context, handlers, notifications } = harnessCreate();
+	await handlers.get("tool_result")!(
+		{
+			toolName: "bash",
+			input: { command: "node --test account.test.ts" },
+			isError: true,
+			content: [],
+		},
+		context,
+	);
+
+	assert.match(notifications.at(-1)!, /workflow check passed.*red/i);
 });
 
 test("Pi adapter keeps source locked when the red milestone is out of scope", async () => {

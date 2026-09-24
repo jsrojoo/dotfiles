@@ -6,47 +6,34 @@ import type {
 	ToolResultEvent,
 	ToolResultEventResult,
 } from "@earendil-works/pi-coding-agent";
+import { workflowCodeJudgeRun } from "#agent-harness/core/guardrails/workflow-code/judge";
 import {
-	workflowCodeJudgeRun,
-} from "#agent-harness/core/guardrails/workflow-code/judge";
-import {
-	workflowCodeCompletionEvaluate,
 	workflowCodeImplementationProgressCreate,
 	workflowCodeImplementationProgressDue,
 	workflowCodeImplementationProgressRecord,
 	workflowCodeImplementationProgressReset,
 	workflowCodePathClassify,
-	workflowCodeStateCreate,
-	workflowCodeStateSkip,
 	workflowCodeTestCommandIsRecognized,
-	workflowCodeTestResultApply,
-	workflowCodeWriteEvaluate,
 } from "#agent-harness/core/guardrails/workflow-code/policy";
 import type {
 	WorkflowCodeChange,
 	WorkflowCodeImplementationProgress,
-	WorkflowCodeJudgeComplete,
 	WorkflowCodeJudgeOutcome,
 	WorkflowCodeJudgeRequest,
-	WorkflowCodeState,
 	WorkflowCodeTestEvidence,
 } from "#agent-harness/core/guardrails/workflow-code/types";
 
-const GREEN_REMINDER =
-	"Workflow-code guardrail: production code changed without a subsequent passing test. " +
-	"Run the narrowest relevant test now. If verification is unavailable, explain why before completing.";
-
-interface SessionGuardrailState {
+interface SessionScopeState {
 	changes: WorkflowCodeChange[];
 	completionCorrectionSent: boolean;
 	conversationContext: string[];
-	cycle: WorkflowCodeState;
 	implementationProgress: WorkflowCodeImplementationProgress;
 	judgeCache: Map<string, WorkflowCodeJudgeOutcome>;
 	objective: string;
 	pendingChanges: Map<string, WorkflowCodeChange>;
 	previousFeedback: string[];
-	skipNext?: boolean;
+	redRevisionFeedback?: string;
+	sourceChangedSinceGreen: boolean;
 }
 
 type PiJudgeComplete = (prompt: string, ctx: ExtensionContext) => Promise<string>;
@@ -133,13 +120,21 @@ function judgeFeedbackBuild(outcome: WorkflowCodeJudgeOutcome): string {
 		.join("\n");
 }
 
-function judgeRevisionNotify(
+function judgeOutcomeNotify(
 	ctx: ExtensionContext,
 	milestone: WorkflowCodeJudgeRequest["milestone"],
 	outcome: WorkflowCodeJudgeOutcome,
 ): void {
 	const summary = outcome.summary.replace(/\s+/g, " ").trim();
-	ctx.ui.notify(`Workflow drift detected (${milestone}): ${summary}`, "warning");
+	if (outcome.verdict === "aligned") {
+		ctx.ui.notify(`Workflow check passed (${milestone}): ${summary}`, "info");
+		return;
+	}
+	if (outcome.verdict === "revise") {
+		ctx.ui.notify(`Workflow drift detected (${milestone}): ${summary}`, "warning");
+		return;
+	}
+	ctx.ui.notify(summary, "warning");
 }
 
 async function piJudgeComplete(prompt: string, ctx: ExtensionContext): Promise<string> {
@@ -167,34 +162,34 @@ async function piJudgeComplete(prompt: string, ctx: ExtensionContext): Promise<s
 	return text;
 }
 
-export function workflowCodeGuardrailCreate(
+export function objectiveScopeEnforcementCreate(
 	judgeComplete: PiJudgeComplete = piJudgeComplete,
 ): (pi: ExtensionAPI) => void {
-	return function workflowCodeGuardrailRegister(pi: ExtensionAPI): void {
-		const sessions = new Map<string, SessionGuardrailState>();
+	return function objectiveScopeEnforcementRegister(pi: ExtensionAPI): void {
+		const sessions = new Map<string, SessionScopeState>();
 
-		function sessionGet(ctx: ExtensionContext): SessionGuardrailState {
+		function sessionGet(ctx: ExtensionContext): SessionScopeState {
 			const sessionId = ctx.sessionManager.getSessionId();
 			const existing = sessions.get(sessionId);
 			if (existing) return existing;
 
-			const created: SessionGuardrailState = {
+			const created: SessionScopeState = {
 				changes: [],
 				completionCorrectionSent: false,
 				conversationContext: [],
-				cycle: workflowCodeStateCreate(),
 				implementationProgress: workflowCodeImplementationProgressCreate(),
 				judgeCache: new Map(),
 				objective: "",
 				pendingChanges: new Map(),
 				previousFeedback: [],
+				sourceChangedSinceGreen: false,
 			};
 			sessions.set(sessionId, created);
 			return created;
 		}
 
 		async function judgeRun(
-			session: SessionGuardrailState,
+			session: SessionScopeState,
 			ctx: ExtensionContext,
 			request: WorkflowCodeJudgeRequest,
 		): Promise<WorkflowCodeJudgeOutcome> {
@@ -206,14 +201,12 @@ export function workflowCodeGuardrailCreate(
 				judgeComplete(prompt, ctx),
 			);
 			session.judgeCache.set(key, outcome);
-			if (outcome.verdict === "unavailable") {
-				ctx.ui.notify(outcome.summary, "warning");
-			}
+			judgeOutcomeNotify(ctx, request.milestone, outcome);
 			return outcome;
 		}
 
 		function requestBuild(
-			session: SessionGuardrailState,
+			session: SessionScopeState,
 			milestone: WorkflowCodeJudgeRequest["milestone"],
 			test?: WorkflowCodeTestEvidence,
 		): WorkflowCodeJudgeRequest {
@@ -227,15 +220,6 @@ export function workflowCodeGuardrailCreate(
 			};
 		}
 
-		pi.registerCommand("tdd-skip", {
-			description: "Disable the TDD guardrail for the next request",
-			handler: async (_args, ctx) => {
-				const session = sessionGet(ctx);
-				session.skipNext = true;
-				ctx.ui.notify("TDD guardrail disabled for the next request.", "info");
-			},
-		});
-
 		pi.on("input", (event, ctx) => {
 			if (
 				event.source === "extension" ||
@@ -247,15 +231,13 @@ export function workflowCodeGuardrailCreate(
 			session.changes = [];
 			session.completionCorrectionSent = false;
 			session.conversationContext = conversationContextBuild(ctx);
-			session.cycle = session.skipNext
-				? workflowCodeStateSkip(workflowCodeStateCreate())
-				: workflowCodeStateCreate();
 			session.implementationProgress = workflowCodeImplementationProgressCreate();
 			session.judgeCache.clear();
 			session.objective = event.text;
 			session.pendingChanges.clear();
 			session.previousFeedback = [];
-			session.skipNext = false;
+			session.redRevisionFeedback = undefined;
+			session.sourceChangedSinceGreen = false;
 		});
 
 		pi.on(
@@ -269,11 +251,13 @@ export function workflowCodeGuardrailCreate(
 				if (!change) return;
 
 				const session = sessionGet(ctx);
-				const decision = workflowCodeWriteEvaluate(session.cycle, change.path);
-				if (decision.block) return { block: true, reason: decision.reason };
+				const sourceChange = workflowCodePathClassify(change.path) === "source";
+				if (sourceChange && session.redRevisionFeedback) {
+					return { block: true, reason: session.redRevisionFeedback };
+				}
 
 				if (
-					workflowCodePathClassify(change.path) === "source" &&
+					sourceChange &&
 					workflowCodeImplementationProgressDue(session.implementationProgress)
 				) {
 					const outcome = await judgeRun(session, ctx, {
@@ -282,7 +266,6 @@ export function workflowCodeGuardrailCreate(
 					});
 					if (outcome.verdict === "revise") {
 						const feedback = judgeFeedbackBuild(outcome);
-						judgeRevisionNotify(ctx, "implementation", outcome);
 						session.previousFeedback.push(feedback);
 						return { block: true, reason: feedback };
 					}
@@ -309,15 +292,14 @@ export function workflowCodeGuardrailCreate(
 					session.pendingChanges.delete(event.toolCallId);
 					if (!change || event.isError) return;
 
-					session.cycle = workflowCodeWriteEvaluate(
-						session.cycle,
-						change.path,
-					).state;
 					session.changes.push(change);
 					session.implementationProgress = workflowCodeImplementationProgressRecord(
 						session.implementationProgress,
 						change,
 					);
+					if (workflowCodePathClassify(change.path) === "source") {
+						session.sourceChangedSinceGreen = true;
+					}
 					return;
 				}
 
@@ -326,21 +308,13 @@ export function workflowCodeGuardrailCreate(
 				if (!workflowCodeTestCommandIsRecognized(test.command)) return;
 
 				const milestone = event.isError
-					? session.cycle.phase === "locked" || session.cycle.phase === "red"
-						? "red"
-						: undefined
-					: session.cycle.phase === "code-changed"
+					? session.sourceChangedSinceGreen
+						? undefined
+						: "red"
+					: session.sourceChangedSinceGreen
 						? "green"
 						: undefined;
-
-				if (!milestone) {
-					session.cycle = workflowCodeTestResultApply(
-						session.cycle,
-						test.command,
-						event.isError,
-					);
-					return;
-				}
+				if (!milestone) return;
 
 				const outcome = await judgeRun(
 					session,
@@ -348,17 +322,14 @@ export function workflowCodeGuardrailCreate(
 					requestBuild(session, milestone, test),
 				);
 				if (outcome.verdict !== "revise") {
-					session.cycle = workflowCodeTestResultApply(
-						session.cycle,
-						test.command,
-						event.isError,
-					);
+					if (milestone === "red") session.redRevisionFeedback = undefined;
+					if (milestone === "green") session.sourceChangedSinceGreen = false;
 					return;
 				}
 
 				const feedback = judgeFeedbackBuild(outcome);
-				judgeRevisionNotify(ctx, milestone, outcome);
 				session.previousFeedback.push(feedback);
+				if (milestone === "red") session.redRevisionFeedback = feedback;
 				return {
 					content: [...event.content, { type: "text", text: feedback }],
 				};
@@ -369,22 +340,6 @@ export function workflowCodeGuardrailCreate(
 			if (guardrailDisabled()) return;
 
 			const session = sessionGet(ctx);
-			const completion = workflowCodeCompletionEvaluate(session.cycle);
-			session.cycle = completion.state;
-			if (completion.remind) {
-				return {
-					entries: [
-						{
-							type: "custom_message" as const,
-							customType: "workflow-code-guardrail",
-							content: GREEN_REMINDER,
-							display: false,
-						},
-					],
-					continue: true,
-				};
-			}
-
 			const sourceChanged = session.changes.some(
 				(change) => workflowCodePathClassify(change.path) === "source",
 			);
@@ -398,7 +353,6 @@ export function workflowCodeGuardrailCreate(
 			if (outcome.verdict !== "revise") return;
 
 			const feedback = judgeFeedbackBuild(outcome);
-			judgeRevisionNotify(ctx, "completion", outcome);
 			session.previousFeedback.push(feedback);
 			session.completionCorrectionSent = true;
 			return {
@@ -416,4 +370,4 @@ export function workflowCodeGuardrailCreate(
 	};
 }
 
-export default workflowCodeGuardrailCreate();
+export default objectiveScopeEnforcementCreate();
