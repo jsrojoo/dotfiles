@@ -5,8 +5,6 @@ export interface AgentConfig {
 	description: string;
 	tools?: string[];
 	model?: string;
-	/** Max output tokens per generation, enforced by code-size-guardrail via PI_CODE_TOKEN_BUDGET. */
-	maxOutputTokens?: number;
 	systemPrompt: string;
 	source: "user" | "project";
 	filePath: string;

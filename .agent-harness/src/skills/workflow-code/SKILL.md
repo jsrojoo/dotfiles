@@ -30,6 +30,7 @@ Use only the stages relevant to the task. Do not force this structure onto simpl
 ## Implementation
 
 - Make the smallest complete change that addresses the root cause.
+- Add only code required by the objective; do not fragment a coherent change merely to satisfy an arbitrary size limit.
 - Preserve existing behavior unless the task explicitly changes it.
 - Match the repository's architecture, naming, formatting, and error-handling conventions.
 - Keep changes surgical; avoid unrelated cleanup and speculative abstractions.

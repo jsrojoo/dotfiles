@@ -14,11 +14,15 @@ A harness adapter follows this lifecycle:
 
 1. Capture the current objective and relevant conversation context when a request starts.
 2. Before a write, call `workflowCodeWriteEvaluate()` and persist its returned state.
-3. After a recognized test command, call the judge at the red or green milestone.
-4. Apply `workflowCodeTestResultApply()` only when the judge returns `aligned` or is unavailable.
-5. Before completion, call `workflowCodeCompletionEvaluate()`, then run the completion judge when deterministic verification is satisfied.
-6. Use `workflowCodeStateSkip()` when the user activates a one-request TDD kill switch.
+3. Record successful production edits with `workflowCodeImplementationProgressRecord()`.
+4. When implementation progress is due, run an `implementation` judge before allowing the next production edit.
+5. After a recognized test command, call the judge at the red or green milestone.
+6. Apply `workflowCodeTestResultApply()` only when the judge returns `aligned` or is unavailable.
+7. Before completion, call `workflowCodeCompletionEvaluate()`, then run the completion judge when deterministic verification is satisfied.
+8. Use `workflowCodeStateSkip()` when the user activates a one-request TDD kill switch.
 
-The judge receives bounded objective, conversation, change-journal, test, and prior-feedback data. It may request revision only with concrete evidence tied to the user's objective. It must not invent requirements, redesign the solution, or block subjective improvements. Malformed or unavailable judge responses fail open after one retry so model availability cannot deadlock implementation.
+The judge receives bounded objective, conversation, change-journal, test, and prior-feedback data. It may request revision only with concrete evidence tied to the user's objective. It must not invent requirements, redesign the solution, reject a coherent change merely because it is large, or block subjective improvements. Harness adapters surface every `revise` verdict as a visible warning in addition to agent-facing corrective feedback. Malformed or unavailable judge responses fail open after one retry so model availability cannot deadlock implementation.
+
+Implementation progress becomes due after three successful production edits or 4,000 characters of new production content. The current edit is never rejected merely for crossing that threshold; the judge checks alignment before the following production edit. An aligned checkpoint resets the progress counters.
 
 The core policy does not claim that a failing test is relevant solely from its exit code; the red milestone judge performs that semantic check. Harness adapters may add persistence, notifications, and kill switches, but must not duplicate or redefine core policy.

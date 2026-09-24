@@ -17,8 +17,8 @@
   ],
   "hideThinkingBlock": false,
   "extensions": [
-    "../../.agent-harness/src/pi/extensions/notify.ts",
-    "../../.agent-harness/src/pi/extensions/workflow-code-guardrail.ts"
+    "~/dotfiles/.agent-harness/src/pi/extensions/notify.ts",
+    "~/dotfiles/.agent-harness/src/pi/extensions/workflow-code-guardrail.ts"
   ],
   "skills": [
     "/Users/josephrojo/dotfiles/.codex/plugins/cache/aitrium-dev-workspace-local/aitrium-dev-workspace/0.1.0+codex.20260603191627/skills"

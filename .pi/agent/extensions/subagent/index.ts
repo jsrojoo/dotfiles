@@ -306,7 +306,6 @@ async function runSingleAgent(
 	signal: AbortSignal | undefined,
 	onUpdate: OnUpdateCallback | undefined,
 	makeDetails: (results: SingleResult[]) => SubagentDetails,
-	maxOutputTokens: number | undefined,
 ): Promise<SingleResult> {
 	const agent = agents.find((a) => a.name === agentName);
 
@@ -369,15 +368,11 @@ async function runSingleAgent(
 
 		const exitCode = await new Promise<number>((resolve) => {
 			const invocation = getPiInvocation(args);
-			const effectiveMaxOutputTokens = maxOutputTokens ?? agent.maxOutputTokens;
-			const env = effectiveMaxOutputTokens
-				? { ...process.env, PI_CODE_TOKEN_BUDGET: String(effectiveMaxOutputTokens) }
-				: process.env;
 			const proc = spawn(invocation.command, invocation.args, {
 				cwd: cwd ?? defaultCwd,
 				shell: false,
 				stdio: ["ignore", "pipe", "pipe"],
-				env,
+				env: process.env,
 			});
 			let buffer = "";
 
@@ -474,14 +469,12 @@ const TaskItem = Type.Object({
 	agent: Type.String({ description: "Name of the agent to invoke" }),
 	task: Type.String({ description: "Task to delegate to the agent" }),
 	cwd: Type.Optional(Type.String({ description: "Working directory for the agent process" })),
-	maxOutputTokens: Type.Optional(Type.Number({ description: "Override max output tokens per write/edit call, enforced by the code-size guard" })),
 });
 
 const ChainItem = Type.Object({
 	agent: Type.String({ description: "Name of the agent to invoke" }),
 	task: Type.String({ description: "Task with optional {previous} placeholder for prior output" }),
 	cwd: Type.Optional(Type.String({ description: "Working directory for the agent process" })),
-	maxOutputTokens: Type.Optional(Type.Number({ description: "Override max output tokens per write/edit call, enforced by the code-size guard" })),
 });
 
 const AgentScopeSchema = StringEnum(["user", "project", "both"] as const, {
@@ -499,7 +492,6 @@ const SubagentParams = Type.Object({
 		Type.Boolean({ description: "Prompt before running project-local agents. Default: true.", default: true }),
 	),
 	cwd: Type.Optional(Type.String({ description: "Working directory for the agent process (single mode)" })),
-	maxOutputTokens: Type.Optional(Type.Number({ description: "Override max output tokens per write/edit call for single mode, enforced by the code-size guard" })),
 });
 
 export default function (pi: ExtensionAPI) {
@@ -621,7 +613,6 @@ export default function (pi: ExtensionAPI) {
 						signal,
 						chainUpdate,
 						makeDetails("chain"),
-						step.maxOutputTokens,
 					);
 					results.push(result);
 
@@ -701,7 +692,6 @@ export default function (pi: ExtensionAPI) {
 							}
 						},
 						makeDetails("parallel"),
-						t.maxOutputTokens,
 					);
 					allResults[index] = result;
 					emitParallelUpdate();
@@ -739,7 +729,6 @@ export default function (pi: ExtensionAPI) {
 					signal,
 					onUpdate,
 					makeDetails("single"),
-					params.maxOutputTokens,
 				);
 				const isError = isFailedResult(result);
 				if (isError) {

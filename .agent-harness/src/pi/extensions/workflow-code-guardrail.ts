@@ -11,6 +11,10 @@ import {
 } from "#agent-harness/core/guardrails/workflow-code/judge";
 import {
 	workflowCodeCompletionEvaluate,
+	workflowCodeImplementationProgressCreate,
+	workflowCodeImplementationProgressDue,
+	workflowCodeImplementationProgressRecord,
+	workflowCodeImplementationProgressReset,
 	workflowCodePathClassify,
 	workflowCodeStateCreate,
 	workflowCodeStateSkip,
@@ -20,6 +24,7 @@ import {
 } from "#agent-harness/core/guardrails/workflow-code/policy";
 import type {
 	WorkflowCodeChange,
+	WorkflowCodeImplementationProgress,
 	WorkflowCodeJudgeComplete,
 	WorkflowCodeJudgeOutcome,
 	WorkflowCodeJudgeRequest,
@@ -36,8 +41,10 @@ interface SessionGuardrailState {
 	completionCorrectionSent: boolean;
 	conversationContext: string[];
 	cycle: WorkflowCodeState;
+	implementationProgress: WorkflowCodeImplementationProgress;
 	judgeCache: Map<string, WorkflowCodeJudgeOutcome>;
 	objective: string;
+	pendingChanges: Map<string, WorkflowCodeChange>;
 	previousFeedback: string[];
 	skipNext?: boolean;
 }
@@ -81,10 +88,12 @@ function conversationContextBuild(ctx: ExtensionContext): string[] {
 function changeBuild(event: ToolCallEvent): WorkflowCodeChange | undefined {
 	if (event.toolName === "write") {
 		const input = event.input as { content?: string; path?: string };
+		const content = String(input.content ?? "");
 		return {
 			operation: "write",
 			path: String(input.path ?? ""),
-			excerpt: String(input.content ?? ""),
+			excerpt: content,
+			characterCount: content.length,
 		};
 	}
 	if (event.toolName === "edit") {
@@ -92,10 +101,15 @@ function changeBuild(event: ToolCallEvent): WorkflowCodeChange | undefined {
 			edits?: Array<{ oldText?: string; newText?: string }>;
 			path?: string;
 		};
+		const edits = input.edits ?? [];
 		return {
 			operation: "edit",
 			path: String(input.path ?? ""),
-			excerpt: JSON.stringify(input.edits ?? []),
+			excerpt: JSON.stringify(edits),
+			characterCount: edits.reduce(
+				(total, edit) => total + String(edit.newText ?? "").length,
+				0,
+			),
 		};
 	}
 	return undefined;
@@ -117,6 +131,15 @@ function judgeFeedbackBuild(outcome: WorkflowCodeJudgeOutcome): string {
 	]
 		.filter(Boolean)
 		.join("\n");
+}
+
+function judgeRevisionNotify(
+	ctx: ExtensionContext,
+	milestone: WorkflowCodeJudgeRequest["milestone"],
+	outcome: WorkflowCodeJudgeOutcome,
+): void {
+	const summary = outcome.summary.replace(/\s+/g, " ").trim();
+	ctx.ui.notify(`Workflow drift detected (${milestone}): ${summary}`, "warning");
 }
 
 async function piJudgeComplete(prompt: string, ctx: ExtensionContext): Promise<string> {
@@ -160,8 +183,10 @@ export function workflowCodeGuardrailCreate(
 				completionCorrectionSent: false,
 				conversationContext: [],
 				cycle: workflowCodeStateCreate(),
+				implementationProgress: workflowCodeImplementationProgressCreate(),
 				judgeCache: new Map(),
 				objective: "",
+				pendingChanges: new Map(),
 				previousFeedback: [],
 			};
 			sessions.set(sessionId, created);
@@ -225,24 +250,48 @@ export function workflowCodeGuardrailCreate(
 			session.cycle = session.skipNext
 				? workflowCodeStateSkip(workflowCodeStateCreate())
 				: workflowCodeStateCreate();
+			session.implementationProgress = workflowCodeImplementationProgressCreate();
 			session.judgeCache.clear();
 			session.objective = event.text;
+			session.pendingChanges.clear();
 			session.previousFeedback = [];
 			session.skipNext = false;
 		});
 
 		pi.on(
 			"tool_call",
-			(event: ToolCallEvent, ctx: ExtensionContext): ToolCallEventResult | void => {
+			async (
+				event: ToolCallEvent,
+				ctx: ExtensionContext,
+			): Promise<ToolCallEventResult | void> => {
 				if (guardrailDisabled()) return;
 				const change = changeBuild(event);
 				if (!change) return;
 
 				const session = sessionGet(ctx);
 				const decision = workflowCodeWriteEvaluate(session.cycle, change.path);
-				session.cycle = decision.state;
 				if (decision.block) return { block: true, reason: decision.reason };
-				session.changes.push(change);
+
+				if (
+					workflowCodePathClassify(change.path) === "source" &&
+					workflowCodeImplementationProgressDue(session.implementationProgress)
+				) {
+					const outcome = await judgeRun(session, ctx, {
+						...requestBuild(session, "implementation"),
+						changes: [...session.changes, change],
+					});
+					if (outcome.verdict === "revise") {
+						const feedback = judgeFeedbackBuild(outcome);
+						judgeRevisionNotify(ctx, "implementation", outcome);
+						session.previousFeedback.push(feedback);
+						return { block: true, reason: feedback };
+					}
+					session.implementationProgress = workflowCodeImplementationProgressReset(
+						session.implementationProgress,
+					);
+				}
+
+				session.pendingChanges.set(event.toolCallId, change);
 			},
 		);
 
@@ -252,11 +301,30 @@ export function workflowCodeGuardrailCreate(
 				event: ToolResultEvent,
 				ctx: ExtensionContext,
 			): Promise<ToolResultEventResult | void> => {
-				if (guardrailDisabled() || event.toolName !== "bash") return;
+				if (guardrailDisabled()) return;
+				const session = sessionGet(ctx);
+
+				if (event.toolName === "edit" || event.toolName === "write") {
+					const change = session.pendingChanges.get(event.toolCallId);
+					session.pendingChanges.delete(event.toolCallId);
+					if (!change || event.isError) return;
+
+					session.cycle = workflowCodeWriteEvaluate(
+						session.cycle,
+						change.path,
+					).state;
+					session.changes.push(change);
+					session.implementationProgress = workflowCodeImplementationProgressRecord(
+						session.implementationProgress,
+						change,
+					);
+					return;
+				}
+
+				if (event.toolName !== "bash") return;
 				const test = testEvidenceBuild(event);
 				if (!workflowCodeTestCommandIsRecognized(test.command)) return;
 
-				const session = sessionGet(ctx);
 				const milestone = event.isError
 					? session.cycle.phase === "locked" || session.cycle.phase === "red"
 						? "red"
@@ -289,6 +357,7 @@ export function workflowCodeGuardrailCreate(
 				}
 
 				const feedback = judgeFeedbackBuild(outcome);
+				judgeRevisionNotify(ctx, milestone, outcome);
 				session.previousFeedback.push(feedback);
 				return {
 					content: [...event.content, { type: "text", text: feedback }],
@@ -329,6 +398,7 @@ export function workflowCodeGuardrailCreate(
 			if (outcome.verdict !== "revise") return;
 
 			const feedback = judgeFeedbackBuild(outcome);
+			judgeRevisionNotify(ctx, "completion", outcome);
 			session.previousFeedback.push(feedback);
 			session.completionCorrectionSent = true;
 			return {

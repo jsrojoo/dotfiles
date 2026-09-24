@@ -1,6 +1,6 @@
 export type WorkflowCodePathKind = "source" | "test" | "other";
 export type WorkflowCodePhase = "locked" | "red" | "code-changed" | "green" | "skipped";
-export type WorkflowCodeMilestone = "red" | "green" | "completion";
+export type WorkflowCodeMilestone = "red" | "implementation" | "green" | "completion";
 
 export interface WorkflowCodeState {
 	phase: WorkflowCodePhase;
@@ -22,6 +22,12 @@ export interface WorkflowCodeChange {
 	operation: "edit" | "write";
 	path: string;
 	excerpt: string;
+	characterCount: number;
+}
+
+export interface WorkflowCodeImplementationProgress {
+	productionCharacterCount: number;
+	productionEditCount: number;
 }
 
 export interface WorkflowCodeTestEvidence {
