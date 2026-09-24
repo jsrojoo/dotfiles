@@ -27,5 +27,11 @@
   "packages": [
     "/Users/josephrojo/dotfiles/.codex/plugins/cache/ponytail/ponytail/4.10.0",
     "npm:pi-patty-bg-tasks"
-  ]
+  ],
+  "steeringMode": "one-at-a-time",
+  "tuiMode": "regular",
+  "quietStartup": false,
+  "markdown": {
+    "mermaid": "streaming"
+  }
 }
