@@ -1,9 +1,9 @@
 ---
-name: workflow-code
+name: coding
 description: Implement, refactor, and review code using focused scope, clear naming, incremental changes, and test-driven verification. Use for coding tasks that modify production behavior.
 ---
 
-# Workflow Code
+# Coding
 
 Use this workflow for implementation, refactoring, naming cleanup, and code review. Follow repository conventions and instructions before this general guidance.
 

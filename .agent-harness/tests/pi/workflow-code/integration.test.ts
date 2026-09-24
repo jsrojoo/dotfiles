@@ -27,7 +27,10 @@ test("Pi settings load shared extensions independently of the working directory"
 	]);
 });
 
-function harnessCreate(judgeComplete = async () => ALIGNED_VERDICT) {
+function harnessCreate(
+	judgeComplete = async () => ALIGNED_VERDICT,
+	branch: any[] = [],
+) {
 	const handlers = new Map<string, Handler>();
 	const commands = new Map<string, CommandHandler>();
 	const entries: Array<{ customType: string; data: any }> = [];
@@ -56,7 +59,7 @@ function harnessCreate(judgeComplete = async () => ALIGNED_VERDICT) {
 	};
 	const context = {
 		sessionManager: {
-			getBranch: () => [],
+			getBranch: () => branch,
 			getSessionId: () => "session-1",
 		},
 		ui: {
@@ -395,6 +398,55 @@ test("Pi adapter changes an active objective only through explicit editing", asy
 
 	assert.match(prompts[0], /Refactor workflow guardrails/);
 	assert.doesNotMatch(prompts[0], /Keep the preferred factory name/);
+});
+
+test("Pi adapter starts fresh objective history after aligned completion", async () => {
+	const prompts: string[] = [];
+	const { context, entries, handlers } = harnessCreate(async (prompt: string) => {
+		prompts.push(prompt);
+		return ALIGNED_VERDICT;
+	});
+	const input = handlers.get("input")!;
+	const toolCall = handlers.get("tool_call")!;
+	const toolResult = handlers.get("tool_result")!;
+	const beforeSettle = handlers.get("agent_before_settle")!;
+
+	await input({ source: "interactive", text: "First objective" }, context);
+	await toolResult({ toolName: "bash", input: { command: "pytest" }, isError: true, content: [] }, context);
+	await toolCall({ toolCallId: "old-edit", toolName: "edit", input: { path: "src/old.ts", edits: [{ newText: "old-change" }] } }, context);
+	await toolResult({ toolCallId: "old-edit", toolName: "edit", input: {}, isError: false }, context);
+	await toolResult({ toolName: "bash", input: { command: "pytest" }, isError: false, content: [] }, context);
+	await beforeSettle({}, context);
+
+	await input({ source: "interactive", text: "Second objective" }, context);
+	await toolResult({ toolName: "bash", input: { command: "pytest" }, isError: true, content: [] }, context);
+	await toolCall({ toolCallId: "new-edit", toolName: "edit", input: { path: "src/new.ts", edits: [{ newText: "new-change" }] } }, context);
+	await toolResult({ toolCallId: "new-edit", toolName: "edit", input: {}, isError: false }, context);
+	await toolResult({ toolName: "bash", input: { command: "pytest" }, isError: false, content: [] }, context);
+	await beforeSettle({}, context);
+
+	const completionPrompts = prompts.filter((prompt) => /"milestone":"completion"/.test(prompt));
+	assert.equal(completionPrompts.length, 2);
+	assert.match(completionPrompts[1], /new-change/);
+	assert.doesNotMatch(completionPrompts[1], /old-change/);
+	assert.deepEqual(entries.map((entry) => entry.customType).filter((type) => type.includes("objective")), [
+		"workflow-code-objective-start",
+		"workflow-code-objective-end",
+		"workflow-code-objective-start",
+		"workflow-code-objective-end",
+	]);
+});
+
+test("Pi adapter restores objective history from start and end entries", async () => {
+	const branch = [
+		{ type: "custom", customType: "workflow-code-objective-start", data: { objectiveId: 1, objective: "Old objective", status: "active", startedAt: 10 } },
+		{ type: "custom", customType: "workflow-code-objective-end", data: { objectiveId: 1, objective: "Old objective", status: "completed", startedAt: 10, endedAt: 20 } },
+		{ type: "custom", customType: "workflow-code-objective-start", data: { objectiveId: 2, objective: "Current objective", status: "active", startedAt: 30 } },
+	];
+	const { commands, context, getEditorText, handlers } = harnessCreate(async () => ALIGNED_VERDICT, branch);
+	await handlers.get("session_start")!({}, context);
+	await commands.get("workflow-objective-edit")!("", context);
+	assert.equal(getEditorText(), "Current objective");
 });
 
 test("Pi adapter loads the current objective for external editing", async () => {

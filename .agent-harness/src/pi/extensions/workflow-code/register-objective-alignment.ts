@@ -25,11 +25,22 @@ import type {
 	WorkflowCodeTestEvidence,
 } from "#agent-harness/core/guardrails/workflow-code/workflow-code-contracts";
 
+type WorkflowCodeObjectiveStatus = "active" | "completed" | "abandoned";
+
+interface WorkflowCodeObjective {
+	id: number;
+	text: string;
+	status: WorkflowCodeObjectiveStatus;
+	startedAt: number;
+	endedAt?: number;
+}
+
 interface SessionScopeState {
 	alignment: ObjectiveAlignmentState;
 	conversationContext: string[];
 	judgeCache: Map<string, WorkflowCodeJudgeOutcome>;
 	objective: string;
+	objectiveHistory: WorkflowCodeObjective[];
 	objectiveEditArmed?: boolean;
 	pendingChanges: Map<string, WorkflowCodeChange>;
 }
@@ -43,6 +54,21 @@ interface WorkflowCodeJudgeCheckEntry {
 	timestamp: number;
 }
 
+interface WorkflowCodeObjectiveStartEntry {
+	objectiveId: number;
+	objective: string;
+	status: "active";
+	startedAt: number;
+}
+
+interface WorkflowCodeObjectiveEndEntry {
+	objectiveId: number;
+	objective: string;
+	status: "completed";
+	startedAt: number;
+	endedAt: number;
+}
+
 interface WorkflowCodeObjectiveEntry {
 	objective: string;
 	timestamp: number;
@@ -50,6 +76,8 @@ interface WorkflowCodeObjectiveEntry {
 
 const JUDGE_CHECK_ENTRY = "workflow-code-judge-check";
 const OBJECTIVE_ENTRY = "workflow-code-objective";
+const OBJECTIVE_START_ENTRY = "workflow-code-objective-start";
+const OBJECTIVE_END_ENTRY = "workflow-code-objective-end";
 
 function guardrailDisabled(): boolean {
 	return (
@@ -203,6 +231,26 @@ export function objectiveAlignmentEnforcementCreate(
 				invalidate: () => undefined,
 			}),
 		);
+		pi.registerEntryRenderer<WorkflowCodeObjectiveStartEntry>(
+			OBJECTIVE_START_ENTRY,
+			(entry, { expanded }) => ({
+				render: () => [
+					"[workflow objective start]",
+					...(expanded ? [entry.data.objective] : []),
+				],
+				invalidate: () => undefined,
+			}),
+		);
+		pi.registerEntryRenderer<WorkflowCodeObjectiveEndEntry>(
+			OBJECTIVE_END_ENTRY,
+			(entry, { expanded }) => ({
+				render: () => [
+					"[workflow objective end]",
+					...(expanded ? [entry.data.objective] : []),
+				],
+				invalidate: () => undefined,
+			}),
+		);
 
 		function sessionGet(ctx: ExtensionContext): SessionScopeState {
 			const sessionId = ctx.sessionManager.getSessionId();
@@ -214,6 +262,7 @@ export function objectiveAlignmentEnforcementCreate(
 				conversationContext: [],
 				judgeCache: new Map(),
 				objective: "",
+				objectiveHistory: [],
 				pendingChanges: new Map(),
 			};
 			sessions.set(sessionId, created);
@@ -243,6 +292,38 @@ export function objectiveAlignmentEnforcementCreate(
 			return outcome;
 		}
 
+		function objectiveStart(session: SessionScopeState, text: string): void {
+			const startedAt = Date.now();
+			const id = session.objectiveHistory.reduce(
+				(maximum, objective) => Math.max(maximum, objective.id),
+				0,
+			) + 1;
+			const objective = { id, text, status: "active" as const, startedAt };
+			session.objectiveHistory.push(objective);
+			session.objective = text;
+			pi.appendEntry<WorkflowCodeObjectiveStartEntry>(OBJECTIVE_START_ENTRY, {
+				objectiveId: id,
+				objective: text,
+				status: "active",
+				startedAt,
+			});
+		}
+
+		function objectiveCompleteMark(session: SessionScopeState): void {
+			const objective = session.objectiveHistory.at(-1);
+			if (!objective || objective.status !== "active") return;
+			const endedAt = Date.now();
+			objective.status = "completed";
+			objective.endedAt = endedAt;
+			pi.appendEntry<WorkflowCodeObjectiveEndEntry>(OBJECTIVE_END_ENTRY, {
+				objectiveId: objective.id,
+				objective: objective.text,
+				status: "completed",
+				startedAt: objective.startedAt,
+				endedAt,
+			});
+		}
+
 		function requestBuild(
 			session: SessionScopeState,
 			milestone: WorkflowCodeJudgeRequest["milestone"],
@@ -259,17 +340,55 @@ export function objectiveAlignmentEnforcementCreate(
 		}
 
 		pi.on("session_start", (_event, ctx) => {
-			const latest = ctx.sessionManager
-				.getBranch()
-				.slice()
-				.reverse()
-				.find(
-					(entry) =>
-						entry.type === "custom" && entry.customType === OBJECTIVE_ENTRY,
-				);
-			if (!latest || latest.type !== "custom") return;
-			const data = latest.data as Partial<WorkflowCodeObjectiveEntry> | undefined;
-			if (typeof data?.objective === "string") sessionGet(ctx).objective = data.objective;
+			const session = sessionGet(ctx);
+			for (const entry of ctx.sessionManager.getBranch()) {
+				if (entry.type !== "custom") continue;
+				if (entry.customType === OBJECTIVE_START_ENTRY) {
+					const data = entry.data as Partial<WorkflowCodeObjectiveStartEntry>;
+					if (
+						typeof data.objectiveId === "number" &&
+						typeof data.objective === "string" &&
+						typeof data.startedAt === "number"
+					) {
+						session.objectiveHistory.push({
+							id: data.objectiveId,
+							text: data.objective,
+							status: "active",
+							startedAt: data.startedAt,
+						});
+						session.objective = data.objective;
+						session.alignment = objectiveAlignmentStateCreate();
+					}
+					continue;
+				}
+				if (entry.customType === OBJECTIVE_ENTRY) {
+					const data = entry.data as Partial<WorkflowCodeObjectiveEntry>;
+					const current = session.objectiveHistory.at(-1);
+					if (current?.status === "active" && typeof data.objective === "string") {
+						current.text = data.objective;
+						session.objective = data.objective;
+					}
+					continue;
+				}
+				if (entry.customType !== OBJECTIVE_END_ENTRY) continue;
+				const data = entry.data as Partial<WorkflowCodeObjectiveEndEntry>;
+				const objective = session.objectiveHistory.find((item) => item.id === data.objectiveId);
+				if (objective && typeof data.endedAt === "number") {
+					objective.status = "completed";
+					objective.endedAt = data.endedAt;
+					session.alignment = { ...session.alignment, completed: true };
+				}
+			}
+			if (!session.objectiveHistory.length) {
+				const legacy = ctx.sessionManager
+					.getBranch()
+					.slice()
+					.reverse()
+					.find((entry) => entry.type === "custom" && entry.customType === OBJECTIVE_ENTRY);
+				if (legacy?.type === "custom" && typeof (legacy.data as WorkflowCodeObjectiveEntry).objective === "string") {
+					session.objective = (legacy.data as WorkflowCodeObjectiveEntry).objective;
+				}
+			}
 		});
 
 		pi.registerCommand("workflow-objective-edit", {
@@ -304,10 +423,13 @@ export function objectiveAlignmentEnforcementCreate(
 					: session.alignment;
 			session.conversationContext = conversationContextBuild(ctx);
 			session.judgeCache.clear();
-			if (!session.objective || objectiveComplete || objectiveEdited) {
+			if (!session.objective || objectiveComplete) {
+				if (objectiveComplete) session.alignment = objectiveAlignmentStateCreate();
+				objectiveStart(session, event.text);
+			} else if (objectiveEdited) {
 				session.objective = event.text;
-			}
-			if (objectiveEdited) {
+				const current = session.objectiveHistory.at(-1);
+				if (current?.status === "active") current.text = event.text;
 				pi.appendEntry<WorkflowCodeObjectiveEntry>(OBJECTIVE_ENTRY, {
 					objective: session.objective,
 					timestamp: Date.now(),
@@ -420,7 +542,10 @@ export function objectiveAlignmentEnforcementCreate(
 				outcome,
 				feedback,
 			);
-			if (outcome.align) return;
+			if (outcome.align) {
+				objectiveCompleteMark(session);
+				return;
+			}
 
 			return {
 				entries: [

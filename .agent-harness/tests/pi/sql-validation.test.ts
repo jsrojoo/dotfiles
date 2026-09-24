@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import fs from "node:fs";
 import test from "node:test";
 
 import sqlValidationEnforcementRegister from "#agent-harness/pi/extensions/sql-validation/enforce-read-only-and-proof";
@@ -20,6 +21,11 @@ function harnessCreate() {
 	sqlValidationEnforcementRegister(pi as any);
 	return { context, handlers };
 }
+
+test("SQL proof reminder points to coding skill", () => {
+	const source = fs.readFileSync(new URL("../../src/pi/extensions/sql-validation/enforce-read-only-and-proof.ts", import.meta.url), "utf8");
+	assert.match(source, /~\\/.agents\\/skills\\/coding\\/references\\/database-sql-workflow\\.md/);
+});
 
 test("Pi adapter blocks agent-executed mutative SQL", async () => {
 	const { context, handlers } = harnessCreate();

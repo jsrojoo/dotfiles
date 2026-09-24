@@ -1,5 +1,5 @@
 ---
-name: workflow-code
+name: coding
 description: Coding conventions, naming, and TDD guidelines.
 ---
 

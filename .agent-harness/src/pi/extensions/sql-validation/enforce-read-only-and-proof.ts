@@ -13,7 +13,7 @@ import {
 } from "#agent-harness/core/guardrails/sql-validation/require-validation-proof";
 
 const REMINDER =
-	"SQL validation required. Read `~/.agents/skills/workflow-code/references/database-sql-workflow.md`. " +
+	"SQL validation required. Read `~/.agents/skills/coding/references/database-sql-workflow.md`. " +
 	"Run a successful read-only SELECT ... WHERE probe through the same driver before presenting " +
 	"data-targeting SQL; never execute mutative SQL or DDL as agent. Then resend the complete answer.";
 

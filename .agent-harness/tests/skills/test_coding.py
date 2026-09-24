@@ -4,18 +4,18 @@ import unittest
 
 
 AGENT_HARNESS_ROOT = Path(__file__).resolve().parents[2]
-SKILL_DIRECTORY = AGENT_HARNESS_ROOT / "src" / "skills" / "workflow-code"
+SKILL_DIRECTORY = AGENT_HARNESS_ROOT / "src" / "skills" / "coding"
 SKILL_PATH = SKILL_DIRECTORY / "SKILL.md"
 
 
-class WorkflowCodeSkillTest(unittest.TestCase):
+class CodingSkillTest(unittest.TestCase):
     def test_has_portable_frontmatter(self) -> None:
         content = SKILL_PATH.read_text(encoding="utf-8")
         frontmatter_match = re.match(r"---\n(.*?)\n---\n", content, re.DOTALL)
 
         self.assertIsNotNone(frontmatter_match)
         frontmatter = frontmatter_match.group(1)
-        self.assertIn("name: workflow-code", frontmatter)
+        self.assertIn("name: coding", frontmatter)
         self.assertRegex(frontmatter, r"(?m)^description: .+coding.+")
 
     def test_uses_only_bundled_references(self) -> None:
