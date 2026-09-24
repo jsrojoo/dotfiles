@@ -13,14 +13,14 @@ Objective alignment is disabled in default Pi settings while it remains experime
 pi -e ~/dotfiles/.agent-harness/src/pi/extensions/workflow-code/register-objective-alignment.ts
 ```
 
-## Workflow-code guardrail
+## Coding skill guardrail
 
-The workflow-code guardrail has three complementary parts:
+The coding skill guardrail has three complementary parts:
 
-- `workflow-code/enforce-test-driven-development.ts` enforces the deterministic red-green lifecycle.
-- `workflow-code/objective-alignment/state-machine.ts` owns objective state and milestone transitions.
-- `workflow-code/objective-alignment/llm.ts` checks semantic alignment with the user's objective.
-- `workflow-code/workflow-code-contracts.ts` defines the shared adapter contract.
+- `skills/coding/enforce-test-driven-development.ts` enforces the deterministic red-green lifecycle.
+- `skills/coding/objective-alignment/state-machine.ts` owns objective state and milestone transitions.
+- `skills/coding/objective-alignment/llm.ts` checks semantic alignment with the user's objective.
+- `skills/coding/workflow-code-contracts.ts` defines the shared adapter contract.
 
 A harness adapter follows this lifecycle:
 

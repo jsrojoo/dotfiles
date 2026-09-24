@@ -16,7 +16,7 @@ import type {
 	ToolResultEvent,
 	ToolResultEventResult,
 } from "@earendil-works/pi-coding-agent";
-import { workflowCodeJudgeRun } from "#agent-harness/core/guardrails/workflow-code/objective-alignment/llm";
+import { workflowCodeJudgeRun } from "#agent-harness/core/guardrails/skills/coding/objective-alignment/llm";
 import {
 	objectiveAlignmentChangeEvaluate,
 	objectiveAlignmentChangeRecord,
@@ -25,15 +25,15 @@ import {
 	objectiveAlignmentOutcomeApply,
 	objectiveAlignmentStateCreate,
 	objectiveAlignmentTestMilestoneSelect,
-} from "#agent-harness/core/guardrails/workflow-code/objective-alignment/state-machine";
-import { workflowCodeTestCommandIsRecognized } from "#agent-harness/core/guardrails/workflow-code/enforce-test-driven-development";
+} from "#agent-harness/core/guardrails/skills/coding/objective-alignment/state-machine";
+import { workflowCodeTestCommandIsRecognized } from "#agent-harness/core/guardrails/skills/coding/enforce-test-driven-development";
 import type {
 	ObjectiveAlignmentState,
 	WorkflowCodeChange,
 	WorkflowCodeJudgeOutcome,
 	WorkflowCodeJudgeRequest,
 	WorkflowCodeTestEvidence,
-} from "#agent-harness/core/guardrails/workflow-code/workflow-code-contracts";
+} from "#agent-harness/core/guardrails/skills/coding/workflow-code-contracts";
 
 type WorkflowCodeObjectiveStatus = "active" | "completed" | "abandoned";
 

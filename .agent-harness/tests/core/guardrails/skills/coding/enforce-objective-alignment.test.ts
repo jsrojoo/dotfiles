@@ -9,11 +9,11 @@ import {
 	objectiveAlignmentOutcomeApply,
 	objectiveAlignmentStateCreate,
 	objectiveAlignmentTestMilestoneSelect,
-} from "#agent-harness/core/guardrails/workflow-code/objective-alignment/state-machine";
+} from "#agent-harness/core/guardrails/skills/coding/objective-alignment/state-machine";
 import type {
 	WorkflowCodeChange,
 	WorkflowCodeJudgeOutcome,
-} from "#agent-harness/core/guardrails/workflow-code/workflow-code-contracts";
+} from "#agent-harness/core/guardrails/skills/coding/workflow-code-contracts";
 
 const CHANGE: WorkflowCodeChange = {
 	operation: "edit",
