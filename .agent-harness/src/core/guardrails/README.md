@@ -12,22 +12,22 @@ Pi keeps registration separate from reusable enforcement:
 The workflow-code guardrail has three complementary parts:
 
 - `workflow-code/enforce-test-driven-development.ts` enforces the deterministic red-green lifecycle.
-- `workflow-code/enforce-objective-alignment.ts` owns objective state and milestone transitions.
-- `workflow-code/judge-objective-alignment.ts` checks semantic alignment with the user's objective.
+- `workflow-code/objective-alignment/state-machine.ts` owns objective state and milestone transitions.
+- `workflow-code/objective-alignment/llm.ts` checks semantic alignment with the user's objective.
 - `workflow-code/workflow-code-contracts.ts` defines the shared adapter contract.
 
 A harness adapter follows this lifecycle:
 
-1. Capture the current objective and relevant conversation context when a request starts.
+1. Capture the current objective, relevant conversation context, and dirty workspace baseline when a request starts.
 2. Before a write, call `workflowCodeWriteEvaluate()` and persist its returned state.
-3. Record successful production edits with `workflowCodeImplementationProgressRecord()`.
+3. Reconcile mutating tool results against Git workspace state and record only net changes after the baseline. Fall back to direct edit/write events when Git state is unavailable.
 4. When implementation progress is due, run an `implementation` judge before allowing the next production edit.
-5. After a recognized test command, call the judge at the red or green milestone.
+5. Reconcile workspace state before selecting the red or green milestone for a recognized test command.
 6. Apply `workflowCodeTestResultApply()` only when the judge returns `align: true`.
-7. Before completion, call `workflowCodeCompletionEvaluate()`, then run the completion judge when deterministic verification is satisfied.
+7. Reconcile workspace state before completion, then call `workflowCodeCompletionEvaluate()` and run the completion judge when deterministic verification is satisfied.
 8. Use `workflowCodeStateSkip()` when the user activates a one-request TDD kill switch.
 
-The judge receives bounded objective, conversation, change-journal, test, and prior-feedback data. It may return `align: false` only with concrete evidence tied to the user's objective. It must not invent requirements, redesign the solution, reject a coherent change merely because it is large, or block subjective improvements. Harness adapters show an immediate milestone notification and persist each result as a session entry; `align: false` results also produce agent-facing corrective feedback. Malformed or unavailable judge responses fail open as `align: true` after one retry so model availability cannot deadlock implementation.
+The judge receives bounded objective, conversation, change-journal, test, and prior-feedback data. It may return `align: false` only with concrete evidence tied to the user's objective. It must not invent requirements, redesign the solution, reject a coherent change merely because it is large, or block subjective improvements. Aligned checks remain silent. Harness adapters show and persist only drift, rendered as objective, drift, and re-alignment guidance; `align: false` results also produce agent-facing corrective feedback. Malformed or unavailable judge responses fail open as `align: true` after one retry so model availability cannot deadlock implementation.
 
 Implementation progress becomes due after three successful production edits or 4,000 characters of new production content. The current edit is never rejected merely for crossing that threshold; the judge checks alignment before the following production edit. An aligned checkpoint resets the progress counters.
 

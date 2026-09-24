@@ -1,3 +1,13 @@
+import { createHash } from "node:crypto";
+import { execFileSync } from "node:child_process";
+import {
+	closeSync,
+	lstatSync,
+	openSync,
+	readlinkSync,
+	readSync,
+} from "node:fs";
+import { resolve } from "node:path";
 import type {
 	ExtensionAPI,
 	ExtensionContext,
@@ -6,7 +16,7 @@ import type {
 	ToolResultEvent,
 	ToolResultEventResult,
 } from "@earendil-works/pi-coding-agent";
-import { workflowCodeJudgeRun } from "#agent-harness/core/guardrails/workflow-code/judge-objective-alignment";
+import { workflowCodeJudgeRun } from "#agent-harness/core/guardrails/workflow-code/objective-alignment/llm";
 import {
 	objectiveAlignmentChangeEvaluate,
 	objectiveAlignmentChangeRecord,
@@ -15,7 +25,7 @@ import {
 	objectiveAlignmentOutcomeApply,
 	objectiveAlignmentStateCreate,
 	objectiveAlignmentTestMilestoneSelect,
-} from "#agent-harness/core/guardrails/workflow-code/enforce-objective-alignment";
+} from "#agent-harness/core/guardrails/workflow-code/objective-alignment/state-machine";
 import { workflowCodeTestCommandIsRecognized } from "#agent-harness/core/guardrails/workflow-code/enforce-test-driven-development";
 import type {
 	ObjectiveAlignmentState,
@@ -35,6 +45,24 @@ interface WorkflowCodeObjective {
 	endedAt?: number;
 }
 
+export interface ObjectiveAlignmentWorkspaceFile {
+	path: string;
+	status: string;
+	fingerprint: string;
+	excerpt: string;
+	characterCount: number;
+}
+
+export interface ObjectiveAlignmentWorkspaceSnapshot {
+	root: string;
+	files: readonly ObjectiveAlignmentWorkspaceFile[];
+}
+
+export type ObjectiveAlignmentWorkspaceRead = (
+	cwd: string,
+	includePaths?: readonly string[],
+) => ObjectiveAlignmentWorkspaceSnapshot | undefined;
+
 interface SessionScopeState {
 	alignment: ObjectiveAlignmentState;
 	conversationContext: string[];
@@ -43,14 +71,16 @@ interface SessionScopeState {
 	objectiveHistory: WorkflowCodeObjective[];
 	objectiveEditArmed?: boolean;
 	pendingChanges: Map<string, WorkflowCodeChange>;
+	workspace?: ObjectiveAlignmentWorkspaceSnapshot;
 }
 
 type PiJudgeComplete = (prompt: string, ctx: ExtensionContext) => Promise<string>;
 
 interface WorkflowCodeJudgeCheckEntry {
-	align: boolean;
+	objective: string;
+	drift: string;
+	reAlign: string;
 	milestone: WorkflowCodeJudgeRequest["milestone"];
-	summary: string;
 	timestamp: number;
 }
 
@@ -78,6 +108,113 @@ const JUDGE_CHECK_ENTRY = "workflow-code-judge-check";
 const OBJECTIVE_ENTRY = "workflow-code-objective";
 const OBJECTIVE_START_ENTRY = "workflow-code-objective-start";
 const OBJECTIVE_END_ENTRY = "workflow-code-objective-end";
+const WORKSPACE_EXCERPT_BYTES = 2_000;
+
+function workspaceFileRead(
+	root: string,
+	path: string,
+	status: string,
+): ObjectiveAlignmentWorkspaceFile {
+	const absolutePath = resolve(root, path);
+	try {
+		const stat = lstatSync(absolutePath);
+		if (stat.isSymbolicLink()) {
+			const target = readlinkSync(absolutePath);
+			return {
+				path,
+				status,
+				fingerprint: createHash("sha256").update(target).digest("hex"),
+				excerpt: target.slice(0, WORKSPACE_EXCERPT_BYTES),
+				characterCount: Buffer.byteLength(target),
+			};
+		}
+		if (!stat.isFile()) {
+			return {
+				path,
+				status,
+				fingerprint: `non-file:${stat.mode}`,
+				excerpt: "[non-file]",
+				characterCount: 0,
+			};
+		}
+
+		const hash = createHash("sha256");
+		const excerpt = Buffer.alloc(Math.min(stat.size, WORKSPACE_EXCERPT_BYTES));
+		const chunk = Buffer.alloc(64 * 1024);
+		const descriptor = openSync(absolutePath, "r");
+		let offset = 0;
+		try {
+			while (offset < stat.size) {
+				const length = readSync(descriptor, chunk, 0, chunk.length, offset);
+				if (!length) break;
+				hash.update(chunk.subarray(0, length));
+				if (offset < excerpt.length) {
+					chunk.copy(excerpt, offset, 0, Math.min(length, excerpt.length - offset));
+				}
+				offset += length;
+			}
+		} finally {
+			closeSync(descriptor);
+		}
+		return {
+			path,
+			status,
+			fingerprint: hash.digest("hex"),
+			excerpt: excerpt.toString("utf8"),
+			characterCount: stat.size,
+		};
+	} catch {
+		return {
+			path,
+			status: status === "clean" ? "deleted" : status,
+			fingerprint: "deleted",
+			excerpt: "[deleted]",
+			characterCount: 0,
+		};
+	}
+}
+
+function workspaceRead(
+	cwd: string,
+	includePaths: readonly string[] = [],
+): ObjectiveAlignmentWorkspaceSnapshot | undefined {
+	try {
+		const root = execFileSync("git", ["rev-parse", "--show-toplevel"], {
+			cwd,
+			encoding: "utf8",
+			stdio: ["ignore", "pipe", "ignore"],
+		}).trim();
+		if (!root) return undefined;
+		const output = execFileSync(
+			"git",
+			["status", "--porcelain=v1", "-z", "--untracked-files=all"],
+			{ cwd: root, encoding: "utf8", maxBuffer: 10 * 1024 * 1024 },
+		);
+		const statuses = new Map<string, string>();
+		const records = output.split("\0");
+		for (let index = 0; index < records.length; index += 1) {
+			const record = records[index];
+			if (!record) continue;
+			const status = record.slice(0, 2);
+			const path = record.slice(3);
+			statuses.set(path, status);
+			if (status.includes("R") || status.includes("C")) {
+				const sourcePath = records[index + 1];
+				if (sourcePath) statuses.set(sourcePath, `${status}:source`);
+				index += 1;
+			}
+		}
+		for (const path of includePaths) {
+			if (!statuses.has(path)) statuses.set(path, "clean");
+		}
+		return {
+			root,
+			files: [...statuses].map(([path, status]) => workspaceFileRead(root, path, status)),
+		};
+	} catch {
+		return undefined;
+	}
+}
 
 function guardrailDisabled(): boolean {
 	return (
@@ -151,6 +288,34 @@ function testEvidenceBuild(event: ToolResultEvent): WorkflowCodeTestEvidence {
 	};
 }
 
+function displayValueBuild(value: string, fallback: string): string {
+	return (value.replace(/\s+/g, " ").trim() || fallback).slice(0, 500);
+}
+
+function driftDisplayBuild(
+	objective: string,
+	outcome: WorkflowCodeJudgeOutcome,
+): WorkflowCodeJudgeCheckEntry {
+	return {
+		objective: displayValueBuild(objective, "Unspecified objective"),
+		drift: displayValueBuild(outcome.summary, "Objective drift detected"),
+		reAlign: displayValueBuild(
+			outcome.required_changes.join("; "),
+			"Review changes against objective",
+		),
+		milestone: "completion",
+		timestamp: Date.now(),
+	};
+}
+
+function driftDisplayRender(entry: WorkflowCodeJudgeCheckEntry): string[] {
+	return [
+		`Objective: ${entry.objective}`,
+		`Drift: ${entry.drift}`,
+		`Re-align: ${entry.reAlign}`,
+	];
+}
+
 function judgeFeedbackBuild(outcome: WorkflowCodeJudgeOutcome): string {
 	const requiredChanges = outcome.required_changes.map((item) => `- ${item}`).join("\n");
 	return [
@@ -160,19 +325,6 @@ function judgeFeedbackBuild(outcome: WorkflowCodeJudgeOutcome): string {
 	]
 		.filter(Boolean)
 		.join("\n");
-}
-
-function judgeOutcomeNotify(
-	ctx: ExtensionContext,
-	milestone: WorkflowCodeJudgeRequest["milestone"],
-	outcome: WorkflowCodeJudgeOutcome,
-): void {
-	const summary = outcome.summary.replace(/\s+/g, " ").trim();
-	if (outcome.align) {
-		ctx.ui.notify(`Workflow check passed (${milestone}): ${summary}`, "info");
-		return;
-	}
-	ctx.ui.notify(`Workflow drift detected (${milestone}): ${summary}`, "warning");
 }
 
 async function piJudgeComplete(prompt: string, ctx: ExtensionContext): Promise<string> {
@@ -202,24 +354,17 @@ async function piJudgeComplete(prompt: string, ctx: ExtensionContext): Promise<s
 
 export function objectiveAlignmentEnforcementCreate(
 	judgeComplete: PiJudgeComplete = piJudgeComplete,
+	workspaceStateRead: ObjectiveAlignmentWorkspaceRead = workspaceRead,
 ): (pi: ExtensionAPI) => void {
 	return function objectiveAlignmentEnforcementRegister(pi: ExtensionAPI): void {
 		const sessions = new Map<string, SessionScopeState>();
 
 		pi.registerEntryRenderer<WorkflowCodeJudgeCheckEntry>(
 			JUDGE_CHECK_ENTRY,
-			(entry, { expanded }) => {
-				const data = entry.data;
-				return {
-					render: () => [
-						`[workflow align:${data.align}] ${data.milestone}`,
-						...(expanded
-							? [data.summary, new Date(data.timestamp).toLocaleString()]
-							: []),
-					],
-					invalidate: () => undefined,
-				};
-			},
+			(entry) => ({
+				render: () => driftDisplayRender(entry.data),
+				invalidate: () => undefined,
+			}),
 		);
 		pi.registerEntryRenderer<WorkflowCodeObjectiveEntry>(
 			OBJECTIVE_ENTRY,
@@ -252,6 +397,10 @@ export function objectiveAlignmentEnforcementCreate(
 			}),
 		);
 
+		function contextCwd(ctx: ExtensionContext): string {
+			return (ctx as ExtensionContext & { cwd?: string }).cwd ?? process.cwd();
+		}
+
 		function sessionGet(ctx: ExtensionContext): SessionScopeState {
 			const sessionId = ctx.sessionManager.getSessionId();
 			const existing = sessions.get(sessionId);
@@ -264,6 +413,7 @@ export function objectiveAlignmentEnforcementCreate(
 				objective: "",
 				objectiveHistory: [],
 				pendingChanges: new Map(),
+				workspace: workspaceStateRead(contextCwd(ctx)),
 			};
 			sessions.set(sessionId, created);
 			return created;
@@ -282,17 +432,79 @@ export function objectiveAlignmentEnforcementCreate(
 				judgeComplete(prompt, ctx),
 			);
 			session.judgeCache.set(key, outcome);
-			pi.appendEntry<WorkflowCodeJudgeCheckEntry>(JUDGE_CHECK_ENTRY, {
-				align: outcome.align,
-				milestone: request.milestone,
-				summary: outcome.summary,
-				timestamp: Date.now(),
-			});
-			judgeOutcomeNotify(ctx, request.milestone, outcome);
+			if (!outcome.align) {
+				const drift = {
+					...driftDisplayBuild(session.objective, outcome),
+					milestone: request.milestone,
+				};
+				pi.appendEntry<WorkflowCodeJudgeCheckEntry>(JUDGE_CHECK_ENTRY, drift);
+				ctx.ui.notify(driftDisplayRender(drift).join("\n"), "warning");
+			}
 			return outcome;
 		}
 
-		function objectiveStart(session: SessionScopeState, text: string): void {
+		async function workspaceReconcile(
+			session: SessionScopeState,
+			ctx: ExtensionContext,
+		): Promise<boolean> {
+			const previous = session.workspace;
+			const current = workspaceStateRead(
+				contextCwd(ctx),
+				previous?.files.map((file) => file.path),
+			);
+			if (!current) return false;
+			session.workspace = current;
+			if (!previous || previous.root !== current.root) return false;
+
+			const previousFiles = new Map(previous.files.map((file) => [file.path, file]));
+			const currentFiles = new Map(current.files.map((file) => [file.path, file]));
+			const paths = new Set([...previousFiles.keys(), ...currentFiles.keys()]);
+			for (const path of paths) {
+				const before = previousFiles.get(path);
+				const after = currentFiles.get(path) ?? {
+					path,
+					status: "deleted",
+					fingerprint: "deleted",
+					excerpt: "[deleted]",
+					characterCount: 0,
+				};
+				if (
+					before &&
+					before.status === after.status &&
+					before.fingerprint === after.fingerprint &&
+					before.characterCount === after.characterCount
+				) continue;
+
+				const change: WorkflowCodeChange = {
+					operation:
+						after.status === "??" || after.status.includes("A") ? "write" : "edit",
+					path,
+					excerpt: after.excerpt,
+					characterCount: after.characterCount,
+				};
+				const decision = objectiveAlignmentChangeEvaluate(session.alignment, change);
+				if (decision.milestone) {
+					const outcome = await judgeRun(session, ctx, {
+						...requestBuild(session, decision.milestone),
+						changes: [...session.alignment.changes, change],
+					});
+					session.alignment = objectiveAlignmentOutcomeApply(
+						session.alignment,
+						decision.milestone,
+						outcome,
+						judgeFeedbackBuild(outcome),
+					);
+				}
+				session.alignment = objectiveAlignmentChangeRecord(session.alignment, change);
+			}
+			return true;
+		}
+
+		function objectiveStart(
+			session: SessionScopeState,
+			text: string,
+			ctx: ExtensionContext,
+		): void {
 			const startedAt = Date.now();
 			const id = session.objectiveHistory.reduce(
 				(maximum, objective) => Math.max(maximum, objective.id),
@@ -301,6 +513,7 @@ export function objectiveAlignmentEnforcementCreate(
 			const objective = { id, text, status: "active" as const, startedAt };
 			session.objectiveHistory.push(objective);
 			session.objective = text;
+			session.workspace = workspaceStateRead(contextCwd(ctx));
 			pi.appendEntry<WorkflowCodeObjectiveStartEntry>(OBJECTIVE_START_ENTRY, {
 				objectiveId: id,
 				objective: text,
@@ -425,7 +638,7 @@ export function objectiveAlignmentEnforcementCreate(
 			session.judgeCache.clear();
 			if (!session.objective || objectiveComplete) {
 				if (objectiveComplete) session.alignment = objectiveAlignmentStateCreate();
-				objectiveStart(session, event.text);
+				objectiveStart(session, event.text, ctx);
 			} else if (objectiveEdited) {
 				session.objective = event.text;
 				const current = session.objectiveHistory.at(-1);
@@ -489,14 +702,22 @@ export function objectiveAlignmentEnforcementCreate(
 					const change = session.pendingChanges.get(event.toolCallId);
 					session.pendingChanges.delete(event.toolCallId);
 					if (!change || event.isError) return;
-					session.alignment = objectiveAlignmentChangeRecord(
-						session.alignment,
-						change,
-					);
+					const reconciled = await workspaceReconcile(session, ctx);
+					if (!reconciled) {
+						session.alignment = objectiveAlignmentChangeRecord(
+							session.alignment,
+							change,
+						);
+					}
 					return;
 				}
 
+				if (event.toolName === "subagent") {
+					await workspaceReconcile(session, ctx);
+					return;
+				}
 				if (event.toolName !== "bash") return;
+				await workspaceReconcile(session, ctx);
 				const test = testEvidenceBuild(event);
 				if (!workflowCodeTestCommandIsRecognized(test.command)) return;
 				const milestone = objectiveAlignmentTestMilestoneSelect(
@@ -528,6 +749,7 @@ export function objectiveAlignmentEnforcementCreate(
 			if (guardrailDisabled()) return;
 
 			const session = sessionGet(ctx);
+			await workspaceReconcile(session, ctx);
 			if (!objectiveAlignmentCompletionDue(session.alignment)) return;
 
 			const outcome = await judgeRun(

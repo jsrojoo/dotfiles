@@ -30,6 +30,8 @@ test("Pi settings load shared extensions independently of the working directory"
 function harnessCreate(
 	judgeComplete = async () => ALIGNED_VERDICT,
 	branch: any[] = [],
+	workspaceStateRead: Parameters<typeof objectiveAlignmentEnforcementCreate>[1] = () =>
+		undefined,
 ) {
 	const handlers = new Map<string, Handler>();
 	const commands = new Map<string, CommandHandler>();
@@ -71,7 +73,7 @@ function harnessCreate(
 	};
 
 	testDrivenDevelopmentEnforcementCreate()(pi as any);
-	objectiveAlignmentEnforcementCreate(judgeComplete)(pi as any);
+	objectiveAlignmentEnforcementCreate(judgeComplete, workspaceStateRead)(pi as any);
 	return {
 		commands,
 		context,
@@ -123,7 +125,7 @@ test("Pi adapter enforces red before source edits and green before completion", 
 	assert.equal(await beforeSettle({}, context), undefined);
 });
 
-test("Pi adapter notifies when an objective milestone is aligned", async () => {
+test("Pi adapter keeps aligned objective checks invisible", async () => {
 	const { context, entries, handlers, notifications, renderers } = harnessCreate();
 	await handlers.get("tool_result")!(
 		{
@@ -135,11 +137,88 @@ test("Pi adapter notifies when an objective milestone is aligned", async () => {
 		context,
 	);
 
-	assert.match(notifications.at(-1)!, /workflow check passed.*red/i);
-	assert.equal(entries.at(-1)?.customType, "workflow-code-judge-check");
-	assert.equal(entries.at(-1)?.data.milestone, "red");
-	assert.equal(entries.at(-1)?.data.align, true);
+	assert.deepEqual(notifications, []);
+	assert.equal(
+		entries.some((entry) => entry.customType === "workflow-code-judge-check"),
+		false,
+	);
 	assert.equal(renderers.has("workflow-code-judge-check"), true);
+});
+
+test("Pi adapter detects failed subagent workspace changes before a passing test", async () => {
+	const milestones: string[] = [];
+	const prompts: string[] = [];
+	let files: Array<{
+		path: string;
+		status: string;
+		fingerprint: string;
+		excerpt: string;
+		characterCount: number;
+	}> = [];
+	const workspaceStateRead = () => ({ root: "/repo", files });
+	const { context, handlers } = harnessCreate(
+		async (prompt: string) => {
+			prompts.push(prompt);
+			milestones.push(/\"milestone\":\"([^\"]+)/.exec(prompt)?.[1] ?? "unknown");
+			return ALIGNED_VERDICT;
+		},
+		[],
+		workspaceStateRead,
+	);
+
+	await handlers.get("input")!(
+		{ source: "interactive", text: "Update account validation" },
+		context,
+	);
+	files = [{
+		path: "src/account.ts",
+		status: " M",
+		fingerprint: "changed-account",
+		excerpt: "export const account = 'changed';",
+		characterCount: 33,
+	}];
+	await handlers.get("tool_result")!(
+		{ toolName: "subagent", input: {}, isError: true, content: [] },
+		context,
+	);
+	await handlers.get("tool_result")!(
+		{ toolName: "bash", input: { command: "node --test account.test.ts" }, isError: false, content: [] },
+		context,
+	);
+
+	assert.deepEqual(milestones, ["green"]);
+	assert.match(prompts[0], /src\/account\.ts/);
+	assert.match(prompts[0], /changed-account|export const account/);
+});
+
+test("Pi adapter does not attribute unchanged pre-existing dirty workspace state", async () => {
+	const prompts: string[] = [];
+	const files = [{
+		path: "src/user-work.ts",
+		status: " M",
+		fingerprint: "pre-existing",
+		excerpt: "user change",
+		characterCount: 11,
+	}];
+	const { context, handlers } = harnessCreate(async (prompt: string) => {
+		prompts.push(prompt);
+		return ALIGNED_VERDICT;
+	}, [], () => ({ root: "/repo", files }));
+
+	await handlers.get("input")!(
+		{ source: "interactive", text: "Update account validation" },
+		context,
+	);
+	await handlers.get("tool_result")!(
+		{ toolName: "subagent", input: {}, isError: false, content: [] },
+		context,
+	);
+	await handlers.get("tool_result")!(
+		{ toolName: "bash", input: { command: "node --test account.test.ts" }, isError: false, content: [] },
+		context,
+	);
+	assert.equal(await handlers.get("agent_before_settle")!({}, context), undefined);
+	assert.deepEqual(prompts, []);
 });
 
 test("Pi adapter keeps source locked when the red milestone is out of scope", async () => {
@@ -155,9 +234,15 @@ test("Pi adapter keeps source locked when the red milestone is out of scope", as
 		],
 		required_changes: ["Add a failing test for blank account names"],
 	});
-	const { context, handlers, notifications } = harnessCreate(async () => reviseVerdict);
+	const { context, entries, handlers, notifications, renderers } = harnessCreate(
+		async () => reviseVerdict,
+	);
 	const toolCall = handlers.get("tool_call")!;
 	const toolResult = handlers.get("tool_result")!;
+	await handlers.get("input")!(
+		{ source: "interactive", text: "Reject blank account names" },
+		context,
+	);
 
 	const feedback = await toolResult(
 		{
@@ -169,7 +254,23 @@ test("Pi adapter keeps source locked when the red milestone is out of scope", as
 		context,
 	);
 	assert.match(feedback.content.at(-1).text, /does not cover/i);
-	assert.match(notifications.at(-1)!, /workflow drift detected.*red/i);
+	assert.equal(
+		notifications.at(-1),
+		"Objective: Reject blank account names\n" +
+			"Drift: The failing test does not cover the requested behavior.\n" +
+			"Re-align: Add a failing test for blank account names",
+	);
+	const driftEntry = entries.find((entry) => entry.customType === "workflow-code-judge-check")!;
+	const rendered = renderers.get("workflow-code-judge-check")!(
+		{ data: driftEntry.data },
+		{ expanded: true },
+	).render();
+	assert.deepEqual(rendered, [
+		"Objective: Reject blank account names",
+		"Drift: The failing test does not cover the requested behavior.",
+		"Re-align: Add a failing test for blank account names",
+	]);
+	assert.doesNotMatch(rendered.join("\n"), /align:(?:true|false)|implementation|completion|red|green/i);
 	const blocked = await toolCall(
 		{ toolName: "edit", input: { path: "src/account.ts" } },
 		context,
@@ -228,7 +329,7 @@ test("Pi adapter runs one final objective correction without looping", async () 
 	const correction = await beforeSettle({}, context);
 	assert.equal(correction.continue, true);
 	assert.equal(correction.entries[0].customType, "workflow-code-judge");
-	assert.match(notifications.at(-1)!, /workflow drift detected.*completion/i);
+	assert.match(notifications.at(-1)!, /^Objective: Reject blank account names only\nDrift:/);
 	assert.equal(await beforeSettle({}, context), undefined);
 	assert.deepEqual(milestones, ["red", "green", "completion"]);
 });
@@ -292,7 +393,7 @@ test("Pi adapter checks scope after several successful production edits", async 
 	assert.equal(blocked.block, true);
 	assert.equal(blocked.terminate, true);
 	assert.match(blocked.reason, /unrelated behavior/i);
-	assert.match(notifications.at(-1)!, /workflow drift detected.*implementation/i);
+	assert.match(notifications.at(-1)!, /^Objective: Change account validation only\nDrift:/);
 	assert.deepEqual(milestones, ["red", "implementation"]);
 });
 

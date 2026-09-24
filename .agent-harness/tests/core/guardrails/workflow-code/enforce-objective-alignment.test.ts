@@ -9,7 +9,7 @@ import {
 	objectiveAlignmentOutcomeApply,
 	objectiveAlignmentStateCreate,
 	objectiveAlignmentTestMilestoneSelect,
-} from "#agent-harness/core/guardrails/workflow-code/enforce-objective-alignment";
+} from "#agent-harness/core/guardrails/workflow-code/objective-alignment/state-machine";
 import type {
 	WorkflowCodeChange,
 	WorkflowCodeJudgeOutcome,

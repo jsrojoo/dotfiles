@@ -5,7 +5,7 @@ import {
 	workflowCodeJudgePromptBuild,
 	workflowCodeJudgeRun,
 	workflowCodeJudgeVerdictParse,
-} from "#agent-harness/core/guardrails/workflow-code/judge-objective-alignment";
+} from "#agent-harness/core/guardrails/workflow-code/objective-alignment/llm";
 import type { WorkflowCodeJudgeRequest } from "#agent-harness/core/guardrails/workflow-code/workflow-code-contracts";
 
 const REQUEST: WorkflowCodeJudgeRequest = {
