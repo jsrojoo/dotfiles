@@ -19,8 +19,7 @@
   "extensions": [
     "~/dotfiles/.agent-harness/src/pi/extensions/notify.ts",
     "~/dotfiles/.agent-harness/src/pi/extensions/sql/register-mutative-sql-blocking.ts",
-    "~/dotfiles/.agent-harness/src/pi/extensions/sql/register-sql-validation.ts",
-    "~/dotfiles/.agent-harness/src/pi/extensions/workflow-code/register-test-driven-development.ts"
+    "~/dotfiles/.agent-harness/src/pi/extensions/sql/register-sql-validation.ts"
   ],
   "skills": [
     "/Users/josephrojo/dotfiles/.codex/plugins/cache/aitrium-dev-workspace-local/aitrium-dev-workspace/0.1.0+codex.20260603191627/skills"

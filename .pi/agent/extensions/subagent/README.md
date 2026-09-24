@@ -29,6 +29,7 @@ Provider and model values are converted to Pi model selectors. Shared child agen
 Child `pi` processes start with `-ne` (no extension discovery) plus `-e` for each local file or directory `index.ts`/`index.js` under `~/.pi/agent/extensions/`, except `subagent` itself.
 
 - Package extensions from `settings.json` (for example `pi-patty-bg-tasks`, ponytail) do not load in children. `pi-patty-bg-tasks` replaces `bash` with an unref'd detached spawn, which made `pi -p` exit mid tool call and return no output.
+- `coding-tdd.ts` is a local wrapper around the shared TDD adapter, so both parent and child Pi processes load the guardrail.
 - Excluding `subagent` blocks nested subagent spawns.
 
 ## Current limitations
@@ -36,6 +37,7 @@ Child `pi` processes start with `-ne` (no extension discovery) plus `-e` for eac
 - `model_reasoning_effort` is not mapped; a model-specific Pi subagent uses Pi's default thinking behavior.
 - Approval policies and sandbox implementations are not imported.
 - Read-only shared agents do not receive `bash`, so prompts mentioning `rg` or `ast-grep` must fall back to Pi's `grep`, `find`, and `read` tools.
+- The `editor` agent receives `bash` only for running tests; its prompt still restricts file mutations to `edit`.
 - A TOML definition is ignored unless its paired Markdown prompt exists and both `name` and `description` are simple quoted strings.
 
 ## Usage

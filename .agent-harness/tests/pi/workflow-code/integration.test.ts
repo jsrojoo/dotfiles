@@ -15,16 +15,22 @@ const ALIGNED_VERDICT = JSON.stringify({
 	required_changes: [],
 });
 
-test("Pi settings load shared extensions independently of the working directory", () => {
+test("Pi settings load shared extensions independently of the working directory", async () => {
 	const settingsUrl = new URL("../../../../.pi/agent/settings.json", import.meta.url);
 	const settings = JSON.parse(readFileSync(settingsUrl, "utf8"));
+	const tddWrapperUrl = new URL("../../../../.pi/agent/extensions/coding-tdd.ts", import.meta.url);
+	const tddWrapper = readFileSync(tddWrapperUrl, "utf8");
 
 	assert.deepEqual(settings.extensions, [
 		"~/dotfiles/.agent-harness/src/pi/extensions/notify.ts",
 		"~/dotfiles/.agent-harness/src/pi/extensions/sql/register-mutative-sql-blocking.ts",
 		"~/dotfiles/.agent-harness/src/pi/extensions/sql/register-sql-validation.ts",
-		"~/dotfiles/.agent-harness/src/pi/extensions/workflow-code/register-test-driven-development.ts",
 	]);
+	assert.equal(
+		tddWrapper,
+		'export { default } from "#agent-harness/pi/extensions/workflow-code/register-test-driven-development";\n',
+	);
+	assert.equal(typeof (await import(tddWrapperUrl.href)).default, "function");
 });
 
 function harnessCreate(
@@ -576,6 +582,14 @@ test("Pi adapter loads the current objective for external editing", async () => 
 	);
 	assert.equal(entries.at(-1)?.customType, "workflow-code-objective");
 	assert.equal(entries.at(-1)?.data.objective, "Corrected objective");
+});
+
+test("editor subagent has tools needed for guarded TDD", () => {
+	const editorUrl = new URL("../../../../.pi/agent/agents/editor.md", import.meta.url);
+	const editor = readFileSync(editorUrl, "utf8");
+
+	assert.match(editor, /^tools: read, bash, edit$/m);
+	assert.match(editor, /Use `bash` only to run tests/);
 });
 
 test("Pi adapter applies a one-request TDD kill switch", async () => {
