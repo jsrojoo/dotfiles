@@ -3,6 +3,7 @@
   "private": true,
   "type": "module",
   "imports": {
+    "#agent-harness/core/*": "./src/core/*.ts",
     "#agent-harness/pi/*": "./src/pi/*.ts"
   }
 }
