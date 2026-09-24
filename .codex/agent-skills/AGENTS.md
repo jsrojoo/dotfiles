@@ -72,7 +72,7 @@ Trivial, safe tasks may proceed directly. Explicit user instructions override th
 - Move weak or uncertain concerns to `Questions`, not `Findings`.
 - If a finding cannot include a concrete example or failure mode, downgrade it to an open question unless it is a clear standards, security, or correctness violation.
 - Use readable finding blocks with blank lines, concrete `Exhibit`, concrete `Proof`, and small `Suggested fix` sketches.
-- Follow `agent-skills/references/review-findings.md` for full template and examples.
+- Follow `~/.agents/agent-skills/references/review-findings.md` for full template and examples.
 
 ## Skills
 - Use `context_retriever` subagent as the only read-only investigation agent for searches, file inspection, evidence gathering, structural queries, file discovery, command-output inspection, and repo context.
