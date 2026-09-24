@@ -1,11 +1,16 @@
 import { execFile } from "node:child_process";
-import * as os from "node:os";
-import * as path from "node:path";
+import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
-import { piSessionNameResolve } from "./notify/session_name.ts";
+import { piSessionNameResolve } from "#agent-harness/pi/extensions/notify/session_name";
 
-const NOTIFIER_PATH = path.join(os.homedir(), ".agents", "notify.py");
+export function notificationScriptPathResolve(
+	moduleUrl: string = import.meta.url,
+): string {
+	return fileURLToPath(new URL("../../hooks/notification.py", moduleUrl));
+}
+
+const NOTIFIER_PATH = notificationScriptPathResolve();
 const notifierExecute = promisify(execFile);
 
 export default function notifyRegister(pi: ExtensionAPI) {
