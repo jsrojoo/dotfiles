@@ -1,1 +1,1 @@
-../.agent-harness/src/hooks/notification.py
+../agent-harness/src/hooks/notification.py

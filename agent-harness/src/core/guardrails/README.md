@@ -10,7 +10,7 @@ Pi keeps registration separate from reusable enforcement:
 Objective alignment is disabled in default Pi settings while it remains experimental. Enable it for one Pi process when developing or testing:
 
 ```bash
-pi -e ~/dotfiles/.agent-harness/src/pi/extensions/coding/register-objective-alignment.ts
+pi -e ~/dotfiles/agent-harness/src/pi/extensions/coding/register-objective-alignment.ts
 ```
 
 ## Coding skill guardrail

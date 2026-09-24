@@ -22,13 +22,13 @@ test("Pi settings load shared extensions independently of the working directory"
 	const tddWrapper = readFileSync(tddWrapperUrl, "utf8");
 
 	assert.deepEqual(settings.extensions, [
-		"~/dotfiles/.agent-harness/src/pi/extensions/notify.ts",
-		"~/dotfiles/.agent-harness/src/pi/extensions/sql/register-mutative-sql-blocking.ts",
-		"~/dotfiles/.agent-harness/src/pi/extensions/sql/register-sql-validation.ts",
+		"~/dotfiles/agent-harness/src/pi/extensions/notify.ts",
+		"~/dotfiles/agent-harness/src/pi/extensions/sql/register-mutative-sql-blocking.ts",
+		"~/dotfiles/agent-harness/src/pi/extensions/sql/register-sql-validation.ts",
 	]);
 	assert.match(
 		tddWrapper,
-		/join\(homedir\(\), "dotfiles\/\.agent-harness\/src\/pi\/extensions\/coding\/register-test-driven-development\.ts"\)/,
+		/join\(homedir\(\), "dotfiles\/agent-harness\/src\/pi\/extensions\/coding\/register-test-driven-development\.ts"\)/,
 	);
 	assert.equal(typeof (await import(tddWrapperUrl.href)).default, "function");
 });

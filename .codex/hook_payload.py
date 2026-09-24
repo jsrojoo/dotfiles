@@ -1,1 +1,1 @@
-../.agent-harness/src/hooks/hook_payload.py
+../agent-harness/src/hooks/hook_payload.py

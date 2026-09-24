@@ -7,8 +7,8 @@ import { fileURLToPath } from "node:url";
 const DEEP_RELATIVE_IMPORT = /(?:\bfrom\s*|\bimport\s*(?:\(\s*)?)["']((?:\.\.\/){2,}[^"']*)["']/g;
 const REPOSITORY_ROOT = fileURLToPath(new URL("../../", import.meta.url));
 const SOURCE_ROOTS = [
-	path.join(REPOSITORY_ROOT, ".agent-harness", "src"),
-	path.join(REPOSITORY_ROOT, ".agent-harness", "tests"),
+	path.join(REPOSITORY_ROOT, "agent-harness", "src"),
+	path.join(REPOSITORY_ROOT, "agent-harness", "tests"),
 	path.join(REPOSITORY_ROOT, ".pi", "agent", "extensions"),
 ];
 

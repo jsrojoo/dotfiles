@@ -1,1 +1,1 @@
-../../.agent-harness/tests/pi/notify.test.ts
+../../agent-harness/tests/pi/notify.test.ts
