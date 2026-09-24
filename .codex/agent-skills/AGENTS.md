@@ -1,7 +1,3 @@
-# Cross-Harness Agent Instructions
-
-> Pi-specific rules (background tasks) live in `~/.pi/agent/AGENTS.md` and are loaded automatically by pi on top of this file.
-
 ## Planning
 
 Treat a task as non-trivial when it involves multiple files or components, architecture or design decisions, migrations, unfamiliar behavior requiring investigation, or meaningful risk.

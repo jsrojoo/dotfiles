@@ -6,6 +6,8 @@
   "defaultThinkingLevel": "medium",
   "enabledModels": [
     "azure/gpt-5.6-luna:medium",
+    "azure/gpt-5.6-sol:medium",
+    "azure/gpt-5.6-terra:medium",
     "atlas/gpt-5.6-sol:medium",
     "atlas/gpt-5.6-luna:medium",
     "atlas-bedrock/claude-sonnet-4-6:medium",
