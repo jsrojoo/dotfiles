@@ -51,19 +51,19 @@ Use only the stages relevant to the task. Do not force this structure onto simpl
 
 ## Test-driven development
 
-Require a failing test before changing implementation code. If blocked, add/update test, confirm red, implement, confirm green; ask the user only if implementation edit remains blocked after a recognized test fails. Use a red-green-refactor cycle for testable behavior changes. If TDD is impractical, state why and use the closest focused verification available.
+Require every implementation change to include a relevant test change and end with a passing test. Test and implementation edits may happen in either order or in parallel. A failing test before implementation is useful evidence, not a sequencing requirement. Source-only changes do not satisfy this workflow. If TDD is impractical, state why and use the closest focused verification available.
 
-### Red
+### Test and implementation
 
-- Define observable success criteria before changing production code.
-- Add the smallest test that expresses one required behavior or reproduces one defect.
-- Run it and confirm it fails for the expected reason, not because the test is broken.
+- Define observable success criteria before editing.
+- Add or update the smallest test that expresses one required behavior or reproduces one defect.
+- Make the smallest production change that satisfies it.
+- Edit test and production code in either order or in parallel.
 
 ### Green
 
-- Make the smallest production change that passes the new test.
-- Avoid unrelated refactoring or extra behavior while the test is red.
-- Run the focused test until it passes.
+- Run the focused test after both changes and confirm it passes.
+- Do not treat an earlier passing run as proof for later source changes.
 
 ### Refactor
 
@@ -74,8 +74,8 @@ Require a failing test before changing implementation code. If blocked, add/upda
 ## Verification practices
 
 - Define observable success criteria before editing.
-- For a bug fix, reproduce the failure with the smallest useful test when practical.
-- For new behavior, write a focused failing test first when the project supports it.
+- For a bug fix, capture the defect with the smallest useful test.
+- For new behavior, add or update a focused test alongside the implementation.
 - Test valid and invalid boundary inputs when validation changes.
 - Run the narrowest relevant checks first, then broader checks when justified.
 - Verify behavior rather than relying only on syntax, compilation, or snapshots.

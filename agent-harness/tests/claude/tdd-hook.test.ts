@@ -20,21 +20,27 @@ function harnessCreate() {
 	};
 }
 
-test("Claude hook requires a failing test before implementation edits and green before stop", () => {
+test("Claude hook allows parallel source and test edits, then requires green", () => {
 	const harness = harnessCreate();
 	try {
 		harness.hook({ hook_event_name: "UserPromptSubmit", prompt: "Fix account validation" });
-		const blocked = harness.hook({
+		const implementationId = harness.nextId();
+		assert.equal(harness.hook({
 			hook_event_name: "PreToolUse",
 			tool_name: "Write",
+			tool_use_id: implementationId,
 			tool_input: { file_path: "src/account.ts" },
+		}), undefined);
+		harness.hook({
+			hook_event_name: "PostToolUse",
+			tool_name: "Write",
+			tool_use_id: implementationId,
+			tool_input: { file_path: "src/account.ts" },
+			tool_response: {},
 		});
-		assert.equal(blocked?.hookSpecificOutput.permissionDecision, "deny");
-		const reason = blocked?.hookSpecificOutput.permissionDecisionReason;
-		assert.match(reason, /Require a failing test before changing implementation code/);
-		assert.match(reason, /Continue: add\/update test, confirm red, implement, confirm green/);
-		assert.match(reason, /Ask the user only if implementation edit remains blocked after a recognized test fails/);
-		assert.doesNotMatch(reason, /\/tdd-skip/);
+		const sourceOnlyStop = harness.hook({ hook_event_name: "Stop", stop_hook_active: false });
+		assert.equal(sourceOnlyStop?.decision, "block");
+		assert.match(sourceOnlyStop?.reason, /Add or update a relevant test/);
 
 		const testId = harness.nextId();
 		harness.hook({
@@ -50,31 +56,6 @@ test("Claude hook requires a failing test before implementation edits and green 
 			tool_input: { file_path: "tests/account.test.ts" },
 			tool_response: {},
 		});
-		harness.hook({
-			hook_event_name: "PostToolUseFailure",
-			tool_name: "Bash",
-			tool_input: { command: "npm test" },
-			error: "test failed",
-		});
-
-		const implementationId = harness.nextId();
-		assert.equal(harness.hook({
-			hook_event_name: "PreToolUse",
-			tool_name: "Edit",
-			tool_use_id: implementationId,
-			tool_input: { file_path: "src/account.ts" },
-		}), undefined);
-		harness.hook({
-			hook_event_name: "PostToolUse",
-			tool_name: "Edit",
-			tool_use_id: implementationId,
-			tool_input: { file_path: "src/account.ts" },
-			tool_response: {},
-		});
-
-		const stop = harness.hook({ hook_event_name: "Stop", stop_hook_active: false });
-		assert.equal(stop?.decision, "block");
-		assert.match(stop?.reason, /test and confirm it passes/);
 
 		harness.hook({
 			hook_event_name: "PostToolUse",
@@ -92,17 +73,29 @@ test("Claude recognizes nonzero Bash exit code in PostToolUse output", () => {
 	const harness = harnessCreate();
 	try {
 		harness.hook({ hook_event_name: "UserPromptSubmit", prompt: "Fix account validation" });
+		for (const filePath of ["src/account.ts", "tests/account.test.ts"]) {
+			const toolId = harness.nextId();
+			harness.hook({
+				hook_event_name: "PreToolUse",
+				tool_name: "Edit",
+				tool_use_id: toolId,
+				tool_input: { file_path: filePath },
+			});
+			harness.hook({
+				hook_event_name: "PostToolUse",
+				tool_name: "Edit",
+				tool_use_id: toolId,
+				tool_input: { file_path: filePath },
+				tool_response: {},
+			});
+		}
 		harness.hook({
 			hook_event_name: "PostToolUse",
 			tool_name: "Bash",
 			tool_input: { command: "npm test" },
 			tool_response: "Exit code 1\nTest failed",
 		});
-		assert.equal(harness.hook({
-			hook_event_name: "PreToolUse",
-			tool_name: "Edit",
-			tool_input: { file_path: "src/account.ts" },
-		}), undefined);
+		assert.equal(harness.hook({ hook_event_name: "Stop" })?.decision, "block");
 	} finally {
 		harness.close();
 	}

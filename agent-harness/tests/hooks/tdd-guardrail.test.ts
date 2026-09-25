@@ -8,11 +8,12 @@ import { tddGuardrailHandle } from "#agent-harness/hooks/tdd-guardrail";
 
 test("shared hook state stays isolated by host session", () => {
 	const stateDirectory = mkdtempSync(join(tmpdir(), "agent-harness-tdd-state-"));
-	const event = (sessionId: string, eventName: string, prompt?: string) =>
+	const event = (sessionId: string, eventName: string, prompt?: string, toolId?: string) =>
 		tddGuardrailHandle("claude", {
 			sessionId,
 			eventName,
 			prompt,
+			toolId,
 			toolName: "Write",
 			toolInput: { file_path: "src/account.ts" },
 		}, stateDirectory);
@@ -21,15 +22,13 @@ test("shared hook state stays isolated by host session", () => {
 		event("session-b", "UserPromptSubmit", "Change account validation");
 		event("session-a", "UserPromptSubmit", "Change account validation");
 
-		assert.equal(
-			event("session-a", "PreToolUse"),
-			undefined,
-		);
-		assert.equal(
-			(event("session-b", "PreToolUse") as { hookSpecificOutput: { permissionDecision: string } })
-				.hookSpecificOutput.permissionDecision,
-			"deny",
-		);
+		assert.equal(event("session-a", "PreToolUse", undefined, "a-write"), undefined);
+		event("session-a", "PostToolUse", undefined, "a-write");
+		assert.equal(event("session-b", "PreToolUse", undefined, "b-write"), undefined);
+		event("session-b", "PostToolUse", undefined, "b-write");
+
+		assert.equal(event("session-a", "Stop"), undefined);
+		assert.equal((event("session-b", "Stop") as { decision: string }).decision, "block");
 	} finally {
 		rmSync(stateDirectory, { recursive: true, force: true });
 	}

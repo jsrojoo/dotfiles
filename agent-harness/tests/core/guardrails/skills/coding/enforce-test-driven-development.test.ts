@@ -34,63 +34,64 @@ test("recognizes common test commands without treating arbitrary failures as tes
 	assert.equal(workflowCodeTestCommandIsRecognized("python3 scripts/build.py"), false);
 });
 
-test("blocks production code before red while allowing tests and non-code files", () => {
+test("allows source and test edits in either order", () => {
 	const state = workflowCodeStateCreate();
+	const sourceFirst = workflowCodeWriteEvaluate(state, "src/account.ts");
+	const testFirst = workflowCodeWriteEvaluate(state, "tests/account.test.ts");
 
-	const blocked = workflowCodeWriteEvaluate(state, "src/account.ts");
-	assert.equal(blocked.block, true);
-	assert.match(blocked.reason ?? "", /Require a failing test before changing implementation code/);
-	assert.equal(workflowCodeWriteEvaluate(state, "tests/account.test.ts").block, false);
+	assert.equal(sourceFirst.block, false);
+	assert.equal(sourceFirst.state.phase, "code-changed");
+	assert.equal(sourceFirst.state.testChanged, false);
+	assert.equal(testFirst.block, false);
+	assert.equal(testFirst.state.testChanged, true);
 	assert.equal(workflowCodeWriteEvaluate(state, "README.md").block, false);
 });
 
-test("failed tests unlock source edits and successful tests do not relock refactoring", () => {
-	const locked = workflowCodeStateCreate();
-	const red = workflowCodeTestResultApply(locked, "node --test tests/account.test.ts", true);
-	const changed = workflowCodeWriteEvaluate(red, "src/account.ts");
-	const green = workflowCodeTestResultApply(changed.state, "node --test tests/account.test.ts", false);
+test("source and test changes become green after a successful test", () => {
+	const sourceChanged = workflowCodeWriteEvaluate(workflowCodeStateCreate(), "src/account.ts").state;
+	const testChanged = workflowCodeWriteEvaluate(sourceChanged, "tests/account.test.ts").state;
+	const green = workflowCodeTestResultApply(testChanged, "node --test tests/account.test.ts", false);
 	const refactored = workflowCodeWriteEvaluate(green, "src/account.ts");
 
-	assert.equal(red.phase, "red");
-	assert.equal(changed.block, false);
-	assert.equal(changed.state.phase, "code-changed");
 	assert.equal(green.phase, "green");
 	assert.equal(refactored.block, false);
 	assert.equal(refactored.state.phase, "code-changed");
 });
 
-test("successful or unrecognized commands do not unlock an initially locked cycle", () => {
-	const locked = workflowCodeStateCreate();
-	const passing = workflowCodeTestResultApply(locked, "pytest", false);
-	const unrelatedFailure = workflowCodeTestResultApply(locked, "npm run build", true);
+test("passing tests do not complete source-only or test-before-source cycles", () => {
+	const sourceOnly = workflowCodeWriteEvaluate(workflowCodeStateCreate(), "src/account.ts").state;
+	const testOnly = workflowCodeWriteEvaluate(workflowCodeStateCreate(), "tests/account.test.ts").state;
+	const testPassed = workflowCodeTestResultApply(testOnly, "pytest", false);
+	const sourceAfterPass = workflowCodeWriteEvaluate(testPassed, "src/account.py").state;
 
-	assert.equal(passing.phase, "locked");
-	assert.equal(unrelatedFailure.phase, "locked");
+	assert.equal(workflowCodeTestResultApply(sourceOnly, "pytest", false).phase, "code-changed");
+	assert.equal(testPassed.phase, "locked");
+	assert.equal(sourceAfterPass.phase, "code-changed");
+	assert.equal(workflowCodeCompletionEvaluate(sourceAfterPass).remind, true);
 });
 
-test("completion asks for green once after code changes", () => {
-	const red = workflowCodeTestResultApply(workflowCodeStateCreate(), "pytest", true);
-	const changed = workflowCodeWriteEvaluate(red, "src/account.py").state;
+test("completion keeps requiring test coverage and green after source changes", () => {
+	const changed = workflowCodeWriteEvaluate(workflowCodeStateCreate(), "src/account.py").state;
 	const first = workflowCodeCompletionEvaluate(changed);
 	const second = workflowCodeCompletionEvaluate(first.state);
 
 	assert.equal(first.remind, true);
-	assert.equal(second.remind, false);
+	assert.equal(second.remind, true);
 });
 
-test("a failing test after production changes still requires green", () => {
-	const red = workflowCodeTestResultApply(workflowCodeStateCreate(), "pytest", true);
-	const changed = workflowCodeWriteEvaluate(red, "src/account.py").state;
-	const stillFailing = workflowCodeTestResultApply(changed, "pytest", true);
+test("a failing test after parallel changes still requires green", () => {
+	const sourceChanged = workflowCodeWriteEvaluate(workflowCodeStateCreate(), "src/account.py").state;
+	const testChanged = workflowCodeWriteEvaluate(sourceChanged, "tests/test_account.py").state;
+	const stillFailing = workflowCodeTestResultApply(testChanged, "pytest", true);
 
 	assert.equal(stillFailing.phase, "code-changed");
 	assert.equal(workflowCodeCompletionEvaluate(stillFailing).remind, true);
 });
 
 test("green and explicitly skipped cycles can complete", () => {
-	const red = workflowCodeTestResultApply(workflowCodeStateCreate(), "pytest", true);
-	const changed = workflowCodeWriteEvaluate(red, "src/account.py").state;
-	const green = workflowCodeTestResultApply(changed, "pytest", false);
+	const sourceChanged = workflowCodeWriteEvaluate(workflowCodeStateCreate(), "src/account.py").state;
+	const testChanged = workflowCodeWriteEvaluate(sourceChanged, "tests/test_account.py").state;
+	const green = workflowCodeTestResultApply(testChanged, "pytest", false);
 	const skipped = workflowCodeStateSkip(workflowCodeStateCreate());
 
 	assert.equal(workflowCodeCompletionEvaluate(green).remind, false);

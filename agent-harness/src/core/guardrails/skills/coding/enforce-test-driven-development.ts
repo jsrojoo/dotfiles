@@ -31,11 +31,11 @@ const TEST_COMMAND_PATTERNS = [
 ];
 
 export function workflowCodeStateCreate(): WorkflowCodeState {
-	return { phase: "locked", reminderSent: false };
+	return { phase: "locked", testChanged: false };
 }
 
 export function workflowCodeStateSkip(_state: WorkflowCodeState): WorkflowCodeState {
-	return { phase: "skipped", reminderSent: false };
+	return { phase: "skipped", testChanged: false };
 }
 
 export function workflowCodePathClassify(path: string): WorkflowCodePathKind {
@@ -56,11 +56,13 @@ export function workflowCodeTestResultApply(
 	if (!workflowCodeTestCommandIsRecognized(command)) return state;
 	if (isError) {
 		if (state.phase === "code-changed") return state;
-		if (state.phase === "green") return { phase: "code-changed", reminderSent: false };
+		if (state.phase === "green") return { ...state, phase: "code-changed" };
 		if (state.phase === "skipped") return state;
-		return { phase: "red", reminderSent: false };
+		return { ...state, phase: "red" };
 	}
-	if (state.phase === "code-changed") return { phase: "green", reminderSent: false };
+	if (state.phase === "code-changed" && state.testChanged) {
+		return { ...state, phase: "green" };
+	}
 	return state;
 }
 
@@ -69,36 +71,19 @@ export function workflowCodeWriteEvaluate(
 	path: string,
 ): WorkflowCodeWriteDecision {
 	const pathKind = workflowCodePathClassify(path);
-	if (pathKind !== "source") return { block: false, state };
-
-	if (state.phase === "locked") {
-		return {
-			block: true,
-			reason:
-				`Blocked implementation-code change to "${path}": Require a failing test before changing implementation code. ` +
-				"Continue: add/update test, confirm red, implement, confirm green. Ask the user only if implementation edit remains blocked after a recognized test fails.",
-			state,
-		};
+	if (pathKind === "test" && state.phase !== "skipped") {
+		return { block: false, state: { ...state, testChanged: true } };
 	}
-
-	if (state.phase === "skipped") return { block: false, state };
-	if (state.phase === "code-changed") return { block: false, state };
+	if (pathKind !== "source" || state.phase === "skipped") return { block: false, state };
 
 	return {
 		block: false,
-		state: { phase: "code-changed", reminderSent: false },
+		state: { ...state, phase: "code-changed" },
 	};
 }
 
 export function workflowCodeCompletionEvaluate(
 	state: WorkflowCodeState,
 ): WorkflowCodeCompletionDecision {
-	if (state.phase !== "code-changed" || state.reminderSent) {
-		return { remind: false, state };
-	}
-
-	return {
-		remind: true,
-		state: { ...state, reminderSent: true },
-	};
+	return { remind: state.phase === "code-changed", state };
 }

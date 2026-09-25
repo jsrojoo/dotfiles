@@ -20,6 +20,7 @@ test("dedicated TDD skill excludes unrelated coding workflows", () => {
 	const skill = readFileSync(new URL("src/skills/tdd/SKILL.md", root), "utf8");
 
 	assert.match(skill, /^---\nname: tdd\n/m);
-	assert.match(skill, /add\/update test, confirm red, implement, confirm green/i);
+	assert.match(skill, /test and implementation in either order or in parallel/i);
+	assert.match(skill, /Source-only changes do not satisfy this workflow/i);
 	assert.doesNotMatch(skill, /End-to-end handoff|\.local\.artifacts|SQL|responsive frontend/i);
 });

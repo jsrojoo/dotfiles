@@ -4,7 +4,7 @@ export type WorkflowCodeMilestone = "red" | "implementation" | "green" | "comple
 
 export interface WorkflowCodeState {
 	phase: WorkflowCodePhase;
-	reminderSent: boolean;
+	testChanged: boolean;
 }
 
 export interface WorkflowCodeWriteDecision {

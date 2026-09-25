@@ -91,33 +91,21 @@ function harnessCreate(
 	};
 }
 
-test("Pi adapter enforces and notifies red before source edits and green before completion", async () => {
+test("Pi adapter allows parallel source and test edits, then requires green", async () => {
 	const { context, handlers, notifications } = harnessCreate();
 	const toolCall = handlers.get("tool_call")!;
 	const toolResult = handlers.get("tool_result")!;
 	const beforeSettle = handlers.get("agent_before_settle")!;
 
-	const blocked = await toolCall(
-		{ toolName: "edit", input: { path: "src/account.ts" } },
-		context,
-	);
-	assert.equal(blocked.block, true);
-	assert.equal(notifications.at(-1), undefined);
-
-	await toolResult(
-		{ toolName: "bash", input: { command: "node --test account.test.ts" }, isError: true },
-		context,
-	);
-	assert.equal(notifications.at(-1), "TDD guardrail: red");
 	assert.equal(
 		await toolCall(
-			{ toolCallId: "edit-1", toolName: "edit", input: { path: "src/account.ts", edits: [] } },
+			{ toolCallId: "source-edit", toolName: "edit", input: { path: "src/account.ts", edits: [] } },
 			context,
 		),
 		undefined,
 	);
 	await toolResult(
-		{ toolCallId: "edit-1", toolName: "edit", input: {}, isError: false },
+		{ toolCallId: "source-edit", toolName: "edit", input: {}, isError: false },
 		context,
 	);
 
@@ -126,11 +114,21 @@ test("Pi adapter enforces and notifies red before source edits and green before 
 	assert.equal(reminder.entries[0].customType, "workflow-code-guardrail");
 	assert.equal(
 		reminder.entries[0].content,
-		"TDD guardrail: run a relevant test and confirm it passes.",
+		"TDD guardrail: add or update a relevant test, then run it and confirm it passes.",
 	);
-	assert.equal(notifications.at(-1), "TDD guardrail: red");
-	assert.equal(await beforeSettle({}, context), undefined);
+	assert.equal(notifications.at(-1), undefined);
 
+	assert.equal(
+		await toolCall(
+			{ toolCallId: "test-edit", toolName: "edit", input: { path: "tests/account.test.ts", edits: [] } },
+			context,
+		),
+		undefined,
+	);
+	await toolResult(
+		{ toolCallId: "test-edit", toolName: "edit", input: {}, isError: false },
+		context,
+	);
 	await toolResult(
 		{ toolName: "bash", input: { command: "node --test account.test.ts" }, isError: false },
 		context,
@@ -335,6 +333,14 @@ test("Pi adapter runs one final objective correction without looping", async () 
 		{ toolCallId: "edit-1", toolName: "edit", input: {}, isError: false },
 		context,
 	);
+	await toolCall(
+		{ toolCallId: "test-edit-1", toolName: "edit", input: { path: "tests/test_account.py", edits: [] } },
+		context,
+	);
+	await toolResult(
+		{ toolCallId: "test-edit-1", toolName: "edit", input: {}, isError: false },
+		context,
+	);
 	await toolResult(
 		{ toolName: "bash", input: { command: "pytest" }, isError: false, content: [] },
 		context,
@@ -440,24 +446,28 @@ test("Pi adapter allows one coherent large edit before a semantic checkpoint", a
 	assert.deepEqual(milestones, ["red"]);
 });
 
-test("Pi adapter resets on a new request", async () => {
+test("Pi adapter resets test-change evidence on a new request", async () => {
 	const { context, handlers } = harnessCreate();
 	const input = handlers.get("input")!;
 	const toolCall = handlers.get("tool_call")!;
 	const toolResult = handlers.get("tool_result")!;
+	const beforeSettle = handlers.get("agent_before_settle")!;
 
-	await toolResult({ toolName: "bash", input: { command: "pytest" }, isError: true }, context);
-	assert.equal(
-		await toolCall({ toolName: "write", input: { path: "src/account.py" } }, context),
-		undefined,
-	);
-
-	await input({ source: "interactive", text: "another task" }, context);
-	const blocked = await toolCall(
-		{ toolName: "write", input: { path: "src/other.py" } },
+	await toolCall(
+		{ toolCallId: "old-test", toolName: "write", input: { path: "tests/test_account.py" } },
 		context,
 	);
-	assert.equal(blocked.block, true);
+	await toolResult({ toolCallId: "old-test", toolName: "write", isError: false }, context);
+
+	await input({ source: "interactive", text: "another task" }, context);
+	await toolCall(
+		{ toolCallId: "new-source", toolName: "write", input: { path: "src/other.py" } },
+		context,
+	);
+	await toolResult({ toolCallId: "new-source", toolName: "write", isError: false }, context);
+	await toolResult({ toolName: "bash", input: { command: "pytest" }, isError: false }, context);
+
+	assert.equal((await beforeSettle({}, context)).continue, true);
 });
 
 test("Pi adapter keeps the current cycle for steering input", async () => {
@@ -609,9 +619,16 @@ test("Pi adapter applies a one-request TDD kill switch", async () => {
 	);
 
 	await input({ source: "interactive", text: "new task" }, context);
-	const blocked = await toolCall(
-		{ toolName: "edit", input: { path: "src/other.ts" } },
+	assert.equal(
+		await toolCall(
+			{ toolCallId: "new-source", toolName: "edit", input: { path: "src/other.ts" } },
+			context,
+		),
+		undefined,
+	);
+	await handlers.get("tool_result")!(
+		{ toolCallId: "new-source", toolName: "edit", input: {}, isError: false },
 		context,
 	);
-	assert.equal(blocked.block, true);
+	assert.equal((await handlers.get("agent_before_settle")!({}, context)).continue, true);
 });

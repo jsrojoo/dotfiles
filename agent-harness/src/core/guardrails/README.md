@@ -19,7 +19,7 @@ pi -e ~/dotfiles/agent-harness/src/pi/extensions/coding/register-objective-align
 
 The coding skill guardrail has three complementary parts:
 
-- `skills/coding/enforce-test-driven-development.ts` enforces the deterministic red-green lifecycle.
+- `skills/coding/enforce-test-driven-development.ts` enforces concurrent test-and-implementation coverage followed by green verification.
 - `skills/coding/objective-alignment/state-machine.ts` owns objective state and milestone transitions.
 - `skills/coding/objective-alignment/llm.ts` checks semantic alignment with the user's objective.
 - `skills/coding/coding-contracts.ts` defines the shared adapter contract.
@@ -27,12 +27,12 @@ The coding skill guardrail has three complementary parts:
 A harness adapter follows this lifecycle:
 
 1. Capture the current objective, relevant conversation context, and dirty workspace baseline when a request starts.
-2. Before a write, call `workflowCodeWriteEvaluate()` and persist its returned state.
+2. Before and after a write, call `workflowCodeWriteEvaluate()` and persist its returned state. Test and source writes may occur in either order or in parallel.
 3. Reconcile mutating tool results against Git workspace state and record only net changes after the baseline. Fall back to direct edit/write events when Git state is unavailable.
 4. When implementation progress is due, run an `implementation` judge before allowing the next production edit.
 5. Reconcile workspace state before selecting the red or green milestone for a recognized test command.
-6. Apply `workflowCodeTestResultApply()` only when the judge returns `align: true`.
-7. Reconcile workspace state before completion, then call `workflowCodeCompletionEvaluate()` and run the completion judge when deterministic verification is satisfied.
+6. Apply `workflowCodeTestResultApply()` only when the judge returns `align: true`. Green requires both a source change and a test change before the passing run.
+7. Reconcile workspace state before completion, then call `workflowCodeCompletionEvaluate()` and run the completion judge when deterministic verification is satisfied. A source-only change remains incomplete.
 8. Use `workflowCodeStateSkip()` when the user activates a one-request TDD kill switch.
 
 The judge receives bounded objective, conversation, change-journal, test, and prior-feedback data. It may return `align: false` only with concrete evidence tied to the user's objective. It must not invent requirements, redesign the solution, reject a coherent change merely because it is large, or block subjective improvements. Aligned checks remain silent. Harness adapters show and persist only drift, rendered as objective, drift, and re-alignment guidance; `align: false` results also produce agent-facing corrective feedback. Malformed or unavailable judge responses fail open as `align: true` after one retry so model availability cannot deadlock implementation.

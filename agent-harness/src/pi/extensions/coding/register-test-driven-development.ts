@@ -16,7 +16,7 @@ import {
 import type { WorkflowCodeState } from "#agent-harness/core/guardrails/skills/coding/coding-contracts";
 
 const GREEN_REMINDER =
-	"TDD guardrail: run a relevant test and confirm it passes.";
+	"TDD guardrail: add or update a relevant test, then run it and confirm it passes.";
 const RED_ESTABLISHED = "TDD guardrail: red";
 const GREEN_ESTABLISHED = "TDD guardrail: green";
 

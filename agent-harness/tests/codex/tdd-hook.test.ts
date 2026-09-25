@@ -20,20 +20,27 @@ function harnessCreate() {
 	};
 }
 
-test("Codex hook requires red before apply_patch and green before stop", () => {
+test("Codex hook allows parallel source and test edits, then requires green", () => {
 	const harness = harnessCreate();
 	try {
 		harness.hook({ hook_event_name: "UserPromptSubmit", prompt: "Fix account validation" });
-		const blocked = harness.hook({
+		const implementationId = harness.nextId();
+		assert.equal(harness.hook({
 			hook_event_name: "PreToolUse",
 			tool_name: "apply_patch",
+			tool_use_id: implementationId,
 			tool_input: { patch: "*** Begin Patch\n*** Update File: src/account.ts\n" },
+		}), undefined);
+		harness.hook({
+			hook_event_name: "PostToolUse",
+			tool_name: "apply_patch",
+			tool_use_id: implementationId,
+			tool_input: { patch: "*** Begin Patch\n*** Update File: src/account.ts\n" },
+			tool_response: {},
 		});
-		assert.equal(blocked?.decision, "block");
-		assert.match(blocked?.reason, /Require a failing test before changing implementation code/);
-		assert.match(blocked?.reason, /Continue: add\/update test, confirm red, implement, confirm green/);
-		assert.match(blocked?.reason, /Ask the user only if implementation edit remains blocked after a recognized test fails/);
-		assert.doesNotMatch(blocked?.reason, /\/tdd-skip/);
+		const sourceOnlyStop = harness.hook({ hook_event_name: "Stop", stop_hook_active: false });
+		assert.equal(sourceOnlyStop?.decision, "block");
+		assert.match(sourceOnlyStop?.reason, /Add or update a relevant test/);
 
 		const testId = harness.nextId();
 		harness.hook({
@@ -49,30 +56,6 @@ test("Codex hook requires red before apply_patch and green before stop", () => {
 			tool_input: { patch: "*** Begin Patch\n*** Add File: tests/account.test.ts\n" },
 			tool_response: {},
 		});
-		harness.hook({
-			hook_event_name: "PostToolUse",
-			tool_name: "exec_command",
-			tool_input: { cmd: ["npm", "test"] },
-			tool_response: { exit_code: 1 },
-		});
-
-		const implementationId = harness.nextId();
-		assert.equal(harness.hook({
-			hook_event_name: "PreToolUse",
-			tool_name: "apply_patch",
-			tool_use_id: implementationId,
-			tool_input: { patch: "*** Begin Patch\n*** Update File: src/account.ts\n" },
-		}), undefined);
-		harness.hook({
-			hook_event_name: "PostToolUse",
-			tool_name: "apply_patch",
-			tool_use_id: implementationId,
-			tool_input: { patch: "*** Begin Patch\n*** Update File: src/account.ts\n" },
-			tool_response: {},
-		});
-
-		const stop = harness.hook({ hook_event_name: "Stop", stop_hook_active: false });
-		assert.equal(stop?.decision, "block");
 
 		harness.hook({
 			hook_event_name: "PostToolUse",
