@@ -105,9 +105,7 @@ export default function planModeExtension(pi: ExtensionAPI): void {
 	}
 
 	function enablePlanModeTools(): void {
-		if (toolsBeforePlanMode === undefined) {
-			toolsBeforePlanMode = pi.getActiveTools();
-		}
+		toolsBeforePlanMode = uniqueToolNames([...(toolsBeforePlanMode ?? []), ...pi.getActiveTools()]);
 		pi.setActiveTools(getPlanModeTools(toolsBeforePlanMode));
 	}
 

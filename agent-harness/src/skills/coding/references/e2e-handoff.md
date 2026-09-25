@@ -23,8 +23,10 @@ Generate only the approved artifacts. Unless the plan specifies another format, 
 
 - `implementation-summary.md`: behavior changed, files changed, known limitations, and expected result.
 - `e2e/README.md`: prerequisites, required configuration and environment variable names without secret values, exact end-to-end commands, expected output, pass/fail criteria, and cleanup steps.
-- `e2e/run.sh`: runnable verification that fails fast with a nonzero exit status and prints concise pass/fail evidence.
+- `e2e/<test-case>.sh`: one script per approved test case, named in descriptive kebab-case; each script must run independently, fail fast with a nonzero exit status, and print concise pass/fail evidence.
 - `e2e/env.example`: required variable names with safe placeholders; never copy, print, or expose credentials.
+
+Do not collapse scenarios into one script. Add an optional `e2e/run-all.sh` coordinator only when the user approves it; every test case must remain directly runnable on its own.
 
 Keep scripts consistent with the approved test plan and follow these safety rules:
 
@@ -36,6 +38,6 @@ Keep scripts consistent with the approved test plan and follow these safety rule
 - Verify resulting state and clean up test-created resources when safe.
 - Print the intended target and mutation scope before execution.
 
-Run `e2e/run.sh` only when approved and the environment permits. Save output to `.local.artifacts/<task>/e2e/result.txt`. If execution is unavailable, state the blocker and leave the exact user-run command.
+Run each approved test-case script only when approved and the environment permits. Save each output beside its script as `.local.artifacts/<task>/e2e/<test-case>.result.txt`. If execution is unavailable, state the blocker and leave the exact user-run commands.
 
 Do not place handoff scripts or configuration in tracked repository paths unless the user explicitly requests permanent project tooling.

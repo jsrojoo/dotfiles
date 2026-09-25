@@ -41,6 +41,15 @@ class CodingSkillTest(unittest.TestCase):
         artifacts_index = content.index("## Artifact generation")
         self.assertLess(plan_index, approval_index)
         self.assertLess(approval_index, artifacts_index)
+        self.assertIn("one script per approved test case", content)
+        self.assertNotIn("`e2e/run.sh`", content)
+
+    def test_implementation_done_tool_triggers_e2e_handoff_assessment(self) -> None:
+        content = SKILL_PATH.read_text(encoding="utf-8")
+
+        self.assertIn("`implementation_done` tool", content)
+        self.assertIn("before the final response", content)
+        self.assertIn("self-service handoff", content)
 
     def test_contains_no_harness_specific_paths(self) -> None:
         content = SKILL_PATH.read_text(encoding="utf-8")

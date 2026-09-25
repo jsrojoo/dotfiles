@@ -2,7 +2,7 @@
   "lastChangelogVersion": "0.87.1",
   "theme": "dark",
   "defaultProvider": "azure",
-  "defaultModel": "gpt-5.6-sol",
+  "defaultModel": "gpt-5.6-luna",
   "defaultThinkingLevel": "medium",
   "enabledModels": [
     "azure/gpt-5.6-luna:medium",
@@ -20,6 +20,7 @@
   ],
   "hideThinkingBlock": false,
   "extensions": [
+    "~/dotfiles/.pi/agent/extensions/coding-tdd.ts",
     "~/dotfiles/agent-harness/src/pi/extensions/notify.ts",
     "~/dotfiles/agent-harness/src/pi/extensions/sql/register-mutative-sql-blocking.ts",
     "~/dotfiles/agent-harness/src/pi/extensions/sql/register-sql-validation.ts"
@@ -31,10 +32,24 @@
     "/Users/josephrojo/dotfiles/.codex/plugins/cache/ponytail/ponytail/4.10.0",
     "npm:pi-patty-bg-tasks"
   ],
-  "steeringMode": "one-at-a-time",
-  "tuiMode": "regular",
+  "steeringMode": "all",
+  "tuiMode": "fullscreen",
   "quietStartup": false,
   "markdown": {
-    "mermaid": "streaming"
-  }
+    "mermaid": "off"
+  },
+  "outputPad": 1,
+  "editorPaddingX": 3,
+  "showHardwareCursor": true,
+  "enableSkillCommands": true,
+  "fullscreenCopyOnSelect": true,
+  "fullscreenScrollbar": "auto",
+  "fullscreenExitOutput": "transcript",
+  "treeFilterMode": "default",
+  "doubleEscapeAction": "tree",
+  "defaultProjectTrust": "always",
+  "enableInstallTelemetry": false,
+  "cacheWarming": "streaming",
+  "transport": "auto",
+  "followUpMode": "all"
 }

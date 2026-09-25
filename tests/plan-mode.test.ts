@@ -10,3 +10,10 @@ test("loads plan mode prompt from its own file", () => {
 	assert.match(prompt, /`plan` skill/);
 	assert.doesNotMatch(source, /You are in plan mode/);
 });
+
+test("preserves newly registered tools when restoring plan mode", () => {
+	assert.match(
+		source,
+		/toolsBeforePlanMode = uniqueToolNames\(\[\.\.\.\(toolsBeforePlanMode \?\? \[\]\), \.\.\.pi\.getActiveTools\(\)\]\)/,
+	);
+});

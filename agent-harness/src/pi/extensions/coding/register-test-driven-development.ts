@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import type {
 	ExtensionAPI,
 	ExtensionContext,
@@ -19,6 +20,10 @@ const GREEN_REMINDER =
 	"TDD guardrail: add or update a relevant test, then inspect the latest watcher result with tdd-watch status.";
 const RED_ESTABLISHED = "TDD guardrail: red";
 const GREEN_ESTABLISHED = "TDD guardrail: green";
+const E2E_HANDOFF = readFileSync(
+	new URL("../../../skills/coding/references/e2e-handoff.md", import.meta.url),
+	"utf8",
+).trim();
 
 interface SessionTddState {
 	cycle: WorkflowCodeState;
@@ -33,9 +38,24 @@ function guardrailDisabled(): boolean {
 	);
 }
 
-export function testDrivenDevelopmentEnforcementCreate(): (pi: ExtensionAPI) => void {
+export function testDrivenDevelopmentEnforcementCreate(
+	implementationDoneParameters: unknown = { type: "object", properties: {}, additionalProperties: false },
+): (pi: ExtensionAPI) => void {
 	return function testDrivenDevelopmentEnforcementRegister(pi: ExtensionAPI): void {
 		const sessions = new Map<string, SessionTddState>();
+
+		pi.registerTool({
+			name: "implementation_done",
+			label: "Implementation done",
+			description: "Call after implementation and fresh verification to load end-to-end handoff guidance.",
+			parameters: implementationDoneParameters as any,
+			async execute() {
+				return {
+					content: [{ type: "text" as const, text: E2E_HANDOFF }],
+					details: undefined,
+				};
+			},
+		});
 
 		function sessionGet(ctx: ExtensionContext): SessionTddState {
 			const sessionId = ctx.sessionManager.getSessionId();

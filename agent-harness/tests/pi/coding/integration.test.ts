@@ -22,6 +22,7 @@ test("Pi settings load shared extensions independently of the working directory"
 	const tddWrapper = readFileSync(tddWrapperUrl, "utf8");
 
 	assert.deepEqual(settings.extensions, [
+		"~/dotfiles/.pi/agent/extensions/coding-tdd.ts",
 		"~/dotfiles/agent-harness/src/pi/extensions/notify.ts",
 		"~/dotfiles/agent-harness/src/pi/extensions/sql/register-mutative-sql-blocking.ts",
 		"~/dotfiles/agent-harness/src/pi/extensions/sql/register-sql-validation.ts",
@@ -30,6 +31,7 @@ test("Pi settings load shared extensions independently of the working directory"
 		tddWrapper,
 		/join\(homedir\(\), "dotfiles\/agent-harness\/src\/pi\/extensions\/coding\/register-test-driven-development\.ts"\)/,
 	);
+	assert.match(tddWrapper, /Type\.Object\(\{\}\)/);
 	assert.equal(typeof (await import(tddWrapperUrl.href)).default, "function");
 });
 
@@ -45,6 +47,7 @@ function harnessCreate(
 	let editorText = "";
 	const notifications: string[] = [];
 	const renderers = new Map<string, Function>();
+	const tools = new Map<string, any>();
 	const pi = {
 		appendEntry(customType: string, data: any) {
 			entries.push({ customType, data });
@@ -63,6 +66,9 @@ function harnessCreate(
 		},
 		registerEntryRenderer(name: string, renderer: Function) {
 			renderers.set(name, renderer);
+		},
+		registerTool(tool: { name: string }) {
+			tools.set(tool.name, tool);
 		},
 	};
 	const context = {
@@ -88,8 +94,19 @@ function harnessCreate(
 		handlers,
 		notifications,
 		renderers,
+		tools,
 	};
 }
+
+test("implementation_done tool returns end-to-end handoff guidance", async () => {
+	const { tools } = harnessCreate();
+	const tool = tools.get("implementation_done");
+
+	assert.ok(tool);
+	const result = await tool.execute("call-1", {}, undefined, undefined, {});
+	assert.match(result.content[0].text, /## Test plan/);
+	assert.match(result.content[0].text, /one script per approved test case/);
+});
 
 test("Pi adapter allows parallel source and test edits, then requires green", async () => {
 	const { context, handlers, notifications } = harnessCreate();
