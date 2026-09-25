@@ -20,10 +20,19 @@ export function sharedAgentModelSelectorBuild(
 }
 
 export function subagentModelCandidatesBuild(
-	agent: { model?: string; fallbackModels?: string[]; tools?: string[] },
+	agent: {
+		model?: string;
+		fallbackModels?: string[];
+		tools?: string[];
+		allowFallbackModelsWithMutationTools?: boolean;
+	},
 	inheritedModel: string | undefined,
 ): Array<string | undefined> {
-	if (agent.fallbackModels?.length && (!agent.tools || agent.tools.some((tool) => !READ_ONLY_TOOLS.has(tool)))) {
+	if (
+		agent.fallbackModels?.length &&
+		(!agent.tools || agent.tools.some((tool) => !READ_ONLY_TOOLS.has(tool))) &&
+		!agent.allowFallbackModelsWithMutationTools
+	) {
 		throw new Error("Subagent fallback models require explicitly read-only tools.");
 	}
 

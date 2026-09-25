@@ -94,6 +94,20 @@ test("rejects fallback models for agents with mutation-capable tools", () => {
 	);
 });
 
+test("allows fallback models with explicit mutation-tool exception", () => {
+	assert.deepEqual(
+		subagentModelCandidatesBuild(
+			{
+				fallbackModels: ["atlas/fallback"],
+				tools: ["read", "bash"],
+				allowFallbackModelsWithMutationTools: true,
+			},
+			"azure/primary",
+		),
+		["azure/primary", "atlas/fallback"],
+	);
+});
+
 test("context agent is bundled, isolated, and concise", () => {
 	const agent = readFileSync(new URL("../../agents/context.toml", import.meta.url), "utf8");
 	const prompt = readFileSync(new URL("../../agents/context.md", import.meta.url), "utf8");
@@ -102,7 +116,8 @@ test("context agent is bundled, isolated, and concise", () => {
 	assert.match(agent, /^model_provider = "azure"$/m);
 	assert.match(agent, /^model = "gpt-5\.6-luna"$/m);
 	assert.match(agent, /^fallback_models = "atlas\/gpt-6-luna,atlas-bedrock\/claude-sonnet-4-6"$/m);
-	assert.match(agent, /^sandbox_mode = "read-only"$/m);
+	assert.match(agent, /^allow_fallback_models_with_mutation_tools = true$/m);
+	assert.match(agent, /^sandbox_mode = "read-only-with-bash"$/m);
 	assert.match(agent, /^tools = "git"$/m);
 	assert.match(prompt, /Never modify files, repository state, dependencies, or external systems/);
 	assert.match(prompt, /Return one compact integrated handoff/);
@@ -111,7 +126,11 @@ test("context agent is bundled, isolated, and concise", () => {
 test("context agent receives the dedicated read-only git tool", () => {
 	const agent = discoverAgents(process.cwd(), "user", undefined).agents.find((item) => item.name === "context");
 
-	assert.deepEqual(agent?.tools, ["read", "grep", "find", "ls", "git"]);
+	assert.deepEqual(agent?.tools, ["read", "grep", "find", "ls", "bash", "git"]);
+	assert.deepEqual(agent?.skills, ["graphify"]);
+	assert.deepEqual(agent?.extensions, ["rtk", "git-read-only"]);
+	assert.deepEqual(agent?.fallbackModels, ["atlas/gpt-6-luna", "atlas-bedrock/claude-sonnet-4-6"]);
+	assert.equal(agent?.allowFallbackModelsWithMutationTools, true);
 });
 
 test("git agent is bundled and keeps Git workflow separate from implementation", () => {

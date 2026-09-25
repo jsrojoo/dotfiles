@@ -126,6 +126,12 @@ function parseSharedAgentString(content: string, key: string): string | undefine
 	}
 }
 
+function parseSharedAgentBoolean(content: string, key: string): boolean | undefined {
+	const escapedKey = key.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+	const match = content.match(new RegExp(`^\\s*${escapedKey}\\s*=\\s*(true|false)\\s*$`, "m"));
+	return match ? match[1] === "true" : undefined;
+}
+
 function loadSharedAgents(dirs: string[], mainProvider: string | undefined): AgentConfig[] {
 	const agents: AgentConfig[] = [];
 	for (const dir of dirs) {
@@ -160,6 +166,7 @@ function loadSharedAgents(dirs: string[], mainProvider: string | undefined): Age
 			const model = parseSharedAgentString(toml, "model");
 			const modelProvider = parseSharedAgentString(toml, "model_provider");
 			const skills = parseResourceList(parseSharedAgentString(toml, "skills"));
+			const extensions = parseResourceList(parseSharedAgentString(toml, "extensions"));
 			const sandboxMode = parseSharedAgentString(toml, "sandbox_mode");
 			const sandboxTools =
 				sandboxMode === "read-only"
@@ -173,6 +180,10 @@ function loadSharedAgents(dirs: string[], mainProvider: string | undefined): Age
 				?.split(",")
 				.map((value) => value.trim())
 				.filter(Boolean);
+			const allowFallbackModelsWithMutationTools = parseSharedAgentBoolean(
+				toml,
+				"allow_fallback_models_with_mutation_tools",
+			);
 
 			agents.push({
 				name,
@@ -180,7 +191,9 @@ function loadSharedAgents(dirs: string[], mainProvider: string | undefined): Age
 				tools: tools.length ? tools : undefined,
 				model: sharedAgentModelSelectorBuild(model, modelProvider, mainProvider),
 				skills,
+				extensions,
 				fallbackModels,
+				allowFallbackModelsWithMutationTools,
 				systemPrompt: prompt,
 				source: "user",
 				filePath: tomlPath,

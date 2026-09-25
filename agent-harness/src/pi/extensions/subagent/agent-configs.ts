@@ -8,6 +8,7 @@ export interface AgentConfig {
 	extensions?: string[];
 	model?: string;
 	fallbackModels?: string[];
+	allowFallbackModelsWithMutationTools?: boolean;
 	systemPrompt: string;
 	source: "user" | "project";
 	filePath: string;
