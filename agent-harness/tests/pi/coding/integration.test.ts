@@ -135,6 +135,7 @@ test("Pi adapter allows parallel source and test edits, then requires green", as
 		"TDD guardrail: add or update a relevant test, then inspect the latest watcher result with tdd-watch status.",
 	);
 	assert.equal(notifications.at(-1), undefined);
+	assert.equal(await beforeSettle({}, context), undefined);
 
 	assert.equal(
 		await toolCall(

@@ -30,6 +30,7 @@ interface SessionTddState {
 	cycle: WorkflowCodeState;
 	pendingPaths: Map<string, string>;
 	implementationDone: boolean;
+	completionReminderIssued: boolean;
 	skipNext?: boolean;
 }
 
@@ -69,6 +70,7 @@ export function testDrivenDevelopmentEnforcementCreate(
 				cycle: workflowCodeStateCreate(),
 				pendingPaths: new Map<string, string>(),
 				implementationDone: false,
+				completionReminderIssued: false,
 			};
 			sessions.set(sessionId, created);
 			return created;
@@ -96,6 +98,7 @@ export function testDrivenDevelopmentEnforcementCreate(
 				: workflowCodeStateCreate();
 			session.pendingPaths.clear();
 			session.implementationDone = false;
+			session.completionReminderIssued = false;
 			session.skipNext = false;
 		});
 
@@ -144,7 +147,8 @@ export function testDrivenDevelopmentEnforcementCreate(
 			const session = sessionGet(ctx);
 			const completion = workflowCodeCompletionEvaluate(session.cycle);
 			session.cycle = completion.state;
-			if (completion.remind) {
+			if (completion.remind && !session.completionReminderIssued) {
+				session.completionReminderIssued = true;
 				return {
 					entries: [
 						{
