@@ -103,7 +103,7 @@ test("context agent is fast, isolated, and concise", () => {
 	assert.match(agent, /^model: azure\/gpt-5\.6-luna$/m);
 	assert.match(agent, /^fallbackModels:\n  - atlas\/gpt-5\.6-luna\n  - atlas-bedrock\/claude-sonnet-4-6$/m);
 	assert.match(agent, /^skills: \[\]$/m);
-	assert.match(agent, /^extensions: \[\]$/m);
+	assert.match(agent, /^extensions:\n  - atlas\n  - claude-bedrock$/m);
 	assert.match(agent, /`grep` \(backed by `rg`\)/);
 	assert.match(agent, /`find` \(backed by `fd`\)/);
 	assert.match(agent, /Return only compact findings/);

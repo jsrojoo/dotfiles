@@ -7,7 +7,9 @@ fallbackModels:
   - atlas/gpt-5.6-luna
   - atlas-bedrock/claude-sonnet-4-6
 skills: []
-extensions: []
+extensions:
+  - atlas
+  - claude-bedrock
 ---
 
 Gather only context needed for assigned question. Never modify files, repository state, dependencies, or external systems.
