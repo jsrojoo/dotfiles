@@ -31,6 +31,12 @@ class GitSkillTest(unittest.TestCase):
         for harness_path in (".claude/", ".codex/", ".pi/", "agent-skills/"):
             self.assertNotIn(harness_path, content)
 
+    def test_assigns_merge_request_creator_as_assignee_and_reviewer(self) -> None:
+        content = SKILL_PATH.read_text(encoding="utf-8")
+
+        self.assertIn('--assignee "$username"', content)
+        self.assertIn('--reviewer "$username"', content)
+
 
 if __name__ == "__main__":
     unittest.main()

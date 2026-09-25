@@ -57,7 +57,15 @@ Before creating merge request:
 - Verify `pwd`, `git remote get-url origin`, and repository identity.
 - Run command from target repository or worktree.
 - Pass repository explicitly when client supports it.
+- Assign authenticated user as both assignee and reviewer on every created merge request.
 - Do not reuse recovery file produced from wrong-repository attempt.
+
+For `glab`, resolve authenticated username and pass it to both fields:
+
+```bash
+username="$(glab api user --jq .username)"
+glab mr create --repo <group/project> --assignee "$username" --reviewer "$username"
+```
 
 After each push, check whether branch has open merge request. Update title and description only when new commits materially change full scope. Report merge-request number, final title, and whether metadata changed.
 
