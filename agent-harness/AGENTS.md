@@ -37,16 +37,7 @@ Harness-specific files should contain only rules tied to that harness, such as t
 
 ## 2. Planning and approval
 
-Treat work as non-trivial when it involves multiple components, architectural decisions, migrations, unfamiliar behavior, or meaningful risk.
-
-For non-trivial work:
-
-1. Perform read-only investigation first.
-2. Present a concise numbered plan with assumptions, risks, and verification.
-3. Obtain approval before destructive actions, high-risk filesystem changes, external installations, secrets access, or Git writes.
-4. Execute the approved scope without repeatedly requesting the same permission.
-
-Implement routine, low-risk changes directly unless the user requests a plan or review first.
+Use the `plan` skill for non-trivial work or when the user asks for a plan. Implement routine, low-risk changes directly.
 
 ## 3. Filesystem and command safety
 
