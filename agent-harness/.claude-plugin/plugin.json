@@ -1,6 +1,6 @@
 {
   "name": "agent-harness-tdd",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Test-driven development guardrail for Claude Code.",
   "author": { "name": "Agent Harness" },
   "skills": ["./src/skills/coding"],
