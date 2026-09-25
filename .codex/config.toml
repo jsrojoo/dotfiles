@@ -189,6 +189,9 @@ enabled = true
 [plugins."ponytail@ponytail"]
 enabled = true
 
+[plugins."agent-harness-tdd@agent-harness"]
+enabled = true
+
 [tui]
 status_line = ["model-with-reasoning", "context-remaining", "used-tokens", "current-dir", "total-input-tokens", "total-output-tokens"]
 status_line_use_colors = true
@@ -217,6 +220,18 @@ trusted_hash = "sha256:b0f163476e6d73f691466351f072dd4a2b4a1812fc617d7c1953f629b
 [hooks.state."/Users/josephrojo/fiserv/aitrium/labs/ai-usage-metrics/.codex/hooks.json:pre_tool_use:0:0"]
 trusted_hash = "sha256:29f2c24ce14835f0ef3110c2cfef9edb16671cede0385763096051cea430f16c"
 
+[hooks.state."agent-harness-tdd@agent-harness:hooks/codex-hooks.json:pre_tool_use:0:0"]
+trusted_hash = "sha256:dfe8a03569df0b4eb3db69b2617556484a8729f043511b3b4ed715fc359df90c"
+
+[hooks.state."agent-harness-tdd@agent-harness:hooks/codex-hooks.json:post_tool_use:0:0"]
+trusted_hash = "sha256:f1e3aaf38cba848eb2e31547ec553097bb532252b1a73bb2ac0d84a9d2a27e36"
+
+[hooks.state."agent-harness-tdd@agent-harness:hooks/codex-hooks.json:user_prompt_submit:0:0"]
+trusted_hash = "sha256:5db8c16643f6e63c71f6807e46d67f6133c7ab507a3cc2ecaeea671fcd4bb9b4"
+
+[hooks.state."agent-harness-tdd@agent-harness:hooks/codex-hooks.json:stop:0:0"]
+trusted_hash = "sha256:c2d9b9eccc87fc4ec86648e254d95e3bb35b18c2e9202f12419f7e393f26ecbf"
+
 [marketplaces.aitrium-dev-workspace-local]
 last_updated = "2026-06-03T19:17:29Z"
 source_type = "local"
@@ -230,3 +245,7 @@ source = "/Users/josephrojo/fiserv/poc/sdlc-automation"
 [marketplaces.ponytail]
 source_type = "git"
 source = "https://github.com/DietrichGebert/ponytail.git"
+
+[marketplaces.agent-harness]
+source_type = "local"
+source = "/Users/josephrojo/dotfiles/agent-harness"

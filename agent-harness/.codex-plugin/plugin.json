@@ -1,8 +1,8 @@
 {
   "name": "agent-harness-tdd",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Test-driven development guardrail for Codex.",
-  "skills": "./src/skills/coding",
+  "skills": "./src/skills/tdd",
   "hooks": "./hooks/codex-hooks.json",
   "interface": {
     "displayName": "Agent Harness TDD",

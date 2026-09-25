@@ -1,6 +1,6 @@
 # Agent Harness TDD Guardrail
 
-Installable Claude Code and Codex package around shared TDD policy in `src/core/guardrails/skills/coding/enforce-test-driven-development.ts`.
+Installable Claude Code and Codex package around shared TDD policy in `src/core/guardrails/skills/coding/enforce-test-driven-development.ts`. The package exposes only the focused `src/skills/tdd/` skill; broader coding workflows remain outside the plugin.
 
 Guardrail message: require a failing test before changing implementation code.
 
