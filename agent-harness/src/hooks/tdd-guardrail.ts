@@ -32,7 +32,7 @@ interface TddSessionState {
 	skipNext: boolean;
 }
 
-const GREEN_REMINDER = "TDD guardrail: Add or update a relevant test, then run it and confirm it passes before finishing.";
+const GREEN_REMINDER = "TDD guardrail: Add or update a relevant test, then inspect the latest watcher result with tdd-watch status before finishing.";
 const IMPLEMENTATION_TOOLS_CLAUDE = new Set(["Edit", "Write", "MultiEdit", "NotebookEdit"]);
 const IMPLEMENTATION_TOOLS_CODEX = new Set(["apply_patch", "write_file", "edit_file"]);
 

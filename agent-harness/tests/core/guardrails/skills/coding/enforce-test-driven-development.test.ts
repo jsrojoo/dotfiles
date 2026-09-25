@@ -27,6 +27,9 @@ test("recognizes common test commands without treating arbitrary failures as tes
 		"pnpm test",
 		"go test ./...",
 		"cargo test",
+		"node /plugin/src/cli/tdd-watch.ts status",
+		"node \"/plugin/src/cli/tdd-watch.ts\" status",
+		"tdd-watch status",
 	]) {
 		assert.equal(workflowCodeTestCommandIsRecognized(command), true, command);
 	}

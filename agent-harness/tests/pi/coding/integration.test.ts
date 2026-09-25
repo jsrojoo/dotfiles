@@ -114,7 +114,7 @@ test("Pi adapter allows parallel source and test edits, then requires green", as
 	assert.equal(reminder.entries[0].customType, "workflow-code-guardrail");
 	assert.equal(
 		reminder.entries[0].content,
-		"TDD guardrail: add or update a relevant test, then run it and confirm it passes.",
+		"TDD guardrail: add or update a relevant test, then inspect the latest watcher result with tdd-watch status.",
 	);
 	assert.equal(notifications.at(-1), undefined);
 
@@ -130,7 +130,11 @@ test("Pi adapter allows parallel source and test edits, then requires green", as
 		context,
 	);
 	await toolResult(
-		{ toolName: "bash", input: { command: "node --test account.test.ts" }, isError: false },
+		{
+			toolName: "bash",
+			input: { command: "node /plugin/src/cli/tdd-watch.ts status" },
+			isError: false,
+		},
 		context,
 	);
 	assert.equal(notifications.at(-1), "TDD guardrail: green");

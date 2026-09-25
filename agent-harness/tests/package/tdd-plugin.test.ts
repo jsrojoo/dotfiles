@@ -8,12 +8,14 @@ function jsonRead(path: string): any {
 	return JSON.parse(readFileSync(new URL(path, root), "utf8"));
 }
 
-test("Claude and Codex package only the dedicated TDD skill", () => {
+test("Claude and Codex package the TDD skill and watcher", () => {
 	const claude = jsonRead(".claude-plugin/plugin.json");
 	const codex = jsonRead(".codex-plugin/plugin.json");
+	const packageJson = jsonRead("package.json");
 
 	assert.deepEqual(claude.skills, ["./src/skills/tdd"]);
 	assert.equal(codex.skills, "./src/skills/tdd");
+	assert.equal(packageJson.bin["tdd-watch"], "./src/cli/tdd-watch.ts");
 });
 
 test("dedicated TDD skill excludes unrelated coding workflows", () => {
@@ -22,5 +24,6 @@ test("dedicated TDD skill excludes unrelated coding workflows", () => {
 	assert.match(skill, /^---\nname: tdd\n/m);
 	assert.match(skill, /test and implementation in either order or in parallel/i);
 	assert.match(skill, /Source-only changes do not satisfy this workflow/i);
+	assert.match(skill, /tdd-watch status/i);
 	assert.doesNotMatch(skill, /End-to-end handoff|\.local\.artifacts|SQL|responsive frontend/i);
 });

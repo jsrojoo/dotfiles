@@ -16,6 +16,7 @@ const SOURCE_FILE_PATTERN = /\.(?:c|cc|cpp|cs|go|h|hpp|java|js|jsx|kt|mjs|cjs|ph
 const TEST_DIRECTORY_PATTERN = /(?:^|[\\/])(?:__tests__|tests?)(?:[\\/]|$)/i;
 const TEST_FILE_PATTERN = /(?:^|[\\/])(?:test_[^\\/]+|[^\\/]+\.(?:test|spec)\.[a-z0-9]+|[^\\/]+_test\.[a-z0-9]+)$/i;
 const TEST_COMMAND_PATTERNS = [
+	/\btdd-watch(?:\.ts)?["']?\s+status\b/i,
 	/\b(?:pytest|py\.test|jest|vitest|mocha|rspec|phpunit)\b/i,
 	/\bpython(?:\d+(?:\.\d+)*)?\s+-m\s+(?:pytest|unittest)\b/i,
 	/\bnode\s+--test\b/i,

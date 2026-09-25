@@ -51,7 +51,7 @@ Use only the stages relevant to the task. Do not force this structure onto simpl
 
 ## Test-driven development
 
-Require every implementation change to include a relevant test change and end with a passing test. Test and implementation edits may happen in either order or in parallel. A failing test before implementation is useful evidence, not a sequencing requirement. Source-only changes do not satisfy this workflow. If TDD is impractical, state why and use the closest focused verification available.
+Require every implementation change to include a relevant test change and end with a fresh passing watcher result. Start `tdd-watch watch -- <focused test command>` once using the background-job facility, then edit test and implementation code in either order or in parallel. Before completion, use `tdd-watch status` to inspect the latest run without rerunning tests. Missing, running, stale, or failed watcher results are not green. A failing test before implementation is useful evidence, not a sequencing requirement. Source-only changes do not satisfy this workflow. If TDD is impractical, state why and use the closest focused verification available.
 
 ### Test and implementation
 
@@ -62,7 +62,8 @@ Require every implementation change to include a relevant test change and end wi
 
 ### Green
 
-- Run the focused test after both changes and confirm it passes.
+- Let the background watcher rerun the focused test after changes.
+- Inspect its latest result with `tdd-watch status`; do not rerun the test manually.
 - Do not treat an earlier passing run as proof for later source changes.
 
 ### Refactor

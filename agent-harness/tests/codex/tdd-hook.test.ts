@@ -40,7 +40,7 @@ test("Codex hook allows parallel source and test edits, then requires green", ()
 		});
 		const sourceOnlyStop = harness.hook({ hook_event_name: "Stop", stop_hook_active: false });
 		assert.equal(sourceOnlyStop?.decision, "block");
-		assert.match(sourceOnlyStop?.reason, /Add or update a relevant test/);
+		assert.match(sourceOnlyStop?.reason, /tdd-watch status/);
 
 		const testId = harness.nextId();
 		harness.hook({
@@ -60,7 +60,7 @@ test("Codex hook allows parallel source and test edits, then requires green", ()
 		harness.hook({
 			hook_event_name: "PostToolUse",
 			tool_name: "exec_command",
-			tool_input: { cmd: ["npm", "test"] },
+			tool_input: { cmd: ["node", "/plugin/src/cli/tdd-watch.ts", "status"] },
 			tool_response: { exit_code: 0 },
 		});
 		assert.equal(harness.hook({ hook_event_name: "Stop", stop_hook_active: false }), undefined);

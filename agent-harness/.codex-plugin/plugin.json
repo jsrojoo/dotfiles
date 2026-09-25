@@ -6,8 +6,8 @@
   "hooks": "./hooks/codex-hooks.json",
   "interface": {
     "displayName": "Agent Harness TDD",
-    "shortDescription": "Require a failing test before changing implementation code.",
-    "longDescription": "Enforces a red-green test-driven development cycle for supported edit tools, with a one-request /tdd-skip override.",
+    "shortDescription": "Require tests alongside implementation changes.",
+    "longDescription": "Allows parallel test and implementation edits, then requires a fresh passing watcher result, with a one-request /tdd-skip override.",
     "developerName": "Agent Harness",
     "category": "Developer Tools",
     "capabilities": ["Instructions", "Lifecycle hooks"]

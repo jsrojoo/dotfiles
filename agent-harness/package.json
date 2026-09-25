@@ -5,11 +5,15 @@
   "engines": {
     "node": ">=22.6"
   },
+  "bin": {
+    "tdd-watch": "./src/cli/tdd-watch.ts"
+  },
   "scripts": {
     "lint:imports": "node --test tests/import-paths.test.ts",
     "test": "node --test"
   },
   "imports": {
+    "#agent-harness/cli/*": "./src/cli/*.ts",
     "#agent-harness/core/*": "./src/core/*.ts",
     "#agent-harness/pi/*": "./src/pi/*.ts",
     "#agent-harness/hooks/*": "./src/hooks/*.ts",

@@ -31,8 +31,8 @@ A harness adapter follows this lifecycle:
 3. Reconcile mutating tool results against Git workspace state and record only net changes after the baseline. Fall back to direct edit/write events when Git state is unavailable.
 4. When implementation progress is due, run an `implementation` judge before allowing the next production edit.
 5. Reconcile workspace state before selecting the red or green milestone for a recognized test command.
-6. Apply `workflowCodeTestResultApply()` only when the judge returns `align: true`. Green requires both a source change and a test change before the passing run.
-7. Reconcile workspace state before completion, then call `workflowCodeCompletionEvaluate()` and run the completion judge when deterministic verification is satisfied. A source-only change remains incomplete.
+6. Apply `workflowCodeTestResultApply()` only when the judge returns `align: true`. Green requires both a source change and a test change before a passing test result or fresh `tdd-watch status` result.
+7. Reconcile workspace state before completion, then call `workflowCodeCompletionEvaluate()` and run the completion judge when deterministic verification is satisfied. A source-only change remains incomplete. Watcher status inspection does not rerun tests.
 8. Use `workflowCodeStateSkip()` when the user activates a one-request TDD kill switch.
 
 The judge receives bounded objective, conversation, change-journal, test, and prior-feedback data. It may return `align: false` only with concrete evidence tied to the user's objective. It must not invent requirements, redesign the solution, reject a coherent change merely because it is large, or block subjective improvements. Aligned checks remain silent. Harness adapters show and persist only drift, rendered as objective, drift, and re-alignment guidance; `align: false` results also produce agent-facing corrective feedback. Malformed or unavailable judge responses fail open as `align: true` after one retry so model availability cannot deadlock implementation.
