@@ -31,6 +31,9 @@ test("Codex hook requires red before apply_patch and green before stop", () => {
 		});
 		assert.equal(blocked?.decision, "block");
 		assert.match(blocked?.reason, /Require a failing test before changing implementation code/);
+		assert.match(blocked?.reason, /Continue: add\/update test, confirm red, implement, confirm green/);
+		assert.match(blocked?.reason, /Ask the user only if implementation edit remains blocked after a recognized test fails/);
+		assert.doesNotMatch(blocked?.reason, /\/tdd-skip/);
 
 		const testId = harness.nextId();
 		harness.hook({

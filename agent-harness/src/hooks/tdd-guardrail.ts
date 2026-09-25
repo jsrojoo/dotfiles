@@ -129,7 +129,8 @@ function resultFailed(response: unknown): boolean {
 		if (typeof result.status === "string" && /^(?:failed|error)$/i.test(result.status)) return true;
 	}
 	const output = typeof response === "string" ? response : JSON.stringify(response ?? "");
-	return /\b(?:exit code|exit status):\s*[1-9]\d*\b/i.test(output);
+	return /\b(?:exit code|exit status)\s*[:=]?\s*[1-9]\d*\b/i.test(output) ||
+		/\bexited with (?:code|status)\s*[:=]?\s*[1-9]\d*\b/i.test(output);
 }
 
 function resultBlock(

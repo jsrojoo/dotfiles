@@ -75,8 +75,8 @@ export function workflowCodeWriteEvaluate(
 		return {
 			block: true,
 			reason:
-				`Blocked implementation-code change to "${path}": Require a failing test before changing implementation code. Run a relevant test and confirm it fails. ` +
-				"Or use `/tdd-skip` as a one-request kill switch.",
+				`Blocked implementation-code change to "${path}": Require a failing test before changing implementation code. ` +
+				"Continue: add/update test, confirm red, implement, confirm green. Ask the user only if implementation edit remains blocked after a recognized test fails.",
 			state,
 		};
 	}
