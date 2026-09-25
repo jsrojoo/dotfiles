@@ -2,7 +2,7 @@
 
 Shared coding-agent harness for Pi, Claude Code, and Codex.
 
-Pi includes the bundled read-only `context` agent. Calling `context` with a task runs one focused investigation. Pass an explicit `tasks` array for non-overlapping parallel investigations.
+Pi includes the bundled read-only `context` agent. Each call runs one focused investigation in a fresh child process. Pass an explicit `tasks` array for non-overlapping parallel investigations. Its dedicated `git` tool exposes repository status, diffs, and history without shell or mutation access.
 
 Installable Claude Code and Codex package around shared TDD policy in `src/core/guardrails/skills/coding/enforce-test-driven-development.ts`. The package exposes only the focused `src/skills/tdd/` skill; broader coding workflows remain outside the plugin.
 

@@ -1,5 +1,5 @@
 const MAIN_PROVIDER_CHILD_SUPPORTED = new Set(["atlas", "azure", "atlas-bedrock"]);
-const READ_ONLY_TOOLS = new Set(["read", "grep", "find", "ls"]);
+const READ_ONLY_TOOLS = new Set(["read", "grep", "find", "ls", "git"]);
 const MAX_MODEL_ATTEMPTS = 3;
 
 function sharedAgentProviderChildCompute(

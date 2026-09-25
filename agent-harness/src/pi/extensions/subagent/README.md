@@ -21,6 +21,7 @@ Pi-native user agents override shared agents with the same name. With `agentScop
 | `model_provider` + `model` | Pi `provider/model` selector |
 | Pi-native `fallbackModels` | Up to two ordered fallback selectors after `model` |
 | `sandbox_mode = "read-only"` | Restricts tools to `read`, `grep`, `find`, and `ls` |
+| `tools` | Adds comma-separated custom tools to the sandbox tool set |
 | `sandbox_mode = "read-only-with-bash"` | Adds `bash` for controlled Git or test commands; prompt policy remains required |
 | Other `sandbox_mode` values | Uses Pi's default tool set |
 
@@ -42,7 +43,7 @@ Child `pi` processes start with `-ne` (no extension discovery). By default they 
 
 - `model_reasoning_effort` is not mapped; a model-specific Pi subagent uses Pi's default thinking behavior.
 - Approval policies and sandbox implementations are not imported.
-- Read-only shared agents do not receive `bash`, so prompts mentioning `rg` or `ast-grep` must fall back to Pi's `grep`, `find`, and `read` tools.
+- Read-only shared agents do not receive `bash`. The bundled `context` agent adds only the dedicated `git` tool, whose fixed `status`, `diff`, `log`, and `show` operations cannot mutate repository state.
 - `read-only-with-bash` agents receive `bash` in addition to read-only tools. Bash can still mutate files, so prompt-level approval rules remain mandatory; this mode is intended for narrowly scoped Git or test workflows.
 - The `editor` agent receives `bash` only for running tests; its prompt still restricts file mutations to `edit`.
 - A TOML definition is ignored unless its paired Markdown prompt exists and both `name` and `description` are simple quoted strings.
@@ -55,4 +56,4 @@ Ask Pi to delegate through the `subagent` tool, for example:
 Use context to inspect the repository and return a concise handoff.
 ```
 
-Calling `context` with a task runs one focused read-only investigation. Run independent investigations in parallel only by passing an explicit `tasks` array with non-overlapping scopes; the extension supports at most four concurrent child processes. The `context` agent has no shell or mutation tools; its safe `grep` and `find` tools use `rg` and `fd` internally. External services require dedicated clients with verified read-only connections and read-only queries.
+Calling `context` with a task runs one focused read-only investigation in a fresh child process. Run independent investigations in parallel only by passing an explicit `tasks` array with non-overlapping scopes; the extension supports at most four concurrent child processes. The `context` agent has no shell or mutation tools; its safe `grep` and `find` tools use `rg` and `fd` internally, and its dedicated `git` tool exposes only fixed read-only operations. External services require dedicated clients with verified read-only connections and read-only queries.

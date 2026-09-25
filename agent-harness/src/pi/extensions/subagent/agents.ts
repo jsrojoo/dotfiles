@@ -161,6 +161,14 @@ function loadSharedAgents(dirs: string[], mainProvider: string | undefined): Age
 			const modelProvider = parseSharedAgentString(toml, "model_provider");
 			const skills = parseResourceList(parseSharedAgentString(toml, "skills"));
 			const sandboxMode = parseSharedAgentString(toml, "sandbox_mode");
+			const sandboxTools =
+				sandboxMode === "read-only"
+					? ["read", "grep", "find", "ls"]
+					: sandboxMode === "read-only-with-bash"
+						? ["read", "grep", "find", "ls", "bash"]
+						: [];
+			const explicitTools = parseToolList(parseSharedAgentString(toml, "tools")) ?? [];
+			const tools = [...new Set([...sandboxTools, ...explicitTools])];
 			const fallbackModels = parseSharedAgentString(toml, "fallback_models")
 				?.split(",")
 				.map((value) => value.trim())
@@ -169,12 +177,7 @@ function loadSharedAgents(dirs: string[], mainProvider: string | undefined): Age
 			agents.push({
 				name,
 				description,
-				tools:
-					sandboxMode === "read-only"
-						? ["read", "grep", "find", "ls"]
-						: sandboxMode === "read-only-with-bash"
-							? ["read", "grep", "find", "ls", "bash"]
-							: undefined,
+				tools: tools.length ? tools : undefined,
 				model: sharedAgentModelSelectorBuild(model, modelProvider, mainProvider),
 				skills,
 				fallbackModels,

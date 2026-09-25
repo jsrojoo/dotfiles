@@ -60,7 +60,7 @@ test("builds a bounded, ordered fallback list for read-only agents", () => {
 			{
 				model: "azure/primary",
 				fallbackModels: ["atlas/first", "azure/primary", "atlas/second", "atlas/ignored"],
-				tools: ["read", "grep", "find", "ls"],
+				tools: ["read", "grep", "find", "ls", "git"],
 			},
 			"azure/inherited",
 		),
@@ -101,10 +101,17 @@ test("context agent is bundled, isolated, and concise", () => {
 	assert.match(agent, /^name = "context"$/m);
 	assert.match(agent, /^model_provider = "azure"$/m);
 	assert.match(agent, /^model = "gpt-5\.6-luna"$/m);
-	assert.match(agent, /^fallback_models = "atlas\/gpt-5\.6-luna,atlas-bedrock\/claude-sonnet-4-6"$/m);
+	assert.match(agent, /^fallback_models = "atlas\/gpt-6-luna,atlas-bedrock\/claude-sonnet-4-6"$/m);
 	assert.match(agent, /^sandbox_mode = "read-only"$/m);
+	assert.match(agent, /^tools = "git"$/m);
 	assert.match(prompt, /Never modify files, repository state, dependencies, or external systems/);
 	assert.match(prompt, /Return one compact integrated handoff/);
+});
+
+test("context agent receives the dedicated read-only git tool", () => {
+	const agent = discoverAgents(process.cwd(), "user", undefined).agents.find((item) => item.name === "context");
+
+	assert.deepEqual(agent?.tools, ["read", "grep", "find", "ls", "git"]);
 });
 
 test("git agent is bundled and keeps Git workflow separate from implementation", () => {
