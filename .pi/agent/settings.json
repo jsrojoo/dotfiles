@@ -39,7 +39,7 @@
     "mermaid": "off"
   },
   "outputPad": 1,
-  "editorPaddingX": 3,
+  "editorPaddingX": 1,
   "showHardwareCursor": true,
   "enableSkillCommands": true,
   "fullscreenCopyOnSelect": true,
