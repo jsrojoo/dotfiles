@@ -15,3 +15,4 @@
 
 - Apply file edits in the main agent session so guardrails observe them.
 - Do not delegate file mutations to subagents.
+- After implementation and fresh verification, always call `implementation_done` before final response. Do not call it before verification passes.

@@ -29,10 +29,12 @@ import {
 import { Container, Markdown, Spacer, Text } from "@earendil-works/pi-tui";
 import { Type } from "typebox";
 import { type AgentConfig, type AgentScope, discoverAgents } from "./agents.ts";
+import { defaultContextTasks } from "./context-tasks.ts";
 import { subagentModelCandidatesBuild, subagentModelFallbackRun } from "./model-selector.ts";
 
 const MAX_PARALLEL_TASKS = 8;
 const MAX_CONCURRENCY = 4;
+
 const COLLAPSED_ITEM_COUNT = 10;
 const PER_TASK_OUTPUT_CAP = 50 * 1024;
 
@@ -608,6 +610,9 @@ export default function (pi: ExtensionAPI) {
 			const hasTasks = (params.tasks?.length ?? 0) > 0;
 			const hasSingle = Boolean(params.agent && params.task);
 			const modeCount = Number(hasChain) + Number(hasTasks) + Number(hasSingle);
+			const parallelTasks =
+				params.tasks ??
+				(params.agent === "context" && params.task && !params.chain ? defaultContextTasks(params.task) : undefined);
 
 			const makeDetails =
 				(mode: "single" | "parallel" | "chain") =>
@@ -715,27 +720,27 @@ export default function (pi: ExtensionAPI) {
 				};
 			}
 
-			if (params.tasks && params.tasks.length > 0) {
-				if (params.tasks.length > MAX_PARALLEL_TASKS)
+			if (parallelTasks && parallelTasks.length > 0) {
+				if (parallelTasks.length > MAX_PARALLEL_TASKS)
 					return {
 						content: [
 							{
 								type: "text",
-								text: `Too many parallel tasks (${params.tasks.length}). Max is ${MAX_PARALLEL_TASKS}.`,
+								text: `Too many parallel tasks (${parallelTasks.length}). Max is ${MAX_PARALLEL_TASKS}.`,
 							},
 						],
 						details: makeDetails("parallel")([]),
 					};
 
 				// Track all results for streaming updates
-				const allResults: SingleResult[] = new Array(params.tasks.length);
+				const allResults: SingleResult[] = new Array(parallelTasks.length);
 
 				// Initialize placeholder results
-				for (let i = 0; i < params.tasks.length; i++) {
+				for (let i = 0; i < parallelTasks.length; i++) {
 					allResults[i] = {
-						agent: params.tasks[i].agent,
+						agent: parallelTasks[i].agent,
 						agentSource: "unknown",
-						task: params.tasks[i].task,
+						task: parallelTasks[i].task,
 						exitCode: -1, // -1 = still running
 						messages: [],
 						stderr: "",
@@ -756,7 +761,7 @@ export default function (pi: ExtensionAPI) {
 					}
 				};
 
-				const results = await mapWithConcurrencyLimit(params.tasks, MAX_CONCURRENCY, async (t, index) => {
+				const results = await mapWithConcurrencyLimit(parallelTasks, MAX_CONCURRENCY, async (t, index) => {
 					const result = await runSingleAgent(
 						ctx.cwd,
 						dispatchDefaults,

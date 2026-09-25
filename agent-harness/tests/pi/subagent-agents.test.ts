@@ -2,12 +2,13 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
 
-import { agentConfigsMerge, type AgentConfig } from "../agent/extensions/subagent/agent-configs.ts";
+import { agentConfigsMerge, type AgentConfig } from "#agent-harness/pi/extensions/subagent/agent-configs";
+import { defaultContextTasks } from "#agent-harness/pi/extensions/subagent/context-tasks";
 import {
 	subagentModelCandidatesBuild,
 	subagentModelFallbackRun,
 	sharedAgentModelSelectorBuild,
-} from "../agent/extensions/subagent/model-selector.ts";
+} from "#agent-harness/pi/extensions/subagent/model-selector";
 
 function agentConfigBuild(name: string, model: string, source: "user" | "project"): AgentConfig {
 	return {
@@ -93,21 +94,24 @@ test("rejects fallback models for agents with mutation-capable tools", () => {
 	);
 });
 
-test("context agent is fast, isolated, and concise", () => {
-	const agent = readFileSync(new URL("../agent/agents/context.md", import.meta.url), "utf8");
-	const instructions = readFileSync(new URL("../agent/AGENTS.md", import.meta.url), "utf8");
+test("context defaults to three parallel investigations", () => {
+	const tasks = defaultContextTasks("Inspect harness migration");
+	assert.equal(tasks.length, 3);
+	assert.deepEqual(tasks.map((task) => task.agent), ["context", "context", "context"]);
+	assert.match(tasks[0].task, /structure/);
+	assert.match(tasks[1].task, /behavior/);
+	assert.match(tasks[2].task, /tests/);
+});
 
-	assert.match(agent, /^name: context$/m);
-	assert.match(agent, /^tools: read, grep, find, ls$/m);
-	assert.doesNotMatch(agent, /^tools:.*\bbash\b/m);
-	assert.match(agent, /^model: azure\/gpt-5\.6-luna$/m);
-	assert.match(agent, /^fallbackModels:\n  - atlas\/gpt-5\.6-luna\n  - atlas-bedrock\/claude-sonnet-4-6$/m);
-	assert.match(agent, /^skills: \[\]$/m);
-	assert.match(agent, /^extensions:\n  - atlas\n  - claude-bedrock$/m);
-	assert.match(agent, /`grep` \(backed by `rg`\)/);
-	assert.match(agent, /`find` \(backed by `fd`\)/);
-	assert.match(agent, /Return only compact findings/);
-	assert.match(agent, /strictly read-only connection/);
-	assert.match(agent, /read-only quer(?:y|ies)/);
-	assert.match(instructions, /at most 4 context tasks/);
+test("context agent is bundled, isolated, and concise", () => {
+	const agent = readFileSync(new URL("../../agents/context.toml", import.meta.url), "utf8");
+	const prompt = readFileSync(new URL("../../agents/context.md", import.meta.url), "utf8");
+
+	assert.match(agent, /^name = "context"$/m);
+	assert.match(agent, /^model_provider = "azure"$/m);
+	assert.match(agent, /^model = "gpt-5\.6-luna"$/m);
+	assert.match(agent, /^fallback_models = "atlas\/gpt-5\.6-luna,atlas-bedrock\/claude-sonnet-4-6"$/m);
+	assert.match(agent, /^sandbox_mode = "read-only"$/m);
+	assert.match(prompt, /Never modify files, repository state, dependencies, or external systems/);
+	assert.match(prompt, /Return only compact findings/);
 });

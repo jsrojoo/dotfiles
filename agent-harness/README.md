@@ -1,4 +1,8 @@
-# Agent Harness TDD Guardrail
+# Agent Harness
+
+Shared coding-agent harness for Pi, Claude Code, and Codex.
+
+Pi includes the bundled read-only `context` agent. Calling `context` without an explicit task list fans out three independent context investigations in parallel, covering structure/configuration, behavior/callers, and tests/risks.
 
 Installable Claude Code and Codex package around shared TDD policy in `src/core/guardrails/skills/coding/enforce-test-driven-development.ts`. The package exposes only the focused `src/skills/tdd/` skill; broader coding workflows remain outside the plugin.
 
@@ -37,6 +41,7 @@ Start a new agent session after installation.
 - Atomic state-file replacement assumes host serializes hooks within a session; concurrent hook events can race.
 - Watch mode requires `watchexec` on `PATH` and a Git workspace for freshness checks.
 - Hook execution requires Node.js 22.6 or newer with `--experimental-strip-types` support.
+- Pi agent definitions live under `agents/`; Pi extensions live under `src/pi/extensions/`.
 
 ## Verify
 

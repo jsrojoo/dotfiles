@@ -20,6 +20,7 @@ const GREEN_REMINDER =
 	"TDD guardrail: add or update a relevant test, then inspect the latest watcher result with tdd-watch status.";
 const RED_ESTABLISHED = "TDD guardrail: red";
 const GREEN_ESTABLISHED = "TDD guardrail: green";
+const IMPLEMENTATION_DONE_REMINDER = "TDD guardrail: call implementation_done after fresh verification before completion.";
 const E2E_HANDOFF = readFileSync(
 	new URL("../../../skills/coding/references/e2e-handoff.md", import.meta.url),
 	"utf8",
@@ -28,6 +29,7 @@ const E2E_HANDOFF = readFileSync(
 interface SessionTddState {
 	cycle: WorkflowCodeState;
 	pendingPaths: Map<string, string>;
+	implementationDone: boolean;
 	skipNext?: boolean;
 }
 
@@ -49,7 +51,8 @@ export function testDrivenDevelopmentEnforcementCreate(
 			label: "Implementation done",
 			description: "Call after implementation and fresh verification to load end-to-end handoff guidance.",
 			parameters: implementationDoneParameters as any,
-			async execute() {
+			async execute(_toolCallId, _params, _signal, _onUpdate, ctx) {
+				if (ctx?.sessionManager) sessionGet(ctx).implementationDone = true;
 				return {
 					content: [{ type: "text" as const, text: E2E_HANDOFF }],
 					details: undefined,
@@ -65,6 +68,7 @@ export function testDrivenDevelopmentEnforcementCreate(
 			const created = {
 				cycle: workflowCodeStateCreate(),
 				pendingPaths: new Map<string, string>(),
+				implementationDone: false,
 			};
 			sessions.set(sessionId, created);
 			return created;
@@ -91,6 +95,7 @@ export function testDrivenDevelopmentEnforcementCreate(
 				? workflowCodeStateSkip(workflowCodeStateCreate())
 				: workflowCodeStateCreate();
 			session.pendingPaths.clear();
+			session.implementationDone = false;
 			session.skipNext = false;
 		});
 
@@ -139,14 +144,27 @@ export function testDrivenDevelopmentEnforcementCreate(
 			const session = sessionGet(ctx);
 			const completion = workflowCodeCompletionEvaluate(session.cycle);
 			session.cycle = completion.state;
-			if (!completion.remind) return;
+			if (completion.remind) {
+				return {
+					entries: [
+						{
+							type: "custom_message" as const,
+							customType: "workflow-code-guardrail",
+							content: GREEN_REMINDER,
+							display: false,
+						},
+					],
+					continue: true,
+				};
+			}
+			if (session.cycle.phase !== "green" || session.implementationDone) return;
 
 			return {
 				entries: [
 					{
 						type: "custom_message" as const,
 						customType: "workflow-code-guardrail",
-						content: GREEN_REMINDER,
+						content: IMPLEMENTATION_DONE_REMINDER,
 						display: false,
 					},
 				],

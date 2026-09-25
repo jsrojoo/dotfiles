@@ -90,7 +90,7 @@ Require every implementation change to include a relevant test change and end wi
 
 ## Completion
 
-- When the `implementation_done` tool is available, call it after implementation and fresh verification but before the final response; use its guidance when end-to-end verification or a self-service handoff is useful.
+- After implementation and fresh verification, call the `implementation_done` tool before the final response. Treat it as required whenever available; do not call it before verification passes, and follow its returned handoff guidance.
 - Update relevant documentation when behavior, interfaces, configuration, or workflows change.
 - Report changed files, checks run, results, and remaining risks.
 - Keep Git staging and commit operations outside this workflow unless the user explicitly requests them.

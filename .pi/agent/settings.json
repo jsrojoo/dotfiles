@@ -21,6 +21,7 @@
   "hideThinkingBlock": false,
   "extensions": [
     "~/dotfiles/.pi/agent/extensions/coding-tdd.ts",
+    "~/dotfiles/agent-harness/src/pi/extensions/subagent/index.ts",
     "~/dotfiles/agent-harness/src/pi/extensions/notify.ts",
     "~/dotfiles/agent-harness/src/pi/extensions/sql/register-mutative-sql-blocking.ts",
     "~/dotfiles/agent-harness/src/pi/extensions/sql/register-sql-validation.ts"

@@ -1,0 +1,6 @@
+name = "context"
+description = "Quickly gather minimal repository context and return concise, evidence-backed findings."
+model_provider = "azure"
+model = "gpt-5.6-luna"
+fallback_models = "atlas/gpt-5.6-luna,atlas-bedrock/claude-sonnet-4-6"
+sandbox_mode = "read-only"

@@ -23,6 +23,7 @@ test("Pi settings load shared extensions independently of the working directory"
 
 	assert.deepEqual(settings.extensions, [
 		"~/dotfiles/.pi/agent/extensions/coding-tdd.ts",
+		"~/dotfiles/agent-harness/src/pi/extensions/subagent/index.ts",
 		"~/dotfiles/agent-harness/src/pi/extensions/notify.ts",
 		"~/dotfiles/agent-harness/src/pi/extensions/sql/register-mutative-sql-blocking.ts",
 		"~/dotfiles/agent-harness/src/pi/extensions/sql/register-sql-validation.ts",
@@ -109,7 +110,7 @@ test("implementation_done tool returns end-to-end handoff guidance", async () =>
 });
 
 test("Pi adapter allows parallel source and test edits, then requires green", async () => {
-	const { context, handlers, notifications } = harnessCreate();
+	const { context, handlers, notifications, tools } = harnessCreate();
 	const toolCall = handlers.get("tool_call")!;
 	const toolResult = handlers.get("tool_result")!;
 	const beforeSettle = handlers.get("agent_before_settle")!;
@@ -155,6 +156,13 @@ test("Pi adapter allows parallel source and test edits, then requires green", as
 		context,
 	);
 	assert.equal(notifications.at(-1), "TDD guardrail: green");
+	const completionReminder = await beforeSettle({}, context);
+	assert.equal(completionReminder.continue, true);
+	assert.equal(
+		completionReminder.entries[0].content,
+		"TDD guardrail: call implementation_done after fresh verification before completion.",
+	);
+	await tools.get("implementation_done")!.execute("call-1", {}, undefined, undefined, context);
 	assert.equal(await beforeSettle({}, context), undefined);
 });
 
@@ -332,7 +340,7 @@ test("Pi adapter runs one final objective correction without looping", async () 
 			required_changes: ["Remove the unrelated fallback"],
 		});
 	};
-	const { context, handlers, notifications } = harnessCreate(judgeComplete);
+	const { context, handlers, notifications, tools } = harnessCreate(judgeComplete);
 	const beforeSettle = handlers.get("agent_before_settle")!;
 	const input = handlers.get("input")!;
 	const toolCall = handlers.get("tool_call")!;
@@ -371,6 +379,7 @@ test("Pi adapter runs one final objective correction without looping", async () 
 	assert.equal(correction.continue, true);
 	assert.equal(correction.entries[0].customType, "workflow-code-judge");
 	assert.match(notifications.at(-1)!, /^Objective: Reject blank account names only\nDrift:/);
+	await tools.get("implementation_done")!.execute("call-1", {}, undefined, undefined, context);
 	assert.equal(await beforeSettle({}, context), undefined);
 	assert.deepEqual(milestones, ["red", "green", "completion"]);
 });

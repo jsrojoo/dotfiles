@@ -12,6 +12,7 @@ import { sharedAgentModelSelectorBuild } from "./model-selector.ts";
 export { type AgentConfig, type AgentScope } from "./agent-configs.ts";
 
 const SHARED_AGENTS_DIR = path.join(os.homedir(), ".agents", "agents");
+const BUNDLED_AGENTS_DIR = path.resolve(import.meta.dirname, "../../../../agents");
 
 export interface AgentDiscoveryResult {
 	agents: AgentConfig[];
@@ -125,18 +126,19 @@ function parseSharedAgentString(content: string, key: string): string | undefine
 	}
 }
 
-function loadSharedAgents(dir: string, mainProvider: string | undefined): AgentConfig[] {
-	if (!fs.existsSync(dir)) return [];
-
-	let entries: fs.Dirent[];
-	try {
-		entries = fs.readdirSync(dir, { withFileTypes: true });
-	} catch {
-		return [];
-	}
-
+function loadSharedAgents(dirs: string[], mainProvider: string | undefined): AgentConfig[] {
 	const agents: AgentConfig[] = [];
-	for (const entry of entries) {
+	for (const dir of dirs) {
+		if (!fs.existsSync(dir)) continue;
+
+		let entries: fs.Dirent[];
+		try {
+			entries = fs.readdirSync(dir, { withFileTypes: true });
+		} catch {
+			continue;
+		}
+
+		for (const entry of entries) {
 		if (!entry.name.endsWith(".toml")) continue;
 		if (!entry.isFile() && !entry.isSymbolicLink()) continue;
 
@@ -157,17 +159,23 @@ function loadSharedAgents(dir: string, mainProvider: string | undefined): AgentC
 
 		const model = parseSharedAgentString(toml, "model");
 		const modelProvider = parseSharedAgentString(toml, "model_provider");
-		const sandboxMode = parseSharedAgentString(toml, "sandbox_mode");
+			const sandboxMode = parseSharedAgentString(toml, "sandbox_mode");
+		const fallbackModels = parseSharedAgentString(toml, "fallback_models")
+			?.split(",")
+			.map((value) => value.trim())
+			.filter(Boolean);
 
-		agents.push({
-			name,
-			description,
-			tools: sandboxMode === "read-only" ? ["read", "grep", "find", "ls"] : undefined,
-			model: sharedAgentModelSelectorBuild(model, modelProvider, mainProvider),
-			systemPrompt: prompt,
-			source: "user",
-			filePath: tomlPath,
-		});
+			agents.push({
+				name,
+				description,
+				tools: sandboxMode === "read-only" ? ["read", "grep", "find", "ls"] : undefined,
+				model: sharedAgentModelSelectorBuild(model, modelProvider, mainProvider),
+				fallbackModels,
+				systemPrompt: prompt,
+				source: "user",
+				filePath: tomlPath,
+			});
+		}
 	}
 
 	return agents;
@@ -201,7 +209,7 @@ export function discoverAgents(
 	const userDir = path.join(getAgentDir(), "agents");
 	const projectAgentsDir = findNearestProjectAgentsDir(cwd);
 
-	const sharedAgents = scope === "project" ? [] : loadSharedAgents(SHARED_AGENTS_DIR, mainProvider);
+	const sharedAgents = scope === "project" ? [] : loadSharedAgents([BUNDLED_AGENTS_DIR, SHARED_AGENTS_DIR], mainProvider);
 	const userAgents = scope === "project" ? [] : loadAgentsFromDir(userDir, "user");
 	const projectAgents = scope === "user" || !projectAgentsDir ? [] : loadAgentsFromDir(projectAgentsDir, "project");
 
