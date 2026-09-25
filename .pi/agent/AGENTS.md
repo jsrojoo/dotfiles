@@ -12,6 +12,12 @@
 - Context agents must remain read-only. External services, including databases, require verified read-only connections and read-only queries; otherwise do not access them.
 - Keep main-session reads limited to tool output already returned by `context`; use direct tools only for edits, execution, and required verification.
 
+## Git Delegation
+
+- Delegate every Git command and operation, read-only or write, to the `git` subagent immediately.
+- Git work is an exception to Context Delegation and Code Editing rules; do not run Git commands in the main session.
+- Use main-session Git only when the `git` subagent is unavailable or fails to invoke, and disclose the fallback.
+
 ## Code Editing
 
 - Apply file edits in the main agent session so guardrails observe them.
