@@ -16,7 +16,10 @@ import type { AgentMessage } from "@earendil-works/pi-agent-core";
 import type { AssistantMessage, TextContent } from "@earendil-works/pi-ai";
 import type { ExtensionAPI, ExtensionContext } from "@earendil-works/pi-coding-agent";
 import { Key } from "@earendil-works/pi-tui";
+import { readFileSync } from "node:fs";
 import { extractTodoItems, isSafeCommand, markCompletedSteps, type TodoItem } from "./utils.ts";
+
+const PLAN_MODE_PROMPT = readFileSync(new URL("./plan-mode-prompt.md", import.meta.url), "utf8").trim();
 
 // Tools
 const PLAN_MODE_TOOLS = ["read", "bash", "grep", "find", "ls", "questionnaire"];
@@ -203,20 +206,7 @@ export default function planModeExtension(pi: ExtensionAPI): void {
 			return {
 				message: {
 					customType: "plan-mode-context",
-					content: `[PLAN MODE ACTIVE]
-You are in plan mode - a read-only exploration mode for safe code analysis.
-
-Restrictions:
-- Built-in edit and write tools are disabled
-- Other currently active tools remain available
-- Bash is restricted to an allowlist of read-only commands
-
-Ask clarifying questions using the questionnaire tool.
-Use brave-search skill via bash for web research.
-
-Read and follow the `plan` skill. Produce its concise numbered plan under the exact `Plan:` heading.
-
-Do NOT attempt to make changes - just describe what you would do.`,
+					content: PLAN_MODE_PROMPT,
 					display: false,
 				},
 			};

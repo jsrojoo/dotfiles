@@ -2,6 +2,11 @@
   "name": "dotfiles",
   "private": true,
   "type": "module",
+  "scripts": {
+    "test:plan-mode": "node --test tests/plan-mode.test.ts",
+    "test:plan-mode:watch": "node --experimental-strip-types agent-harness/src/cli/tdd-watch.ts watch -- npm run test:plan-mode",
+    "test:status": "node --experimental-strip-types agent-harness/src/cli/tdd-watch.ts status"
+  },
   "imports": {
     "#agent-harness/core/*": "./agent-harness/src/core/*.ts",
     "#agent-harness/pi/*": "./agent-harness/src/pi/*.ts"
