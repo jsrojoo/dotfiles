@@ -29,6 +29,7 @@ import {
 import { Container, Markdown, Spacer, Text } from "@earendil-works/pi-tui";
 import { Type } from "typebox";
 import { type AgentConfig, type AgentScope, discoverAgents } from "./agents.ts";
+import { subagentModelCandidatesBuild, subagentModelFallbackRun } from "./model-selector.ts";
 
 const MAX_PARALLEL_TASKS = 8;
 const MAX_CONCURRENCY = 4;
@@ -323,11 +324,11 @@ interface DispatchDefaults {
 	thinkingLevel?: ThinkingLevel;
 }
 
-async function runSingleAgent(
+async function runSingleAgentAttempt(
 	defaultCwd: string,
 	dispatchDefaults: DispatchDefaults,
-	agents: AgentConfig[],
-	agentName: string,
+	agent: AgentConfig,
+	model: string | undefined,
 	task: string,
 	cwd: string | undefined,
 	step: number | undefined,
@@ -335,22 +336,6 @@ async function runSingleAgent(
 	onUpdate: OnUpdateCallback | undefined,
 	makeDetails: (results: SingleResult[]) => SubagentDetails,
 ): Promise<SingleResult> {
-	const agent = agents.find((a) => a.name === agentName);
-
-	if (!agent) {
-		const available = agents.map((a) => `"${a.name}"`).join(", ") || "none";
-		return {
-			agent: agentName,
-			agentSource: "unknown",
-			task,
-			exitCode: 1,
-			messages: [],
-			stderr: `Unknown agent: "${agentName}". Available agents: ${available}.`,
-			usage: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0, cost: 0, contextTokens: 0, turns: 0 },
-			step,
-		};
-	}
-
 	const childCwd = cwd ?? defaultCwd;
 	const args: string[] = [
 		"--mode",
@@ -360,7 +345,6 @@ async function runSingleAgent(
 		...childExtensionArgs(agent.extensions, childCwd),
 		...childSkillArgs(agent.skills, childCwd),
 	];
-	const model = agent.model ?? dispatchDefaults.model;
 	if (model) args.push("--model", model);
 	if (dispatchDefaults.thinkingLevel) {
 		args.push("--thinking", dispatchDefaults.thinkingLevel);
@@ -371,7 +355,7 @@ async function runSingleAgent(
 	let tmpPromptPath: string | null = null;
 
 	const currentResult: SingleResult = {
-		agent: agentName,
+		agent: agent.name,
 		agentSource: agent.source,
 		task,
 		exitCode: 0,
@@ -499,6 +483,68 @@ async function runSingleAgent(
 				/* ignore */
 			}
 	}
+}
+
+async function runSingleAgent(
+	defaultCwd: string,
+	dispatchDefaults: DispatchDefaults,
+	agents: AgentConfig[],
+	agentName: string,
+	task: string,
+	cwd: string | undefined,
+	step: number | undefined,
+	signal: AbortSignal | undefined,
+	onUpdate: OnUpdateCallback | undefined,
+	makeDetails: (results: SingleResult[]) => SubagentDetails,
+): Promise<SingleResult> {
+	const agent = agents.find((candidate) => candidate.name === agentName);
+	if (!agent) {
+		const available = agents.map((candidate) => `"${candidate.name}"`).join(", ") || "none";
+		return {
+			agent: agentName,
+			agentSource: "unknown",
+			task,
+			exitCode: 1,
+			messages: [],
+			stderr: `Unknown agent: "${agentName}". Available agents: ${available}.`,
+			usage: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0, cost: 0, contextTokens: 0, turns: 0 },
+			step,
+		};
+	}
+
+	let models: Array<string | undefined>;
+	try {
+		models = subagentModelCandidatesBuild(agent, dispatchDefaults.model);
+	} catch (error) {
+		return {
+			agent: agentName,
+			agentSource: agent.source,
+			task,
+			exitCode: 1,
+			messages: [],
+			stderr: String(error),
+			usage: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0, cost: 0, contextTokens: 0, turns: 0 },
+			step,
+		};
+	}
+
+	return subagentModelFallbackRun(
+		models,
+		(model) =>
+			runSingleAgentAttempt(
+				defaultCwd,
+				dispatchDefaults,
+				agent,
+				model,
+				task,
+				cwd,
+				step,
+				signal,
+				onUpdate,
+				makeDetails,
+			),
+		isFailedResult,
+	);
 }
 
 const TaskItem = Type.Object({

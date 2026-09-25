@@ -1,8 +1,13 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import test from "node:test";
 
 import { agentConfigsMerge, type AgentConfig } from "../agent/extensions/subagent/agent-configs.ts";
-import { sharedAgentModelSelectorBuild } from "../agent/extensions/subagent/model-selector.ts";
+import {
+	subagentModelCandidatesBuild,
+	subagentModelFallbackRun,
+	sharedAgentModelSelectorBuild,
+} from "../agent/extensions/subagent/model-selector.ts";
 
 function agentConfigBuild(name: string, model: string, source: "user" | "project"): AgentConfig {
 	return {
@@ -46,4 +51,63 @@ test("Pi-native and project agent model selectors remain authoritative", () => {
 
 	assert.equal(agentConfigsMerge("user", [sharedAgent], [userAgent], [projectAgent])[0].model, "openai/user-model");
 	assert.equal(agentConfigsMerge("both", [sharedAgent], [userAgent], [projectAgent])[0].model, "atlas/project-model");
+});
+
+test("builds a bounded, ordered fallback list for read-only agents", () => {
+	assert.deepEqual(
+		subagentModelCandidatesBuild(
+			{
+				model: "azure/primary",
+				fallbackModels: ["atlas/first", "azure/primary", "atlas/second", "atlas/ignored"],
+				tools: ["read", "grep", "find", "ls"],
+			},
+			"azure/inherited",
+		),
+		["azure/primary", "atlas/first", "atlas/second"],
+	);
+});
+
+test("uses inherited model when an agent has no primary model", () => {
+	assert.deepEqual(subagentModelCandidatesBuild({ tools: ["read"] }, "azure/inherited"), ["azure/inherited"]);
+});
+
+test("stops model fallback after first successful attempt", async () => {
+	const attempted: Array<string | undefined> = [];
+	const result = await subagentModelFallbackRun(
+		["primary", "fallback", "unused"],
+		async (model) => {
+			attempted.push(model);
+			return { failed: model === "primary", model };
+		},
+		(candidate) => candidate.failed,
+	);
+
+	assert.deepEqual(attempted, ["primary", "fallback"]);
+	assert.deepEqual(result, { failed: false, model: "fallback" });
+});
+
+test("rejects fallback models for agents with mutation-capable tools", () => {
+	assert.throws(
+		() => subagentModelCandidatesBuild({ fallbackModels: ["atlas/fallback"], tools: ["read", "bash"] }, "azure/primary"),
+		/fallback models require explicitly read-only tools/,
+	);
+});
+
+test("context agent is fast, isolated, and concise", () => {
+	const agent = readFileSync(new URL("../agent/agents/context.md", import.meta.url), "utf8");
+	const instructions = readFileSync(new URL("../agent/AGENTS.md", import.meta.url), "utf8");
+
+	assert.match(agent, /^name: context$/m);
+	assert.match(agent, /^tools: read, grep, find, ls$/m);
+	assert.doesNotMatch(agent, /^tools:.*\bbash\b/m);
+	assert.match(agent, /^model: azure\/gpt-5\.6-luna$/m);
+	assert.match(agent, /^fallbackModels:\n  - atlas\/gpt-5\.6-luna\n  - atlas-bedrock\/claude-sonnet-4-6$/m);
+	assert.match(agent, /^skills: \[\]$/m);
+	assert.match(agent, /^extensions: \[\]$/m);
+	assert.match(agent, /`grep` \(backed by `rg`\)/);
+	assert.match(agent, /`find` \(backed by `fd`\)/);
+	assert.match(agent, /Return only compact findings/);
+	assert.match(agent, /strictly read-only connection/);
+	assert.match(agent, /read-only quer(?:y|ies)/);
+	assert.match(instructions, /at most 4 context tasks/);
 });

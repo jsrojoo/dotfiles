@@ -33,6 +33,7 @@ type AgentFrontmatter = {
 	skills?: unknown;
 	extensions?: unknown;
 	model?: unknown;
+	fallbackModels?: unknown;
 };
 
 /**
@@ -102,6 +103,7 @@ function loadAgentsFromDir(dir: string, source: "user" | "project"): AgentConfig
 			skills: parseResourceList(frontmatter.skills),
 			extensions: parseResourceList(frontmatter.extensions),
 			model: typeof frontmatter.model === "string" ? frontmatter.model : undefined,
+			fallbackModels: parseResourceList(frontmatter.fallbackModels),
 			systemPrompt: body,
 			source,
 			filePath,

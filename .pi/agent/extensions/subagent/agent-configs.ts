@@ -7,6 +7,7 @@ export interface AgentConfig {
 	skills?: string[];
 	extensions?: string[];
 	model?: string;
+	fallbackModels?: string[];
 	systemPrompt: string;
 	source: "user" | "project";
 	filePath: string;
