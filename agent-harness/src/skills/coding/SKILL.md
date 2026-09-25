@@ -84,6 +84,7 @@ Require a failing test before changing implementation code. If blocked, add/upda
 
 - For SQL creation, modification, review, or validation, read `references/database-sql-workflow.md`.
 - For responsive frontend implementation or review, read `references/responsive-frontend.md`.
+- For end-to-end verification planning or handoff artifacts, read `references/e2e-handoff.md`.
 
 ## Completion
 

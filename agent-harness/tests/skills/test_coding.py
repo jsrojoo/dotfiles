@@ -27,10 +27,20 @@ class CodingSkillTest(unittest.TestCase):
             [
                 "references/database-sql-workflow.md",
                 "references/responsive-frontend.md",
+                "references/e2e-handoff.md",
             ],
         )
         for reference in references:
             self.assertTrue((SKILL_DIRECTORY / reference).is_file())
+
+    def test_e2e_handoff_requires_plan_approval_before_artifacts(self) -> None:
+        content = (SKILL_DIRECTORY / "references/e2e-handoff.md").read_text(encoding="utf-8")
+
+        plan_index = content.index("## Test plan")
+        approval_index = content.index("Wait for explicit user approval")
+        artifacts_index = content.index("## Artifact generation")
+        self.assertLess(plan_index, approval_index)
+        self.assertLess(approval_index, artifacts_index)
 
     def test_contains_no_harness_specific_paths(self) -> None:
         content = SKILL_PATH.read_text(encoding="utf-8")
