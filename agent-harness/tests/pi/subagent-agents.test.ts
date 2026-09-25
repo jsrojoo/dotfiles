@@ -146,6 +146,7 @@ test("git agent is bundled and keeps Git workflow separate from implementation",
 	assert.match(agent, /^model = "gpt-5\.6-luna"$/m);
 	assert.match(agent, /^skills = "git"$/m);
 	assert.match(agent, /^sandbox_mode = "read-only-with-bash"$/m);
+	assert.match(agent, /^extensions = "rtk"$/m);
 	assert.match(prompt, /Handle Git workflow only; do not implement source or configuration changes/);
 	assert.match(prompt, /Inspect `git --no-pager status` and relevant diffs/);
 	assert.match(prompt, /Require explicit user approval before staging, committing, rebasing, pushing/);
@@ -157,8 +158,15 @@ test("git agent is bundled and keeps Git workflow separate from implementation",
 	assert.match(prompt, /Do not delegate to nested subagents/);
 });
 
-test("git agent activates Git skill", () => {
+test("git agent activates Git skill and RTK", () => {
 	const agent = discoverAgents(process.cwd(), "user", undefined).agents.find((item) => item.name === "git");
 
 	assert.deepEqual(agent?.skills, ["git"]);
+	assert.deepEqual(agent?.extensions, ["rtk"]);
+});
+
+test("editor agent activates RTK", () => {
+	const agent = readFileSync(new URL("../../../.pi/agent/agents/editor.md", import.meta.url), "utf8");
+
+	assert.match(agent, /^extensions: coding-tdd, rtk$/m);
 });
