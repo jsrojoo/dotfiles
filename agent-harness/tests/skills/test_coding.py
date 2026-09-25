@@ -48,6 +48,13 @@ class CodingSkillTest(unittest.TestCase):
         for harness_path in (".claude/", ".codex/", ".pi/", "~/.agents/"):
             self.assertNotIn(harness_path, content)
 
+    def test_requires_large_static_strings_in_text_files(self) -> None:
+        content = SKILL_PATH.read_text(encoding="utf-8")
+
+        self.assertIn("Extract large static strings", content)
+        self.assertIn("LLM prompts and text templates", content)
+        self.assertIn("`.md` or `.txt` files", content)
+
     def test_defines_tdd_cycle(self) -> None:
         content = SKILL_PATH.read_text(encoding="utf-8")
 

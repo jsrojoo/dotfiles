@@ -37,6 +37,7 @@ Use only the stages relevant to the task. Do not force this structure onto simpl
 - Prefer direct, readable control flow over generic helpers and deep nesting.
 - Pass dependencies and inputs explicitly when practical.
 - Keep I/O at clear boundaries and make business logic deterministic when the existing design supports it.
+- Extract large static strings, including LLM prompts and text templates, into dedicated `.md` or `.txt` files; keep source files focused on loading and using them.
 - Validate untrusted or external input, but do not add checks for states prevented by existing guarantees.
 - Handle actionable failures explicitly; do not silently swallow exceptions or hide failures behind fallbacks.
 - Remove imports and code made unused by the change, but leave pre-existing unrelated dead code alone.
