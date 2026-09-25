@@ -27,7 +27,9 @@ Build an implementation-ready plan that:
 - states only material assumptions, decisions, risks, and mitigations
 - addresses known scale, security, and compatibility needs without speculative abstractions
 
-Use only as many steps as execution needs. Avoid implementation trivia, diagrams, and restating the request.
+Use only as many steps as execution needs. Avoid implementation trivia and restating the request.
+
+After the numbered list, read and follow the `termaid` skill. Include its rendered `Before`, `After`, and `What changed` views so the plan can be understood at a glance.
 
 ## Approval
 
