@@ -75,8 +75,8 @@ export function workflowCodeWriteEvaluate(
 		return {
 			block: true,
 			reason:
-				`Blocked production-code write to "${path}": establish a failing test first. ` +
-				"Run the focused test to confirm red, or use `/tdd-skip` as a one-request kill switch.",
+				`Blocked implementation-code change to "${path}": Require a failing test before changing implementation code. Run a relevant test and confirm it fails. ` +
+				"Or use `/tdd-skip` as a one-request kill switch.",
 			state,
 		};
 	}

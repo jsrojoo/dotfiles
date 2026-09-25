@@ -51,7 +51,7 @@ Use only the stages relevant to the task. Do not force this structure onto simpl
 
 ## Test-driven development
 
-Use a red-green-refactor cycle for testable behavior changes. If TDD is impractical, state why and use the closest focused verification available.
+Require a failing test before changing implementation code. Use a red-green-refactor cycle for testable behavior changes. If TDD is impractical, state why and use the closest focused verification available.
 
 ### Red
 

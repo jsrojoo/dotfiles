@@ -2,12 +2,18 @@
   "name": "agent-harness-config",
   "private": true,
   "type": "module",
+  "engines": {
+    "node": ">=22.6"
+  },
   "scripts": {
     "lint:imports": "node --test tests/import-paths.test.ts",
     "test": "node --test"
   },
   "imports": {
     "#agent-harness/core/*": "./src/core/*.ts",
-    "#agent-harness/pi/*": "./src/pi/*.ts"
+    "#agent-harness/pi/*": "./src/pi/*.ts",
+    "#agent-harness/hooks/*": "./src/hooks/*.ts",
+    "#agent-harness/claude/*": "./src/claude/*.ts",
+    "#agent-harness/codex/*": "./src/codex/*.ts"
   }
 }

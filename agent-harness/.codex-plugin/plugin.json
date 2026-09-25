@@ -1,0 +1,15 @@
+{
+  "name": "agent-harness-tdd",
+  "version": "0.1.0",
+  "description": "Test-driven development guardrail for Codex.",
+  "skills": "./src/skills/coding",
+  "hooks": "./hooks/codex-hooks.json",
+  "interface": {
+    "displayName": "Agent Harness TDD",
+    "shortDescription": "Require a failing test before changing implementation code.",
+    "longDescription": "Enforces a red-green test-driven development cycle for supported edit tools, with a one-request /tdd-skip override.",
+    "developerName": "Agent Harness",
+    "category": "Developer Tools",
+    "capabilities": ["Instructions", "Lifecycle hooks"]
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "agent-harness",
+  "description": "Agent Harness coding guardrails.",
+  "owner": { "name": "Agent Harness" },
+  "plugins": [
+    {
+      "name": "agent-harness-tdd",
+      "description": "Require a failing test before changing implementation code.",
+      "source": "./",
+      "category": "development"
+    }
+  ]
+}

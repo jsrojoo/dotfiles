@@ -2,9 +2,11 @@
 
 Core guardrails are deterministic, runtime-independent policies. They do not import Pi, Codex, Claude, UI, session, or filesystem APIs. Harness adapters translate native events into core state transitions, supply model completion, and own per-session storage and user interaction.
 
-Pi keeps registration separate from reusable enforcement:
+Harness adapters keep registration separate from reusable enforcement:
 
 - `pi/extensions/coding/register-test-driven-development.ts` maps Pi events to core TDD enforcement.
+- `claude/tdd-hook.ts` and `codex/tdd-hook.ts` map host hook events to the same core TDD policy.
+- `hooks/tdd-guardrail.ts` owns shared hook-state persistence and response mapping.
 - `pi/extensions/coding/register-objective-alignment.ts` maps Pi events to core alignment enforcement, model calls, corrective feedback, and drift notifications.
 
 Objective alignment is disabled in default Pi settings while it remains experimental. Enable it for one Pi process when developing or testing:
@@ -37,7 +39,9 @@ The judge receives bounded objective, conversation, change-journal, test, and pr
 
 Implementation progress becomes due after three successful production edits or 4,000 characters of new production content. The current edit is never rejected merely for crossing that threshold; the judge checks alignment before the following production edit. An aligned checkpoint resets the progress counters.
 
-The core policy does not claim that a failing test is relevant solely from its exit code; the red milestone judge performs that semantic check. Harness adapters may add persistence, notifications, and kill switches, but must not duplicate or redefine core policy.
+The TDD core recognizes test commands by command shape; it does not establish semantic test relevance from exit status alone. Objective alignment's red milestone judge performs that additional semantic check. Harness adapters may add persistence, notifications, and kill switches, but must not duplicate or redefine core policy.
+
+Claude and Codex hook adapters persist one state file per session under `~/.agent-harness/tdd/`. They intercept supported native edit tools; direct shell-based file writes are outside the current guardrail boundary. Use `AGENT_HARNESS_TDD_STATE_DIR` to relocate hook state.
 
 ## SQL guardrail
 

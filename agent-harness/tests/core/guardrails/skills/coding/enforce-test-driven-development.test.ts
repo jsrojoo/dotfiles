@@ -37,7 +37,9 @@ test("recognizes common test commands without treating arbitrary failures as tes
 test("blocks production code before red while allowing tests and non-code files", () => {
 	const state = workflowCodeStateCreate();
 
-	assert.equal(workflowCodeWriteEvaluate(state, "src/account.ts").block, true);
+	const blocked = workflowCodeWriteEvaluate(state, "src/account.ts");
+	assert.equal(blocked.block, true);
+	assert.match(blocked.reason ?? "", /Require a failing test before changing implementation code/);
 	assert.equal(workflowCodeWriteEvaluate(state, "tests/account.test.ts").block, false);
 	assert.equal(workflowCodeWriteEvaluate(state, "README.md").block, false);
 });

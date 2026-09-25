@@ -47,6 +47,10 @@
 .claude/*.bak
 .claude*-backup-*/
 .agents
+# Codex marketplace manifest is part of the shared agent-harness package.
+!agent-harness/.agents/
+!agent-harness/.agents/plugins/
+!agent-harness/.agents/plugins/marketplace.json
 .pytest_cache/
 graphify-out/
 .DS_Store
