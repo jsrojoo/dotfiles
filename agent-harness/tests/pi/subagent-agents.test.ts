@@ -115,3 +115,27 @@ test("context agent is bundled, isolated, and concise", () => {
 	assert.match(prompt, /Never modify files, repository state, dependencies, or external systems/);
 	assert.match(prompt, /Return only compact findings/);
 });
+
+test("git agent is bundled and keeps Git workflow separate from implementation", () => {
+	const agent = readFileSync(new URL("../../agents/git.toml", import.meta.url), "utf8");
+	const prompt = readFileSync(new URL("../../agents/git.md", import.meta.url), "utf8");
+
+	assert.match(agent, /^name = "git"$/m);
+	assert.match(
+		agent,
+		/^description = "Git-only worker for repository status, diff review, surgical staging, commits, and merge-request hygiene\."$/m,
+	);
+	assert.match(agent, /^model_provider = "azure"$/m);
+	assert.match(agent, /^model = "gpt-5\.6-luna"$/m);
+	assert.match(agent, /^sandbox_mode = "read-only-with-bash"$/m);
+	assert.match(prompt, /Handle Git workflow only; do not implement source or configuration changes/);
+	assert.match(prompt, /Inspect `git --no-pager status` and relevant diffs/);
+	assert.match(prompt, /Require explicit user approval before staging, committing, rebasing, pushing/);
+	assert.match(prompt, /Never stage secrets, `\.env` files, credentials/);
+	assert.match(prompt, /existing `group-patches\.sh` helper/);
+	assert.match(prompt, /Do not use `edit` or `write` for implementation work/);
+	assert.match(prompt, /Exact commands run and their outcomes/);
+	assert.match(prompt, /Never reset, restore, checkout, clean, overwrite, or discard/);
+	assert.match(prompt, /Do not delegate to nested subagents/);
+
+});

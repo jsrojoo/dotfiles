@@ -168,7 +168,12 @@ function loadSharedAgents(dirs: string[], mainProvider: string | undefined): Age
 			agents.push({
 				name,
 				description,
-				tools: sandboxMode === "read-only" ? ["read", "grep", "find", "ls"] : undefined,
+				tools:
+					sandboxMode === "read-only"
+						? ["read", "grep", "find", "ls"]
+						: sandboxMode === "read-only-with-bash"
+							? ["read", "grep", "find", "ls", "bash"]
+							: undefined,
 				model: sharedAgentModelSelectorBuild(model, modelProvider, mainProvider),
 				fallbackModels,
 				systemPrompt: prompt,

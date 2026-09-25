@@ -1,0 +1,5 @@
+name = "git"
+description = "Git-only worker for repository status, diff review, surgical staging, commits, and merge-request hygiene."
+model_provider = "azure"
+model = "gpt-5.6-luna"
+sandbox_mode = "read-only-with-bash"

@@ -21,6 +21,7 @@ Pi-native user agents override shared agents with the same name. With `agentScop
 | `model_provider` + `model` | Pi `provider/model` selector |
 | Pi-native `fallbackModels` | Up to two ordered fallback selectors after `model` |
 | `sandbox_mode = "read-only"` | Restricts tools to `read`, `grep`, `find`, and `ls` |
+| `sandbox_mode = "read-only-with-bash"` | Adds `bash` for controlled Git or test commands; prompt policy remains required |
 | Other `sandbox_mode` values | Uses Pi's default tool set |
 
 Pi-native agent frontmatter also accepts comma-separated or YAML-array `skills` and `extensions` fields. Omit a field to preserve normal child discovery, use an empty array to load none, or list names to load only matching resources. Skill names resolve from project and user skill directories; extension names resolve from `~/.pi/agent/extensions`. Explicit paths are also accepted.
@@ -42,6 +43,7 @@ Child `pi` processes start with `-ne` (no extension discovery). By default they 
 - `model_reasoning_effort` is not mapped; a model-specific Pi subagent uses Pi's default thinking behavior.
 - Approval policies and sandbox implementations are not imported.
 - Read-only shared agents do not receive `bash`, so prompts mentioning `rg` or `ast-grep` must fall back to Pi's `grep`, `find`, and `read` tools.
+- `read-only-with-bash` agents receive `bash` in addition to read-only tools. Bash can still mutate files, so prompt-level approval rules remain mandatory; this mode is intended for narrowly scoped Git or test workflows.
 - The `editor` agent receives `bash` only for running tests; its prompt still restricts file mutations to `edit`.
 - A TOML definition is ignored unless its paired Markdown prompt exists and both `name` and `description` are simple quoted strings.
 
