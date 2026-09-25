@@ -25,9 +25,9 @@ Shared instructions, skills, and subagent definitions for coding-agent workflows
     ├── agent-context-retriever/
     ├── codebase-understanding/
     ├── plan-mode-tasks/
+    ├── git/
     ├── workflow-code/
     ├── workflow-execution/
-    ├── workflow-git/
     └── workflow-testing/
 ```
 
@@ -53,7 +53,7 @@ Shared instructions, skills, and subagent definitions for coding-agent workflows
 1. Use `agent-context-retriever` before broad repo inspection.
 2. Use `workflow-code` for implementation changes and related documentation updates.
 3. Use `workflow-testing` for focused verification.
-4. Use `workflow-git` when the task includes staging or commits.
+4. Use `git` when the task includes staging or commits.
 5. Use `plan-mode-tasks` after an approved plan needs `plan.md` and `tasks.md` artifacts, validation, checkbox progress, archive handling, or restore handling.
 6. Use `codebase-understanding` when the goal is explanation, diagrams, or a reusable understanding artifact.
 
@@ -65,7 +65,7 @@ Shared instructions, skills, and subagent definitions for coding-agent workflows
 - `plan-mode-tasks` — creates, validates, updates progress, archives, and restores approved plan artifacts such as `plan.md` and `tasks.md`.
 - `workflow-code` — guides implementation, naming, TDD, documentation updates, and validation expectations.
 - `workflow-execution` — defines shell discipline, environment handling, and tmux-oriented command execution rules.
-- `workflow-git` — handles diff review, staging, commit grouping, and commit hygiene.
+- `git` — handles diff review, staging, commit grouping, and commit hygiene.
 - `workflow-testing` — guides focused verification and concise test reporting.
 
 ## Subagents included

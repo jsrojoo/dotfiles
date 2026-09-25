@@ -76,7 +76,7 @@ Trivial, safe tasks may proceed directly. Explicit user instructions override th
 - Use `workflow-execution` for complex shell work, temp files, environment setup, tmux discipline, and command-running practices.
 - Use `workflow-code` for code edits, reviews, refactors, naming, TDD, error handling, overcomplication checks, surgical changes, and verification discipline.
 - Use `workflow-testing` when tests run, verification is needed, or test selection matters.
-- Use `workflow-git` for git practices and commit rules when asked to commit or perform git write operations.
+- Use `git` for git practices and commit rules when asked to commit or perform git write operations.
 - Use `plan-mode-tasks` only after a Plan Mode plan is approved and `plan.md` or `tasks.md` artifacts are needed.
 - Use relevant skill, or smallest relevant set, for task at hand instead of relying on general reasoning when matching skill exists.
 - When delegating code changes to a subagent, explicitly require updates to normal project documentation when behavior, interfaces, configuration, or workflows change in same task.

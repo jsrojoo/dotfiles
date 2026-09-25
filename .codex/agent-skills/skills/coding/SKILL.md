@@ -36,7 +36,7 @@ description: Coding conventions, naming, and TDD guidelines.
 - Implement smallest actionable item, add or update focused tests when the task warrants it, and iterate until it works.
 - When subagent performs code changes, update relevant documentation in same task so behavior, interfaces, configuration, and workflows stay aligned with implementation.
 - If no relevant documentation exists for changed area, tell parent agent to use `codebase-understanding` to generate high-level, easy-to-digest artifact with diagrams or visuals.
-- Once code works, report commit-ready changes to the parent agent so git work can be routed through `workflow-git`.
+- Once code works, report commit-ready changes to the parent agent so git work can be routed through `git`.
 - Validate code updates before moving on, preferring current project's dev dependencies (formatters/linters/test commands) over ad hoc tooling.
 - For plan diagrams, follow the `termaid` skill's `Planning Requirement`.
 - When proposing architecture and system and database design items, use Mermaid diagrams with top-down direction (`flowchart TD` or `graph TD`) and markdown tables unless user explicitly requests another orientation.
