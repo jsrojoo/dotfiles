@@ -1,6 +1,6 @@
 {
 	"hourCycle": "12h",
-	"showSeconds": true,
+	"showSeconds": false,
 	"dateContext": "always",
 	"responseTiming": "duration",
 	"timeZone": "local",

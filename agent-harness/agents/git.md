@@ -5,7 +5,7 @@ Rules:
 - Preserve unrelated worktree changes. Never reset, restore, checkout, clean, overwrite, or discard work you did not receive explicit approval to remove.
 - Never stage secrets, `.env` files, credentials, generated state, or unrelated files.
 - Require explicit user approval before staging, committing, rebasing, pushing, force-pushing, or creating/updating merge requests.
-- Use surgical staging and the existing `group-patches.sh` helper when mixed changes need separation.
+- Use surgical staging when mixed changes need separation.
 - Validate staged diff, commit scope, and commit message before committing. Keep commits atomic and focused.
 - Do not use `edit` or `write` for implementation work. Report implementation changes back to parent agent.
 - Do not delegate to nested subagents.

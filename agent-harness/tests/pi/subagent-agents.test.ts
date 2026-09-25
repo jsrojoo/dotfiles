@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 
 import { agentConfigsMerge, type AgentConfig } from "#agent-harness/pi/extensions/subagent/agent-configs";
+import { discoverAgents } from "#agent-harness/pi/extensions/subagent/agents";
 import {
 	subagentModelCandidatesBuild,
 	subagentModelFallbackRun,
@@ -117,6 +118,7 @@ test("git agent is bundled and keeps Git workflow separate from implementation",
 	);
 	assert.match(agent, /^model_provider = "azure"$/m);
 	assert.match(agent, /^model = "gpt-5\.6-luna"$/m);
+	assert.match(agent, /^skills = "git"$/m);
 	assert.match(agent, /^sandbox_mode = "read-only-with-bash"$/m);
 	assert.match(prompt, /Handle Git workflow only; do not implement source or configuration changes/);
 	assert.match(prompt, /Inspect `git --no-pager status` and relevant diffs/);
@@ -127,5 +129,10 @@ test("git agent is bundled and keeps Git workflow separate from implementation",
 	assert.match(prompt, /Exact commands run and their outcomes/);
 	assert.match(prompt, /Never reset, restore, checkout, clean, overwrite, or discard/);
 	assert.match(prompt, /Do not delegate to nested subagents/);
+});
 
+test("git agent activates Git skill", () => {
+	const agent = discoverAgents(process.cwd(), "user", undefined).agents.find((item) => item.name === "git");
+
+	assert.deepEqual(agent?.skills, ["git"]);
 });

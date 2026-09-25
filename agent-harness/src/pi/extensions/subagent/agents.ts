@@ -139,31 +139,32 @@ function loadSharedAgents(dirs: string[], mainProvider: string | undefined): Age
 		}
 
 		for (const entry of entries) {
-		if (!entry.name.endsWith(".toml")) continue;
-		if (!entry.isFile() && !entry.isSymbolicLink()) continue;
+			if (!entry.name.endsWith(".toml")) continue;
+			if (!entry.isFile() && !entry.isSymbolicLink()) continue;
 
-		const tomlPath = path.join(dir, entry.name);
-		const promptPath = path.join(dir, `${path.basename(entry.name, ".toml")}.md`);
-		let prompt: string;
-		let toml: string;
-		try {
-			toml = fs.readFileSync(tomlPath, "utf-8");
-			prompt = fs.readFileSync(promptPath, "utf-8");
-		} catch {
-			continue;
-		}
+			const tomlPath = path.join(dir, entry.name);
+			const promptPath = path.join(dir, `${path.basename(entry.name, ".toml")}.md`);
+			let prompt: string;
+			let toml: string;
+			try {
+				toml = fs.readFileSync(tomlPath, "utf-8");
+				prompt = fs.readFileSync(promptPath, "utf-8");
+			} catch {
+				continue;
+			}
 
-		const description = parseSharedAgentString(toml, "description");
-		const name = parseSharedAgentString(toml, "name");
-		if (!description || !name || !prompt.trim()) continue;
+			const description = parseSharedAgentString(toml, "description");
+			const name = parseSharedAgentString(toml, "name");
+			if (!description || !name || !prompt.trim()) continue;
 
-		const model = parseSharedAgentString(toml, "model");
-		const modelProvider = parseSharedAgentString(toml, "model_provider");
+			const model = parseSharedAgentString(toml, "model");
+			const modelProvider = parseSharedAgentString(toml, "model_provider");
+			const skills = parseResourceList(parseSharedAgentString(toml, "skills"));
 			const sandboxMode = parseSharedAgentString(toml, "sandbox_mode");
-		const fallbackModels = parseSharedAgentString(toml, "fallback_models")
-			?.split(",")
-			.map((value) => value.trim())
-			.filter(Boolean);
+			const fallbackModels = parseSharedAgentString(toml, "fallback_models")
+				?.split(",")
+				.map((value) => value.trim())
+				.filter(Boolean);
 
 			agents.push({
 				name,
@@ -175,6 +176,7 @@ function loadSharedAgents(dirs: string[], mainProvider: string | undefined): Age
 							? ["read", "grep", "find", "ls", "bash"]
 							: undefined,
 				model: sharedAgentModelSelectorBuild(model, modelProvider, mainProvider),
+				skills,
 				fallbackModels,
 				systemPrompt: prompt,
 				source: "user",
