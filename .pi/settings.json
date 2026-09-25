@@ -1,5 +1,5 @@
 {
   "defaultProvider": "azure",
-  "defaultModel": "gpt-6-luna",
+  "defaultModel": "gpt-5.6-sol",
   "defaultThinkingLevel": "medium"
 }
