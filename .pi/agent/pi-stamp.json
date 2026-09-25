@@ -1,0 +1,13 @@
+{
+	"hourCycle": "12h",
+	"showSeconds": true,
+	"dateContext": "always",
+	"responseTiming": "duration",
+	"timeZone": "local",
+	"showExactTimeline": false,
+	"assistantMetadata": "off",
+	"showThinkingLevel": true,
+	"showCostSinceUser": false,
+	"showTimeSinceUser": true,
+	"toolStamps": true
+}
