@@ -24,7 +24,7 @@ const atlasFetch: FetchFunction = (input, init) => {
 };
 
 const responsesApi = openAIResponsesApi();
-const atlasModels = ["gpt-5.6-sol", "gpt-5.6-terra", "gpt-5.6-luna", "gpt-6-sol", "gpt-6-luna"] as const;
+const atlasModels = ["gpt-5.6-sol", "gpt-5.6-terra", "gpt-5.6-luna", "gpt-6-luna"] as const;
 
 export default function atlasProviderRegister(pi: ExtensionAPI) {
 	pi.on("before_provider_request", (event, ctx) => {

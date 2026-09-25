@@ -29,7 +29,6 @@ import {
 import { Container, Markdown, Spacer, Text } from "@earendil-works/pi-tui";
 import { Type } from "typebox";
 import { type AgentConfig, type AgentScope, discoverAgents } from "./agents.ts";
-import { defaultContextTasks } from "./context-tasks.ts";
 import { subagentModelCandidatesBuild, subagentModelFallbackRun } from "./model-selector.ts";
 
 const MAX_PARALLEL_TASKS = 8;
@@ -610,9 +609,7 @@ export default function (pi: ExtensionAPI) {
 			const hasTasks = (params.tasks?.length ?? 0) > 0;
 			const hasSingle = Boolean(params.agent && params.task);
 			const modeCount = Number(hasChain) + Number(hasTasks) + Number(hasSingle);
-			const parallelTasks =
-				params.tasks ??
-				(params.agent === "context" && params.task && !params.chain ? defaultContextTasks(params.task) : undefined);
+			const parallelTasks = params.tasks;
 
 			const makeDetails =
 				(mode: "single" | "parallel" | "chain") =>

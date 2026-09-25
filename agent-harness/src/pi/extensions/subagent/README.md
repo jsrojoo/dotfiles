@@ -55,4 +55,4 @@ Ask Pi to delegate through the `subagent` tool, for example:
 Use context to inspect the repository and return a concise handoff.
 ```
 
-Run independent investigations in one parallel call with at most four `context` tasks. The extension already enforces four concurrent child processes. The `context` agent has no shell or mutation tools; its safe `grep` and `find` tools use `rg` and `fd` internally. External services require dedicated clients with verified read-only connections and read-only queries.
+Calling `context` with a task runs one focused read-only investigation. Run independent investigations in parallel only by passing an explicit `tasks` array with non-overlapping scopes; the extension supports at most four concurrent child processes. The `context` agent has no shell or mutation tools; its safe `grep` and `find` tools use `rg` and `fd` internally. External services require dedicated clients with verified read-only connections and read-only queries.

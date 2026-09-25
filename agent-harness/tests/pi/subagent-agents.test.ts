@@ -3,7 +3,6 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 
 import { agentConfigsMerge, type AgentConfig } from "#agent-harness/pi/extensions/subagent/agent-configs";
-import { defaultContextTasks } from "#agent-harness/pi/extensions/subagent/context-tasks";
 import {
 	subagentModelCandidatesBuild,
 	subagentModelFallbackRun,
@@ -94,15 +93,6 @@ test("rejects fallback models for agents with mutation-capable tools", () => {
 	);
 });
 
-test("context defaults to three parallel investigations", () => {
-	const tasks = defaultContextTasks("Inspect harness migration");
-	assert.equal(tasks.length, 3);
-	assert.deepEqual(tasks.map((task) => task.agent), ["context", "context", "context"]);
-	assert.match(tasks[0].task, /structure/);
-	assert.match(tasks[1].task, /behavior/);
-	assert.match(tasks[2].task, /tests/);
-});
-
 test("context agent is bundled, isolated, and concise", () => {
 	const agent = readFileSync(new URL("../../agents/context.toml", import.meta.url), "utf8");
 	const prompt = readFileSync(new URL("../../agents/context.md", import.meta.url), "utf8");
@@ -113,7 +103,7 @@ test("context agent is bundled, isolated, and concise", () => {
 	assert.match(agent, /^fallback_models = "atlas\/gpt-5\.6-luna,atlas-bedrock\/claude-sonnet-4-6"$/m);
 	assert.match(agent, /^sandbox_mode = "read-only"$/m);
 	assert.match(prompt, /Never modify files, repository state, dependencies, or external systems/);
-	assert.match(prompt, /Return only compact findings/);
+	assert.match(prompt, /Return one compact integrated handoff/);
 });
 
 test("git agent is bundled and keeps Git workflow separate from implementation", () => {

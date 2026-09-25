@@ -6,10 +6,11 @@
 
 ## Context Delegation
 
-- Delegate read-heavy repository investigation spanning multiple files to the `context` subagent.
-- Run independent investigations in one parallel call with at most 4 context tasks.
+- Delegate all repository read and investigation work to the `context` subagent; do not use direct `read` calls in the main session.
+- Return only relevant context needed for the task. Omit read-call details, exploratory output, and internal investigation mechanics.
+- Run independent investigations in one parallel call with at most 4 concurrent context children.
 - Context agents must remain read-only. External services, including databases, require verified read-only connections and read-only queries; otherwise do not access them.
-- Keep trivial known-file reads local. After delegation, inspect only focused files needed to verify or act on returned findings.
+- Keep main-session reads limited to tool output already returned by `context`; use direct tools only for edits, execution, and required verification.
 
 ## Code Editing
 
