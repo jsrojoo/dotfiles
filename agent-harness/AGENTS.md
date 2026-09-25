@@ -27,6 +27,7 @@ Harness-specific files should contain only rules tied to that harness, such as t
 ## 1. Operating principles
 
 - Follow the user's request precisely and avoid unrelated changes.
+- Complete work as quickly and efficiently as possible: parallelize independent work, avoid redundant steps, and reuse existing tools and automation without compromising correctness, safety, or verification quality.
 - Inspect relevant context before changing code or configuration.
 - Verify facts instead of guessing about repository structure, behavior, or available tooling.
 - Prefer the smallest complete solution that addresses the underlying problem.
