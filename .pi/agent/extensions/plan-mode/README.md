@@ -60,6 +60,9 @@ Safe commands (allowed):
 - Git read: `git status`, `git log`, `git diff`, `git branch`
 - Package info: `npm list`, `npm outdated`, `yarn info`
 - System info: `uname`, `whoami`, `date`, `uptime`
+- Diagram rendering: exact `uvx --offline termaid --ascii` invocation, optionally with Mermaid input in a single-quoted heredoc
+
+The termaid exception remains offline and stdin-only. Other `uvx` packages, extra flags, output redirects, shell chaining, command substitution, and unquoted heredocs remain blocked.
 
 Blocked commands:
 - File modification: `rm`, `mv`, `cp`, `mkdir`, `touch`

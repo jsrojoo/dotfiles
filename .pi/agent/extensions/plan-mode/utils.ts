@@ -94,7 +94,25 @@ const SAFE_PATTERNS = [
 	/^\s*eza\b/,
 ];
 
+const TERMAID_COMMAND = "uvx --offline termaid --ascii";
+
+function isSafeTermaidCommand(command: string): boolean {
+	const trimmed = command.trim();
+	if (trimmed === TERMAID_COMMAND) return true;
+
+	const [invocation, ...inputLines] = trimmed.split(/\r?\n/);
+	const heredoc = invocation.match(
+		/^uvx --offline termaid --ascii <<'([A-Za-z_][A-Za-z0-9_]*)'$/,
+	);
+	if (!heredoc || inputLines.length === 0) return false;
+
+	const delimiter = heredoc[1];
+	return inputLines.at(-1) === delimiter && !inputLines.slice(0, -1).includes(delimiter);
+}
+
 export function isSafeCommand(command: string): boolean {
+	if (isSafeTermaidCommand(command)) return true;
+
 	const isDestructive = DESTRUCTIVE_PATTERNS.some((p) => p.test(command));
 	const isSafe = SAFE_PATTERNS.some((p) => p.test(command));
 	return !isDestructive && isSafe;

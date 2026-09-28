@@ -32,14 +32,17 @@ Use the exact heading `Plan:` followed by a concise numbered list.
 Build an implementation-ready plan that:
 
 - chooses the smallest complete approach that fits existing patterns
-- gives each step a clear outcome, relevant paths, and concrete verification
-- orders dependencies and groups independent work for parallel execution
+- uses top-level numbered items as scope-based phases in chronological execution order, with prerequisites before dependent work
+- groups work available for parallel execution within the same phase and puts detailed substeps in nested non-numbered bullets
+- gives each phase a clear outcome, relevant paths, and concrete verification
 - states only material assumptions, decisions, risks, and mitigations
 - addresses known scale, security, and compatibility needs without speculative abstractions
 
-Use only as many steps as execution needs. Avoid implementation trivia and restating the request.
+Use only as many phases as execution needs. Avoid implementation trivia and restating the request. Keep deferred or out-of-scope work separate from active phases.
 
 After the numbered list, read and follow the `termaid` skill. Include its rendered `Before`, `After`, and `What changed` views so the plan can be understood at a glance.
+
+End the response with `High-level summary:` followed by a concise overview, then `TL;DR:` as the final visible content.
 
 ## Approval
 

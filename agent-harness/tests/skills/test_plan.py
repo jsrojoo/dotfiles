@@ -41,6 +41,21 @@ class PlanSkillTest(unittest.TestCase):
         ):
             self.assertIn(requirement, content)
 
+    def test_requires_chronological_scoped_plans_with_summary_last(self) -> None:
+        content = SKILL_PATH.read_text(encoding="utf-8")
+
+        for requirement in (
+            "scope-based phases",
+            "chronological execution order",
+            "non-numbered bullets",
+            "High-level summary:",
+            "TL;DR:",
+            "final visible content",
+        ):
+            self.assertIn(requirement, content)
+
+        self.assertLess(content.index("After the numbered list"), content.index("End the response"))
+
     def test_contains_no_harness_specific_paths(self) -> None:
         content = SKILL_PATH.read_text(encoding="utf-8")
 
