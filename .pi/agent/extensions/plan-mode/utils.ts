@@ -124,6 +124,67 @@ export interface TodoItem {
 	completed: boolean;
 }
 
+export interface PlanModeState {
+	enabled: boolean;
+	todos?: TodoItem[];
+	executing?: boolean;
+	toolsBeforePlanMode?: string[];
+}
+
+export function validatePlanModeState(value: unknown): PlanModeState | null {
+	if (typeof value !== "object" || value === null) return null;
+
+	const state = value as Record<string, unknown>;
+	if (typeof state.enabled !== "boolean") return null;
+	if (state.executing !== undefined && typeof state.executing !== "boolean") return null;
+	if (
+		state.toolsBeforePlanMode !== undefined &&
+		(!Array.isArray(state.toolsBeforePlanMode) || state.toolsBeforePlanMode.some((tool) => typeof tool !== "string"))
+	) {
+		return null;
+	}
+	if (state.todos !== undefined && !Array.isArray(state.todos)) return null;
+
+	const todos = (state.todos ?? []) as unknown[];
+	const validTodos = todos.every(
+		(todo) =>
+			typeof todo === "object" &&
+			todo !== null &&
+			Number.isInteger((todo as TodoItem).step) &&
+			(todo as TodoItem).step > 0 &&
+			typeof (todo as TodoItem).text === "string" &&
+			(todo as TodoItem).text.trim().length > 0 &&
+			typeof (todo as TodoItem).completed === "boolean",
+	);
+	if (!validTodos) return null;
+	if (state.enabled === true && state.executing === true) return null;
+	if (state.executing === true && todos.length === 0) return null;
+	if (new Set(todos.map((todo) => (todo as TodoItem).step)).size !== todos.length) return null;
+
+	return {
+		enabled: state.enabled,
+		executing: state.executing ?? false,
+		todos: todos.map((todo) => ({ ...(todo as TodoItem) })),
+		toolsBeforePlanMode: state.toolsBeforePlanMode
+			? [...(state.toolsBeforePlanMode as string[])]
+			: undefined,
+	};
+}
+
+export function areAllTodosCompleted(items: readonly TodoItem[]): boolean {
+	return items.length > 0 && items.every((item) => item.completed);
+}
+
+export type PlanModeLifecycle = "inactive" | "planning" | "executing" | "completed";
+
+export function derivePlanModeLifecycle(state: PlanModeState): PlanModeLifecycle {
+	const todos = state.todos ?? [];
+	if (state.executing && areAllTodosCompleted(todos)) return "completed";
+	if (state.executing && todos.length > 0) return "executing";
+	if (state.enabled) return "planning";
+	return "inactive";
+}
+
 export function cleanStepText(text: string): string {
 	let cleaned = text
 		.replace(/\*{1,2}([^*]+)\*{1,2}/g, "$1") // Remove bold/italic
