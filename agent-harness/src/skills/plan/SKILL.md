@@ -32,8 +32,8 @@ Use the exact heading `Plan:` followed by a concise numbered list.
 Build an implementation-ready plan that:
 
 - chooses the smallest complete approach that fits existing patterns
-- uses top-level numbered items as scope-based phases in chronological execution order, with prerequisites before dependent work
-- groups work available for parallel execution within the same phase and puts detailed substeps in nested non-numbered bullets
+- maps the dependency graph, then uses top-level numbered items as scope-based phases in chronological execution order, with prerequisites before dependent work
+- places independent work into explicit parallel execution groups within the same phase and puts detailed substeps in nested non-numbered bullets
 - gives each phase a clear outcome, relevant paths, and concrete verification
 - states only material assumptions, decisions, risks, and mitigations
 - addresses known scale, security, and compatibility needs without speculative abstractions

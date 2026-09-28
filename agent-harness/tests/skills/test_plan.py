@@ -47,6 +47,8 @@ class PlanSkillTest(unittest.TestCase):
         for requirement in (
             "scope-based phases",
             "chronological execution order",
+            "dependency graph",
+            "parallel execution groups",
             "non-numbered bullets",
             "High-level summary:",
             "TL;DR:",

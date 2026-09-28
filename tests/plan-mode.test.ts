@@ -14,6 +14,8 @@ test("loads plan mode prompt from its own file", () => {
 	assert.match(prompt, /`ponytail` skill/);
 	assert.match(prompt, /`plan-mode-tasks`/);
 	assert.match(prompt, /scope-based top-level phases/);
+	assert.match(prompt, /dependency graph/);
+	assert.match(prompt, /parallel execution groups/);
 	assert.match(prompt, /chronological execution order/);
 	assert.match(prompt, /non-numbered bullets/);
 	assert.match(prompt, /end with `High-level summary:` and then `TL;DR:`/);
