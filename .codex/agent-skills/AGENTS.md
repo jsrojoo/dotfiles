@@ -59,7 +59,8 @@ Trivial, safe tasks may proceed directly. Explicit user instructions override th
 - Every spawned subagent prompt must require Caveman mode by default using the client-specific mechanism (Claude Code: enabled SessionStart hook, never `Skill(caveman)`; Codex: namespaced `caveman:caveman` skill), narrow scope, expected output, no nested subagents, and no reverting others' changes.
 
 ## Coding Guidelines
-- Use `workflow-code` as the source for coding, review, and refactor behavior, including assumptions, simplicity, surgical changes, and verification proof.
+- Use `coding` as the source for coding, review, and refactor behavior, including assumptions, simplicity, surgical changes, and verification proof.
+- Delegate implementation work to the `workflow_code` subagent.
 
 ## Review Finding Detail Standard
 - For `/review`, findings must be detailed enough to fix without follow-up.
@@ -74,7 +75,7 @@ Trivial, safe tasks may proceed directly. Explicit user instructions override th
 - Use `context_retriever` subagent as the only read-only investigation agent for searches, file inspection, evidence gathering, structural queries, file discovery, command-output inspection, and repo context.
 - Use `defuddle` for web fetches via `defuddle parse <url> --md`; URLs ending `.md` use direct web fetch; if Defuddle returns 403, fall back to official GitHub repository docs or another available approved fetch tool.
 - Use `workflow-execution` for complex shell work, temp files, environment setup, tmux discipline, and command-running practices.
-- Use `workflow-code` for code edits, reviews, refactors, naming, TDD, error handling, overcomplication checks, surgical changes, and verification discipline.
+- Use `coding` for code edits, reviews, refactors, naming, TDD, error handling, overcomplication checks, surgical changes, and verification discipline.
 - Use `workflow-testing` when tests run, verification is needed, or test selection matters.
 - Use `git` for git practices and commit rules when asked to commit or perform git write operations.
 - Use `plan-mode-tasks` only after a Plan Mode plan is approved and `plan.md` or `tasks.md` artifacts are needed.

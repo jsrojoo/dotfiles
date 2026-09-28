@@ -186,8 +186,11 @@ test("git agent activates Git skill and RTK", () => {
 	assert.deepEqual(agent?.extensions, ["rtk"]);
 });
 
-test("editor agent activates RTK", () => {
-	const agent = readFileSync(new URL("../../../.pi/agent/agents/editor.md", import.meta.url), "utf8");
+test("editor agent is discoverable and activates RTK", () => {
+	const agent = discoverAgents(process.cwd(), "user", undefined).agents.find(
+		(item) => item.name === "editor",
+	);
 
-	assert.match(agent, /^extensions: coding-tdd, rtk$/m);
+	assert.equal(agent?.name, "editor");
+	assert.deepEqual(agent?.extensions, ["coding-tdd", "rtk"]);
 });

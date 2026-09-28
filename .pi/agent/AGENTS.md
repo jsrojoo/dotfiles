@@ -25,8 +25,9 @@
 
 ## Code Editing
 
-- Apply file edits in the main agent session so guardrails observe them.
-- Do not delegate file mutations to subagents.
+- Delegate code and configuration changes to the `editor` subagent.
+- The `editor` subagent follows the shared `coding` skill and must return changed paths and verification results to the main session.
+- Keep integration review and final verification in the main session.
 - After implementation and fresh verification, always call `implementation_done` before final response. Do not call it before verification passes.
 
 ## Completion Responses
