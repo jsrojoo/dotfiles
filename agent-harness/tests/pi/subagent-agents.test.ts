@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
+import { dirname, resolve } from "node:path";
 import test from "node:test";
+import { fileURLToPath } from "node:url";
 
 import { agentConfigsMerge, type AgentConfig } from "#agent-harness/pi/extensions/subagent/agent-configs";
 import { discoverAgents } from "#agent-harness/pi/extensions/subagent/agents";
@@ -23,9 +25,10 @@ function agentConfigBuild(name: string, model: string, source: "user" | "project
 
 function repositoryAgentFind(name: string): AgentConfig | undefined {
 	const previousAgentDir = process.env.PI_CODING_AGENT_DIR;
-	process.env.PI_CODING_AGENT_DIR = `${process.cwd()}/.pi/agent`;
+	const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
+	process.env.PI_CODING_AGENT_DIR = `${repositoryRoot}/.pi/agent`;
 	try {
-		return discoverAgents(process.cwd(), "user", undefined).agents.find((agent) => agent.name === name);
+		return discoverAgents(repositoryRoot, "user", undefined).agents.find((agent) => agent.name === name);
 	} finally {
 		if (previousAgentDir === undefined) delete process.env.PI_CODING_AGENT_DIR;
 		else process.env.PI_CODING_AGENT_DIR = previousAgentDir;
