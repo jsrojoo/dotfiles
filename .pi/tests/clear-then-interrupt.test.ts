@@ -1,7 +1,21 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { createEditorInputPolicy } from "../agent/extensions/clear-then-interrupt-policy.ts";
+import clearThenInterruptPolicy, {
+	createEditorInputPolicy,
+	shouldDeferCtrlUToTree,
+} from "../agent/extensions/clear-then-interrupt-policy.ts";
+
+test("exports a valid Pi extension factory", () => {
+	assert.equal(typeof clearThenInterruptPolicy, "function");
+});
+
+test("defers Ctrl-U to the session tree only while it is focused", () => {
+	assert.equal(shouldDeferCtrlUToTree(true, "TreeSelectorComponent"), true);
+	assert.equal(shouldDeferCtrlUToTree(false, "TreeSelectorComponent"), false);
+	assert.equal(shouldDeferCtrlUToTree(true, "CustomEditor"), false);
+	assert.equal(shouldDeferCtrlUToTree(true, undefined), false);
+});
 
 test("clears first, then interrupts active work within 500ms", () => {
 	let time = 1_000;

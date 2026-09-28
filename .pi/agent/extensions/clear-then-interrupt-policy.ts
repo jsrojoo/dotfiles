@@ -1,7 +1,17 @@
+// Pi auto-loads every top-level module in this directory as an extension.
+export default function clearThenInterruptPolicy(): void {}
+
 export type EditorInput = "ctrl+c" | "escape" | "other";
 export type EditorInputAction = "abort" | "clear" | "consume" | "delegate";
 
 const DOUBLE_PRESS_MS = 500;
+
+export function shouldDeferCtrlUToTree(
+	isCtrlU: boolean,
+	focusedComponentName: string | undefined,
+): boolean {
+	return isCtrlU && focusedComponentName === "TreeSelectorComponent";
+}
 
 export function createEditorInputPolicy(
 	now: () => number = Date.now,
