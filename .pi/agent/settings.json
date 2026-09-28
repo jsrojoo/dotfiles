@@ -7,7 +7,6 @@
   "enabledModels": [
     "azure/gpt-5.6-luna:medium",
     "azure/gpt-5.6-sol:medium",
-    "azure/gpt-5.6-terra:medium",
     "azure/gpt-6-luna:high",
     "atlas/gpt-5.6-sol:medium",
     "atlas/gpt-5.6-luna:medium",
@@ -21,7 +20,7 @@
   "extensions": [
     "~/dotfiles/.pi/agent/extensions/coding-tdd.ts",
     "~/dotfiles/.pi/agent/extensions/plan-mode",
-    "~/dotfiles/agent-harness/src/pi/extensions/subagent/index.ts",
+    "~/dotfiles/agent-harness/src/pi/extensions/subagent",
     "~/dotfiles/agent-harness/src/pi/extensions/notify.ts",
     "~/dotfiles/.pi/agent/extensions/sql-guardrail.ts"
   ],
