@@ -10,9 +10,9 @@
 
 ## Context Delegation
 
-- Delegate all repository read and investigation work to the `context` subagent; do not use direct `read` calls in the main session.
+- Delegate all repository read and investigation work through one main `context` coordinator invocation; do not use direct `read` calls in the main session.
+- The `context` coordinator may fan out internally to 2-4 read-only `context-retriever` leaves; the main session must not invoke leaf agents directly.
 - Return only relevant context needed for the task. Omit read-call details, exploratory output, and internal investigation mechanics.
-- Run independent investigations in one parallel call with at most 4 concurrent context children.
 - Give every context invocation a concise `purpose` describing its intent; Pi renders it as `context: <purpose>`.
 - Context agents must remain read-only. External services, including databases, require verified read-only connections and read-only queries; otherwise do not access them.
 - Keep main-session reads limited to tool output already returned by `context`; use direct tools only for edits, execution, and required verification.

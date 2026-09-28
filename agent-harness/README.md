@@ -2,7 +2,7 @@
 
 Shared coding-agent harness for Pi, Claude Code, and Codex.
 
-Pi includes the bundled read-only `context` agent. Each call runs one focused investigation in a fresh child process. Give each invocation a short optional `purpose`; Pi displays it as `context: <purpose>` while keeping `context` as the registered agent name. Pass an explicit `tasks` array for non-overlapping parallel investigations. Its dedicated `git` tool exposes repository status, diffs, and history without shell or mutation access.
+Pi includes a bundled `context` coordinator. The main session makes one focused context call; that coordinator fans out internally to 2-4 non-overlapping, read-only `context-retriever` leaves and synthesizes one handoff. Give each invocation a short optional `purpose`; Pi displays it as `<agent>: <purpose>` without changing the registered agent name. Retrieval leaves have no `subagent` extension, so fanout stops after one nested level. The dedicated `git` tool exposes repository status, diffs, and history without mutation access.
 
 Installable Claude Code and Codex package around shared TDD policy in `src/core/guardrails/skills/coding/enforce-test-driven-development.ts`. The package exposes only the focused `src/skills/tdd/` skill; broader coding workflows remain outside the plugin.
 

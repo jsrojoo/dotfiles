@@ -38,7 +38,7 @@ Child `pi` processes start with `-ne` (no extension discovery). By default they 
 
 - Package extensions from `settings.json` (for example `pi-patty-bg-tasks`, ponytail) do not load in children. `pi-patty-bg-tasks` replaces `bash` with an unref'd detached spawn, which made `pi -p` exit mid tool call and return no output.
 - `coding-tdd.ts` is a local wrapper around the shared TDD adapter, so both parent and child Pi processes load the guardrail.
-- Excluding `subagent` blocks nested subagent spawns.
+- Excluding `subagent` blocks nested subagent spawns. The bundled `context` coordinator explicitly selects it, while `context-retriever` leaves omit it so fanout stops after one nested level.
 
 ## Current limitations
 
@@ -57,4 +57,4 @@ Ask Pi to delegate through the `subagent` tool, for example:
 Use context to inspect the repository and return a concise handoff.
 ```
 
-Calling `context` with a task runs one focused read-only investigation in a fresh child process. Run independent investigations in parallel only by passing an explicit `tasks` array with non-overlapping scopes; the extension supports at most four concurrent child processes. The `context` agent has no shell or mutation tools; its safe `grep` and `find` tools use `rg` and `fd` internally, and its dedicated `git` tool exposes only fixed read-only operations. External services require dedicated clients with verified read-only connections and read-only queries.
+Calling `context` with a task runs one coordinator in a fresh child process. The coordinator makes one internal parallel call with 2-4 non-overlapping `context-retriever` scopes, then synthesizes one compact handoff. Main sessions should not invoke retrieval leaves directly. Retrieval leaves have no shell or mutation tools; their safe `grep` and `find` tools use `rg` and `fd` internally, and their dedicated `git` tool exposes only fixed read-only operations. The coordinator retains controlled Bash for read-only investigations that cannot be delegated safely. External services require verified read-only connections and read-only queries.

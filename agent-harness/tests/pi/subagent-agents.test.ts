@@ -108,9 +108,13 @@ test("allows fallback models with explicit mutation-tool exception", () => {
 	);
 });
 
-test("context agent is bundled, isolated, and concise", () => {
+test("context coordinator is bundled and delegates scoped retrieval", () => {
 	const agent = readFileSync(new URL("../../agents/context.toml", import.meta.url), "utf8");
 	const prompt = readFileSync(new URL("../../agents/context.md", import.meta.url), "utf8");
+	const implementation = readFileSync(
+		new URL("../../src/pi/extensions/subagent/index.ts", import.meta.url),
+		"utf8",
+	);
 
 	assert.match(agent, /^name = "context"$/m);
 	assert.match(agent, /^model_provider = "azure"$/m);
@@ -118,19 +122,36 @@ test("context agent is bundled, isolated, and concise", () => {
 	assert.match(agent, /^fallback_models = "atlas\/gpt-6-luna,atlas-bedrock\/claude-sonnet-4-6"$/m);
 	assert.match(agent, /^allow_fallback_models_with_mutation_tools = true$/m);
 	assert.match(agent, /^sandbox_mode = "read-only-with-bash"$/m);
-	assert.match(agent, /^tools = "git"$/m);
-	assert.match(prompt, /Never modify files, repository state, dependencies, or external systems/);
-	assert.match(prompt, /Return one compact integrated handoff/);
+	assert.match(agent, /^tools = "git,subagent"$/m);
+	assert.match(prompt, /one parallel `subagent` call that fans out to 2-4 `context-retriever` leaves/);
+	assert.match(prompt, /never invoke `context` or another coordinator recursively/);
+	assert.match(prompt, /Synthesize the leaf results into one compact integrated handoff/);
+	assert.match(implementation, /name === "subagent"/);
+	assert.match(implementation, /path\.dirname\(fileURLToPath\(import\.meta\.url\)\)/);
 });
 
-test("context agent receives the dedicated read-only git tool", () => {
+test("context coordinator receives the nested subagent extension", () => {
 	const agent = discoverAgents(process.cwd(), "user", undefined).agents.find((item) => item.name === "context");
 
-	assert.deepEqual(agent?.tools, ["read", "grep", "find", "ls", "bash", "git"]);
+	assert.deepEqual(agent?.tools, ["read", "grep", "find", "ls", "bash", "git", "subagent"]);
+	assert.deepEqual(agent?.skills, ["graphify"]);
+	assert.deepEqual(agent?.extensions, ["rtk", "git-read-only", "subagent"]);
+	assert.deepEqual(agent?.fallbackModels, ["atlas/gpt-6-luna", "atlas-bedrock/claude-sonnet-4-6"]);
+	assert.equal(agent?.allowFallbackModelsWithMutationTools, true);
+});
+
+test("context retriever is read-only and cannot nest", () => {
+	const prompt = readFileSync(new URL("../../agents/context-retriever.md", import.meta.url), "utf8");
+	const agent = discoverAgents(process.cwd(), "user", undefined).agents.find(
+		(item) => item.name === "context-retriever",
+	);
+
+	assert.deepEqual(agent?.tools, ["read", "grep", "find", "ls", "git"]);
 	assert.deepEqual(agent?.skills, ["graphify"]);
 	assert.deepEqual(agent?.extensions, ["rtk", "git-read-only"]);
 	assert.deepEqual(agent?.fallbackModels, ["atlas/gpt-6-luna", "atlas-bedrock/claude-sonnet-4-6"]);
-	assert.equal(agent?.allowFallbackModelsWithMutationTools, true);
+	assert.equal(agent?.allowFallbackModelsWithMutationTools ?? false, false);
+	assert.match(prompt, /Do not use shell commands or delegate to nested subagents/);
 });
 
 test("git agent is bundled and keeps Git workflow separate from implementation", () => {

@@ -16,6 +16,7 @@ import { spawn } from "node:child_process";
 import * as fs from "node:fs";
 import * as os from "node:os";
 import * as path from "node:path";
+import { fileURLToPath } from "node:url";
 import type { AgentToolResult, ThinkingLevel } from "@earendil-works/pi-agent-core";
 import type { Message } from "@earendil-works/pi-ai";
 import { StringEnum } from "@earendil-works/pi-ai";
@@ -48,9 +49,11 @@ function childExtensionArgs(selected: string[] | undefined, cwd: string): string
 	const args = ["-ne"];
 	if (selected !== undefined) {
 		for (const name of selected) {
-			const candidates = path.isAbsolute(name) || name.includes(path.sep)
-				? [path.resolve(cwd, name)]
-				: [path.join(dir, `${name}.ts`), path.join(dir, `${name}.js`), path.join(dir, name)];
+			const candidates = name === "subagent"
+				? [path.dirname(fileURLToPath(import.meta.url))]
+				: path.isAbsolute(name) || name.includes(path.sep)
+					? [path.resolve(cwd, name)]
+					: [path.join(dir, `${name}.ts`), path.join(dir, `${name}.js`), path.join(dir, name)];
 			args.push("-e", candidates.find((candidate) => fs.existsSync(candidate)) ?? candidates[0]);
 		}
 		return args;
