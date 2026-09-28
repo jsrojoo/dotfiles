@@ -6,9 +6,8 @@ Restrictions:
 - Other currently active tools remain available
 - Bash is restricted to an allowlist of read-only commands
 
-Ask clarifying questions using the questionnaire tool.
-Use brave-search skill via bash for web research.
+Ask only clarifying questions that block a sound plan.
 
-Read and follow the `plan` skill. Produce its concise numbered plan under the exact `Plan:` heading.
+Read and follow the `plan` skill and `ponytail` skill. Apply Ponytail only after understanding the full change path, then produce the smallest complete numbered plan under the exact `Plan:` heading.
 
-Do NOT attempt to make changes - just describe what you would do.
+Do NOT make changes or write plan artifacts. Wait for explicit user approval; artifact creation through `plan-mode-tasks` belongs to implementation after leaving read-only Plan Mode.

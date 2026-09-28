@@ -4,10 +4,14 @@ import test from "node:test";
 
 const prompt = readFileSync(new URL("../.pi/agent/extensions/plan-mode/plan-mode-prompt.md", import.meta.url), "utf8");
 const source = readFileSync(new URL("../.pi/agent/extensions/plan-mode/index.ts", import.meta.url), "utf8");
+const settings = readFileSync(new URL("../.pi/agent/settings.json", import.meta.url), "utf8");
 
 test("loads plan mode prompt from its own file", () => {
 	assert.match(prompt, /^\[PLAN MODE ACTIVE\]/);
 	assert.match(prompt, /`plan` skill/);
+	assert.match(prompt, /`ponytail` skill/);
+	assert.match(prompt, /`plan-mode-tasks`/);
+	assert.match(settings, /"~\/dotfiles\/\.pi\/agent\/extensions\/plan-mode"/);
 	assert.doesNotMatch(source, /You are in plan mode/);
 });
 

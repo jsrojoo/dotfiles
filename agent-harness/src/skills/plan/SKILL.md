@@ -15,6 +15,16 @@ Use planning to remove uncertainty before implementation, not to add ceremony. S
 - Resolve unknowns with evidence. Ask only questions that block a sound plan; state other material assumptions.
 - Do not edit files or run mutating commands during this phase.
 
+## Apply senior-dev filter
+
+Read and follow the `ponytail` skill after understanding the full change path and before writing the plan.
+
+- Challenge whether requested machinery needs to exist and cut speculative scope.
+- Reuse existing code, standard-library features, native platform behavior, and installed dependencies before adding anything.
+- Prefer the fewest files and shortest complete change without weakening validation, error handling, security, accessibility, or explicit requirements.
+- For bugs, trace callers and plan the smallest shared root-cause fix.
+- Include one focused runnable check for non-trivial logic.
+
 ## Write plan
 
 Use the exact heading `Plan:` followed by a concise numbered list.
@@ -35,4 +45,4 @@ After the numbered list, read and follow the `termaid` skill. Include its render
 
 Wait for explicit approval before editing or running mutating commands. Treat approval as valid for the stated scope; do not ask again unless scope or risk materially changes.
 
-After approval, execute the plan. If evidence invalidates it, stop and present the smallest necessary revision.
+After approval, use the `plan-mode-tasks` skill when persistent task artifacts are useful, then execute the plan. Artifact writes are implementation-phase mutations and must not occur before approval. If evidence invalidates the approved plan, stop and present the smallest necessary revision.
