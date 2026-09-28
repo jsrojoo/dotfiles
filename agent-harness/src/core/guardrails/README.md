@@ -51,7 +51,4 @@ Core policy:
 - `sql/block-mutative-sql.ts` decides whether an executed command must be blocked.
 - `sql/require-sql-validation.ts` records successful read-only proof and allows one corrective continuation when proof is missing.
 
-Pi consumes that policy through thin adapters:
-
-- `pi/extensions/sql/register-mutative-sql-blocking.ts`
-- `pi/extensions/sql/register-sql-validation.ts`
+Pi consumes that policy through `pi/extensions/sql/register-sql-guardrail.ts`, exposed to agents as `sql-guardrail` by `.pi/agent/extensions/sql-guardrail.ts`.

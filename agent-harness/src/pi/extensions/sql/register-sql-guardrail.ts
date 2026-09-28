@@ -1,6 +1,7 @@
 import type { AgentMessage } from "@earendil-works/pi-agent-core";
 import type { AssistantMessage, TextContent } from "@earendil-works/pi-ai";
 import type { ExtensionAPI, ExtensionContext } from "@earendil-works/pi-coding-agent";
+import { mutativeSqlExecutionEvaluate } from "#agent-harness/core/guardrails/sql/block-mutative-sql";
 import {
 	type SqlValidationState,
 	sqlValidationCompletionEvaluate,
@@ -24,7 +25,7 @@ function assistantTextExtract(message: AssistantMessage): string {
 		.join("\n");
 }
 
-export default function sqlValidationRequirementRegister(pi: ExtensionAPI): void {
+export default function sqlGuardrailRegister(pi: ExtensionAPI): void {
 	const sessions = new Map<string, SqlValidationState>();
 
 	function sessionGet(ctx: ExtensionContext): SqlValidationState {
@@ -38,6 +39,13 @@ export default function sqlValidationRequirementRegister(pi: ExtensionAPI): void
 	pi.on("input", (event, ctx) => {
 		if (event.source === "extension" || event.streamingBehavior !== undefined) return;
 		sessionSet(ctx, sqlValidationStateCreate());
+	});
+
+	pi.on("tool_call", (event) => {
+		if (event.toolName !== "bash") return;
+		const command = String((event.input as { command?: string }).command ?? "");
+		const decision = mutativeSqlExecutionEvaluate(command);
+		if (decision.block) return decision;
 	});
 
 	pi.on("tool_result", (event, ctx) => {

@@ -20,20 +20,26 @@ test("Pi settings load shared extensions independently of the working directory"
 	const settings = JSON.parse(readFileSync(settingsUrl, "utf8"));
 	const tddWrapperUrl = new URL("../../../../.pi/agent/extensions/coding-tdd.ts", import.meta.url);
 	const tddWrapper = readFileSync(tddWrapperUrl, "utf8");
+	const sqlWrapperUrl = new URL("../../../../.pi/agent/extensions/sql-guardrail.ts", import.meta.url);
+	const sqlWrapper = readFileSync(sqlWrapperUrl, "utf8");
 
 	assert.deepEqual(settings.extensions, [
 		"~/dotfiles/.pi/agent/extensions/coding-tdd.ts",
 		"~/dotfiles/agent-harness/src/pi/extensions/subagent/index.ts",
 		"~/dotfiles/agent-harness/src/pi/extensions/notify.ts",
-		"~/dotfiles/agent-harness/src/pi/extensions/sql/register-mutative-sql-blocking.ts",
-		"~/dotfiles/agent-harness/src/pi/extensions/sql/register-sql-validation.ts",
+		"~/dotfiles/.pi/agent/extensions/sql-guardrail.ts",
 	]);
 	assert.match(
 		tddWrapper,
 		/join\(homedir\(\), "dotfiles\/agent-harness\/src\/pi\/extensions\/coding\/register-test-driven-development\.ts"\)/,
 	);
 	assert.match(tddWrapper, /Type\.Object\(\{\}\)/);
+	assert.match(
+		sqlWrapper,
+		/join\(homedir\(\), "dotfiles\/agent-harness\/src\/pi\/extensions\/sql\/register-sql-guardrail\.ts"\)/,
+	);
 	assert.equal(typeof (await import(tddWrapperUrl.href)).default, "function");
+	assert.equal(typeof (await import(sqlWrapperUrl.href)).default, "function");
 });
 
 function harnessCreate(
