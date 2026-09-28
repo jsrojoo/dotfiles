@@ -25,7 +25,7 @@ test("Pi settings load shared extensions independently of the working directory"
 
 	assert.deepEqual(settings.extensions, [
 		"~/dotfiles/.pi/agent/extensions/coding-tdd.ts",
-		"~/dotfiles/.pi/agent/extensions/clear-then-interrupt.ts",
+		"~/dotfiles/.pi/agent/extensions/custom-keybinds.ts",
 		"~/dotfiles/.pi/agent/extensions/plan-mode",
 		"~/dotfiles/agent-harness/src/pi/extensions/subagent",
 		"~/dotfiles/agent-harness/src/pi/extensions/notify.ts",
@@ -682,7 +682,7 @@ test("editor subagent selects only coding resources needed for guarded TDD", () 
 	const editorUrl = new URL("../../../../.pi/agent/agents/editor.md", import.meta.url);
 	const editor = readFileSync(editorUrl, "utf8");
 
-	assert.match(editor, /^tools: read, bash, edit$/m);
+	assert.match(editor, /^tools: read, bash, edit, implementation_done$/m);
 	assert.match(editor, /^skills: coding$/m);
 	assert.match(editor, /^extensions: coding-tdd, rtk$/m);
 	assert.match(editor, /Use `bash` only to run tests/);

@@ -12,6 +12,10 @@ test("leaves Escape behavior at Pi defaults", () => {
 	assert.equal(Object.hasOwn(keybindings, "tui.select.cancel"), false);
 });
 
+test("keeps Ctrl-U bound to fullscreen half-page-up", () => {
+	assert.deepEqual(keybindings["tui.altScreen.halfPageUp"], ["ctrl+u"]);
+});
+
 test("keeps built-in Ctrl-C clear and copy disabled", () => {
 	assert.deepEqual(keybindings["app.clear"], []);
 	assert.deepEqual(keybindings["tui.input.copy"], []);
