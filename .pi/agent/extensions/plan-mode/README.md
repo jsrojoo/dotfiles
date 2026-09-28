@@ -11,15 +11,16 @@ Read-only exploration mode for safe code analysis.
 - **[DONE:n] markers**: Explicit step completion tracking
 - **Session persistence**: State survives session resume
 
-## Commands
+## Commands and tools
 
-- `/plan` - Toggle plan mode
+- `enter_plan_mode` - Let the agent enter plan mode before non-trivial work
+- `/plan` - Toggle plan mode manually
 - `/todos` - Show current plan progress
 - `Ctrl+Alt+P` - Toggle plan mode (shortcut)
 
 ## Usage
 
-1. Enable plan mode with `/plan` or `--plan` flag
+1. The agent calls `enter_plan_mode` before non-trivial work, or you enable it manually with `/plan` or `--plan`
 2. Ask the agent to analyze code and create a plan
 3. The agent should output a numbered plan under a `Plan:` header:
 

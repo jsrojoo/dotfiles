@@ -4,13 +4,9 @@
 - Use `triggerOnCompletion: false` for regression checks, secondary validations, and parallel verification runs.
 - When `triggerOnCompletion: false`, retrieve results with `bg_logs` only when explicitly asked or when the output is needed for a follow-up step.
 
-## Plan Approval Gate
+## Planning
 
-- Treat work as non-trivial when it spans multiple files or components, requires design or migration decisions, involves unfamiliar behavior needing investigation, or carries meaningful risk.
-- Before non-trivial implementation, complete read-only investigation and present an implementation-ready plan under the exact `Plan:` heading.
-- Wait for explicit user approval before making code changes, writing plan artifacts, or running mutating implementation commands.
-- Approval covers only the stated scope. Stop and request renewed approval when evidence materially changes scope, design, or risk.
-- Routine, low-risk work with an obvious solution may proceed without a plan.
+- Use `enter_plan_mode` for non-trivial implementation work or when the user asks for a plan.
 
 ## Context Delegation
 

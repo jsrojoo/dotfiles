@@ -5,6 +5,7 @@ import test from "node:test";
 const prompt = readFileSync(new URL("../.pi/agent/extensions/plan-mode/plan-mode-prompt.md", import.meta.url), "utf8");
 const source = readFileSync(new URL("../.pi/agent/extensions/plan-mode/index.ts", import.meta.url), "utf8");
 const settings = readFileSync(new URL("../.pi/agent/settings.json", import.meta.url), "utf8");
+const agentInstructions = readFileSync(new URL("../.pi/agent/AGENTS.md", import.meta.url), "utf8");
 
 test("loads plan mode prompt from its own file", () => {
 	assert.match(prompt, /^\[PLAN MODE ACTIVE\]/);
@@ -20,4 +21,14 @@ test("preserves newly registered tools when restoring plan mode", () => {
 		source,
 		/toolsBeforePlanMode = uniqueToolNames\(\[\.\.\.\(toolsBeforePlanMode \?\? \[\]\), \.\.\.pi\.getActiveTools\(\)\]\)/,
 	);
+});
+
+test("exposes model-callable plan entry while preserving approval and enforcement", () => {
+	assert.match(source, /name:\s*"enter_plan_mode"/);
+	assert.match(source, /togglePlanMode\(ctx\)/);
+	assert.match(source, /ctx\.ui\.select\("Plan mode - what next\?"/);
+	assert.match(source, /pi\.on\("tool_call"/);
+	assert.match(source, /isSafeCommand\(command\)/);
+	assert.match(agentInstructions, /Use `enter_plan_mode` for non-trivial implementation work or when the user asks for a plan\./);
+	assert.doesNotMatch(agentInstructions, /^## Plan Approval Gate$/m);
 });

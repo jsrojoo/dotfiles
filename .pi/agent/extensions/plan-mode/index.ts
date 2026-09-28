@@ -5,7 +5,7 @@
  * When enabled, built-in write tools are disabled.
  *
  * Features:
- * - /plan command or Ctrl+Alt+P to toggle
+ * - enter_plan_mode tool, /plan command, or Ctrl+Alt+P to enable
  * - Bash restricted to allowlisted read-only commands
  * - Extracts numbered plan steps from "Plan:" sections
  * - [DONE:n] markers to complete steps during execution
@@ -13,7 +13,7 @@
  */
 
 import type { AgentMessage } from "@earendil-works/pi-agent-core";
-import type { AssistantMessage, TextContent } from "@earendil-works/pi-ai";
+import { Type, type AssistantMessage, type TextContent } from "@earendil-works/pi-ai";
 import type { ExtensionAPI, ExtensionContext } from "@earendil-works/pi-coding-agent";
 import { Key } from "@earendil-works/pi-tui";
 import { readFileSync } from "node:fs";
@@ -142,6 +142,20 @@ export default function planModeExtension(pi: ExtensionAPI): void {
 	pi.registerCommand("plan", {
 		description: "Toggle plan mode (read-only exploration)",
 		handler: async (_args, ctx) => togglePlanMode(ctx),
+	});
+
+	pi.registerTool({
+		name: "enter_plan_mode",
+		label: "Enter Plan Mode",
+		description: "Enter read-only Plan Mode before non-trivial implementation or when the user asks for a plan.",
+		parameters: Type.Object({}),
+		async execute(_toolCallId, _params, _signal, _onUpdate, ctx) {
+			if (!planModeEnabled) togglePlanMode(ctx);
+			return {
+				content: [{ type: "text" as const, text: PLAN_MODE_PROMPT }],
+				details: { enabled: planModeEnabled },
+			};
+		},
 	});
 
 	pi.registerCommand("todos", {
