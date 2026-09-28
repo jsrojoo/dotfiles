@@ -50,6 +50,22 @@ Exclude unwanted ranges without rebuilding selection manually:
 
 Keep each selected hunk's `diff --git`, `index`, and `---`/`+++` headers intact. Do not edit `@@ -a,b +c,d @@` counts unless recalculating patch structure correctly.
 
+## Worktree cleanup
+
+Use the bundled helper to find clean secondary worktrees whose local branches are merged into an explicit base branch:
+
+```bash
+<skill-directory>/scripts/cleanup-worktrees.sh --base main
+```
+
+This is a preview. Review every eligible and skipped path, obtain approval for the Git write, then remove only the eligible worktrees:
+
+```bash
+<skill-directory>/scripts/cleanup-worktrees.sh --base main --remove
+```
+
+The helper never deletes branches or force-removes worktrees. It skips the primary and invoking worktrees plus dirty, unmerged, detached, locked, prunable, missing, and ambiguous worktrees.
+
 ## Merge requests
 
 Before creating merge request:

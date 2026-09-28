@@ -1,12 +1,15 @@
 from pathlib import Path
 import os
 import re
+import subprocess
+import tempfile
 import unittest
 
 
 AGENT_HARNESS_ROOT = Path(__file__).resolve().parents[2]
 SKILL_DIRECTORY = AGENT_HARNESS_ROOT / "src" / "skills" / "git"
 SKILL_PATH = SKILL_DIRECTORY / "SKILL.md"
+CLEANUP_HELPER_PATH = SKILL_DIRECTORY / "scripts" / "cleanup-worktrees.sh"
 
 
 class GitSkillTest(unittest.TestCase):
@@ -24,6 +27,92 @@ class GitSkillTest(unittest.TestCase):
 
         self.assertTrue(helper_path.is_file())
         self.assertTrue(os.access(helper_path, os.X_OK))
+
+    def test_bundles_executable_worktree_cleanup_helper(self) -> None:
+        self.assertTrue(CLEANUP_HELPER_PATH.is_file())
+        self.assertTrue(os.access(CLEANUP_HELPER_PATH, os.X_OK))
+
+    def test_worktree_cleanup_only_removes_clean_merged_worktrees(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            root = Path(temporary_directory).resolve()
+            repository = self._create_repository(root)
+            merged = self._add_worktree(repository, root, "merged")
+            dirty = self._add_worktree(repository, root, "dirty")
+            unmerged = self._add_worktree(repository, root, "unmerged")
+            detached = root / "detached"
+            self._run(repository, "worktree", "add", "--detach", str(detached), "HEAD")
+
+            (dirty / "tracked.txt").write_text("dirty\n", encoding="utf-8")
+            (unmerged / "unmerged.txt").write_text("unmerged\n", encoding="utf-8")
+            self._run(unmerged, "add", "unmerged.txt")
+            self._run(unmerged, "commit", "-m", "unmerged change")
+
+            preview = self._run_script(repository, "--base", "mac")
+
+            self.assertIn(f"ELIGIBLE {merged} [merged]", preview.stdout)
+            self.assertIn(f"SKIP {dirty}: dirty worktree", preview.stdout)
+            self.assertIn(f"SKIP {unmerged}: branch is not merged into mac", preview.stdout)
+            self.assertIn(f"SKIP {detached}: detached HEAD", preview.stdout)
+            self.assertIn("Preview only.", preview.stdout)
+            for path in (merged, dirty, unmerged, detached):
+                self.assertTrue(path.exists())
+
+            removed = self._run_script(repository, "--base", "mac", "--remove")
+
+            self.assertIn(f"REMOVED {merged} [merged]", removed.stdout)
+            self.assertFalse(merged.exists())
+            for path in (dirty, unmerged, detached):
+                self.assertTrue(path.exists())
+            self.assertEqual("merged", self._run(repository, "branch", "--list", "merged").stdout.strip())
+
+    def test_worktree_cleanup_protects_invoking_worktree(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            root = Path(temporary_directory).resolve()
+            repository = self._create_repository(root)
+            current = self._add_worktree(repository, root, "current")
+
+            result = self._run_script(current, "--base", "mac", "--remove")
+
+            self.assertIn(f"SKIP {repository}: primary worktree", result.stdout)
+            self.assertIn(f"SKIP {current}: current worktree", result.stdout)
+            self.assertTrue(current.exists())
+
+    @staticmethod
+    def _run(cwd: Path, *arguments: str) -> subprocess.CompletedProcess[str]:
+        return subprocess.run(
+            ["git", *arguments],
+            cwd=cwd,
+            check=True,
+            text=True,
+            capture_output=True,
+        )
+
+    def _create_repository(self, root: Path) -> Path:
+        repository = root / "repository"
+        repository.mkdir()
+        self._run(repository, "init", "-b", "mac")
+        self._run(repository, "config", "user.name", "Test User")
+        self._run(repository, "config", "user.email", "test@example.com")
+        (repository / "tracked.txt").write_text("clean\n", encoding="utf-8")
+        self._run(repository, "add", "tracked.txt")
+        self._run(repository, "commit", "-m", "initial")
+        return repository
+
+    def _add_worktree(self, repository: Path, root: Path, branch: str) -> Path:
+        path = root / branch
+        self._run(repository, "branch", branch)
+        self._run(repository, "worktree", "add", str(path), branch)
+        return path
+
+    @staticmethod
+    def _run_script(cwd: Path, *arguments: str) -> subprocess.CompletedProcess[str]:
+        return subprocess.run(
+            [str(CLEANUP_HELPER_PATH), *arguments],
+            cwd=cwd,
+            check=True,
+            text=True,
+            capture_output=True,
+        )
 
     def test_contains_no_harness_specific_paths(self) -> None:
         content = SKILL_PATH.read_text(encoding="utf-8")
