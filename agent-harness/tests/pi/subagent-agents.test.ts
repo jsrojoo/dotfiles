@@ -122,7 +122,7 @@ test("context coordinator is bundled and delegates scoped retrieval", () => {
 	assert.match(agent, /^fallback_models = "atlas\/gpt-6-luna,atlas-bedrock\/claude-sonnet-4-6"$/m);
 	assert.match(agent, /^allow_fallback_models_with_mutation_tools = true$/m);
 	assert.match(agent, /^sandbox_mode = "read-only-with-bash"$/m);
-	assert.match(agent, /^tools = "git,subagent"$/m);
+	assert.match(agent, /^tools = "git,subagent,defuddle"$/m);
 	assert.match(prompt, /one parallel `subagent` call that fans out to 2-4 `context-retriever` leaves/);
 	assert.match(prompt, /never invoke `context` or another coordinator recursively/);
 	assert.match(prompt, /Synthesize the leaf results into one compact integrated handoff/);
@@ -133,7 +133,7 @@ test("context coordinator is bundled and delegates scoped retrieval", () => {
 test("context coordinator receives the nested subagent extension", () => {
 	const agent = discoverAgents(process.cwd(), "user", undefined).agents.find((item) => item.name === "context");
 
-	assert.deepEqual(agent?.tools, ["read", "grep", "find", "ls", "bash", "git", "subagent"]);
+	assert.deepEqual(agent?.tools, ["read", "grep", "find", "ls", "bash", "git", "subagent", "defuddle"]);
 	assert.deepEqual(agent?.skills, ["graphify"]);
 	assert.deepEqual(agent?.extensions, ["rtk", "git-read-only", "subagent"]);
 	assert.deepEqual(agent?.fallbackModels, ["atlas/gpt-6-luna", "atlas-bedrock/claude-sonnet-4-6"]);
