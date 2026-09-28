@@ -27,3 +27,8 @@
 - Apply file edits in the main agent session so guardrails observe them.
 - Do not delegate file mutations to subagents.
 - After implementation and fresh verification, always call `implementation_done` before final response. Do not call it before verification passes.
+
+## Completion Responses
+
+- After implementation work, always send a final completion summary after all tool and monitor output. Include completion status, changed behavior and files, verification results, remaining failures or risks, and whether user action is required.
+- Never leave a background-job, tool, or monitor notification as the final user-facing response.

@@ -30,5 +30,7 @@ test("exposes model-callable plan entry while preserving approval and enforcemen
 	assert.match(source, /pi\.on\("tool_call"/);
 	assert.match(source, /isSafeCommand\(command\)/);
 	assert.match(agentInstructions, /Use `enter_plan_mode` for non-trivial implementation work or when the user asks for a plan\./);
+	assert.match(agentInstructions, /always send a final completion summary after all tool and monitor output/);
+	assert.match(agentInstructions, /Never leave a background-job, tool, or monitor notification as the final user-facing response/);
 	assert.doesNotMatch(agentInstructions, /^## Plan Approval Gate$/m);
 });
