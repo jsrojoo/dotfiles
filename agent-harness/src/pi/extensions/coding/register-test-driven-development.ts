@@ -1,4 +1,3 @@
-import { readFileSync } from "node:fs";
 import type {
 	ExtensionAPI,
 	ExtensionContext,
@@ -21,10 +20,6 @@ const GREEN_REMINDER =
 const RED_ESTABLISHED = "TDD guardrail: red";
 const GREEN_ESTABLISHED = "TDD guardrail: green";
 const IMPLEMENTATION_DONE_REMINDER = "TDD guardrail: call implementation_done after fresh verification before completion.";
-const E2E_HANDOFF = readFileSync(
-	new URL("../../../skills/coding/references/e2e-handoff.md", import.meta.url),
-	"utf8",
-).trim();
 
 interface SessionTddState {
 	cycle: WorkflowCodeState;
@@ -50,13 +45,23 @@ export function testDrivenDevelopmentEnforcementCreate(
 		pi.registerTool({
 			name: "implementation_done",
 			label: "Implementation done",
-			description: "Call after implementation and fresh verification to load end-to-end handoff guidance.",
+			description: "Call after implementation and fresh verification to report completion state to the main session.",
 			parameters: implementationDoneParameters as any,
 			async execute(_toolCallId, _params, _signal, _onUpdate, ctx) {
-				if (ctx?.sessionManager) sessionGet(ctx).implementationDone = true;
+				const session = ctx?.sessionManager ? sessionGet(ctx) : undefined;
+				if (session) session.implementationDone = true;
+				const phase = session?.cycle.phase ?? "unavailable";
+				const testChanged = session?.cycle.testChanged ?? false;
 				return {
-					content: [{ type: "text" as const, text: E2E_HANDOFF }],
-					details: undefined,
+					content: [
+						{
+							type: "text" as const,
+							text: `Implementation completion recorded. TDD state: ${phase}; test changed: ${testChanged ? "yes" : "no"}. Continue in the main session with the final completion summary.`,
+						},
+					],
+					details: session
+						? { phase, testChanged, implementationDone: session.implementationDone }
+						: undefined,
 				};
 			},
 		});
@@ -125,6 +130,7 @@ export function testDrivenDevelopmentEnforcementCreate(
 				session.pendingPaths.delete(event.toolCallId);
 				if (!path || event.isError) return;
 				session.cycle = workflowCodeWriteEvaluate(session.cycle, path).state;
+				session.implementationDone = false;
 				return;
 			}
 

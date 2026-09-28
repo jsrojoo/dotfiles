@@ -151,7 +151,7 @@ test("git agent is bundled and keeps Git workflow separate from implementation",
 	assert.match(prompt, /Inspect `git --no-pager status` and relevant diffs/);
 	assert.match(prompt, /Require explicit user approval before staging, committing, rebasing, pushing/);
 	assert.match(prompt, /Never stage secrets, `\.env` files, credentials/);
-	assert.match(prompt, /existing `group-patches\.sh` helper/);
+	assert.match(prompt, /Use surgical staging when mixed changes need separation/);
 	assert.match(prompt, /Do not use `edit` or `write` for implementation work/);
 	assert.match(prompt, /Exact commands run and their outcomes/);
 	assert.match(prompt, /Never reset, restore, checkout, clean, overwrite, or discard/);

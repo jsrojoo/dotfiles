@@ -26,7 +26,7 @@ test("Pi settings load shared extensions independently of the working directory"
 	assert.deepEqual(settings.extensions, [
 		"~/dotfiles/.pi/agent/extensions/coding-tdd.ts",
 		"~/dotfiles/.pi/agent/extensions/plan-mode",
-		"~/dotfiles/agent-harness/src/pi/extensions/subagent/index.ts",
+		"~/dotfiles/agent-harness/src/pi/extensions/subagent",
 		"~/dotfiles/agent-harness/src/pi/extensions/notify.ts",
 		"~/dotfiles/.pi/agent/extensions/sql-guardrail.ts",
 	]);
@@ -106,14 +106,17 @@ function harnessCreate(
 	};
 }
 
-test("implementation_done tool returns end-to-end handoff guidance", async () => {
-	const { tools } = harnessCreate();
+test("implementation_done reports TDD state back to the main session", async () => {
+	const { context, tools } = harnessCreate();
 	const tool = tools.get("implementation_done");
 
 	assert.ok(tool);
-	const result = await tool.execute("call-1", {}, undefined, undefined, {});
-	assert.match(result.content[0].text, /## Test plan/);
-	assert.match(result.content[0].text, /one script per approved test case/);
+	const result = await tool.execute("call-1", {}, undefined, undefined, context);
+	assert.equal(
+		result.content[0].text,
+		"Implementation completion recorded. TDD state: locked; test changed: no. Continue in the main session with the final completion summary.",
+	);
+	assert.deepEqual(result.details, { phase: "locked", testChanged: false, implementationDone: true });
 });
 
 test("Pi adapter allows parallel source and test edits, then requires green", async () => {
@@ -170,8 +173,50 @@ test("Pi adapter allows parallel source and test edits, then requires green", as
 		completionReminder.entries[0].content,
 		"TDD guardrail: call implementation_done after fresh verification before completion.",
 	);
-	await tools.get("implementation_done")!.execute("call-1", {}, undefined, undefined, context);
+	const completion = await tools.get("implementation_done")!.execute(
+		"call-1",
+		{},
+		undefined,
+		undefined,
+		context,
+	);
+	assert.equal(
+		completion.content[0].text,
+		"Implementation completion recorded. TDD state: green; test changed: yes. Continue in the main session with the final completion summary.",
+	);
+	assert.deepEqual(completion.details, { phase: "green", testChanged: true, implementationDone: true });
 	assert.equal(await beforeSettle({}, context), undefined);
+
+	await toolCall(
+		{ toolCallId: "post-completion-source-edit", toolName: "edit", input: { path: "src/account.ts", edits: [] } },
+		context,
+	);
+	await toolResult(
+		{ toolCallId: "post-completion-source-edit", toolName: "edit", input: {}, isError: false },
+		context,
+	);
+	await toolCall(
+		{ toolCallId: "post-completion-test-edit", toolName: "edit", input: { path: "tests/account.test.ts", edits: [] } },
+		context,
+	);
+	await toolResult(
+		{ toolCallId: "post-completion-test-edit", toolName: "edit", input: {}, isError: false },
+		context,
+	);
+	await toolResult(
+		{
+			toolName: "bash",
+			input: { command: "node /plugin/src/cli/tdd-watch.ts status" },
+			isError: false,
+		},
+		context,
+	);
+	const refreshedCompletionReminder = await beforeSettle({}, context);
+	assert.equal(refreshedCompletionReminder.continue, true);
+	assert.equal(
+		refreshedCompletionReminder.entries[0].content,
+		"TDD guardrail: call implementation_done after fresh verification before completion.",
+	);
 });
 
 test("Pi adapter keeps aligned objective checks invisible", async () => {
@@ -638,7 +683,7 @@ test("editor subagent selects only coding resources needed for guarded TDD", () 
 
 	assert.match(editor, /^tools: read, bash, edit$/m);
 	assert.match(editor, /^skills: coding$/m);
-	assert.match(editor, /^extensions: coding-tdd$/m);
+	assert.match(editor, /^extensions: coding-tdd, rtk$/m);
 	assert.match(editor, /Use `bash` only to run tests/);
 });
 
