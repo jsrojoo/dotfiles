@@ -2,9 +2,8 @@
   "tui.editor.cursorLeft": ["left"],
   "tui.altScreen.halfPageDown": ["ctrl+d"],
   "tui.altScreen.halfPageUp": ["ctrl+u"],
-  "tui.altScreen.bottom": ["escape"],
   "app.session.tree": ["ctrl+t"],
   "app.thinking.toggle": [],
-  "app.interrupt": ["ctrl+c"],
-  "app.clear": []
+  "app.clear": [],
+  "tui.input.copy": []
 }

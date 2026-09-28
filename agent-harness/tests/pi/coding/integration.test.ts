@@ -25,6 +25,7 @@ test("Pi settings load shared extensions independently of the working directory"
 
 	assert.deepEqual(settings.extensions, [
 		"~/dotfiles/.pi/agent/extensions/coding-tdd.ts",
+		"~/dotfiles/.pi/agent/extensions/clear-then-interrupt.ts",
 		"~/dotfiles/.pi/agent/extensions/plan-mode",
 		"~/dotfiles/agent-harness/src/pi/extensions/subagent",
 		"~/dotfiles/agent-harness/src/pi/extensions/notify.ts",
