@@ -7,11 +7,21 @@ import { matchesKey } from "@earendil-works/pi-tui";
 import {
 	createEditorInputPolicy,
 	type EditorInput,
+	installViewportInputBridge,
+	type ViewportInputBridgeTarget,
 } from "./clear-then-interrupt-policy.ts";
 
-export default function clearThenInterrupt(pi: ExtensionAPI): void {
+export default function customKeybinds(pi: ExtensionAPI): void {
+	let cleanupViewportInputBridge: (() => void) | undefined;
+
 	pi.on("session_start", (_event, ctx) => {
 		ctx.ui.setEditorComponent((tui, theme, keybindings) => {
+			cleanupViewportInputBridge?.();
+			cleanupViewportInputBridge = installViewportInputBridge(
+				tui as unknown as ViewportInputBridgeTarget,
+				(data) => matchesKey(data, "ctrl+u"),
+			);
+
 			const handleInput = createEditorInputPolicy();
 
 			return new class extends CustomEditor {
@@ -37,5 +47,10 @@ export default function clearThenInterrupt(pi: ExtensionAPI): void {
 				}
 			}(tui, theme, keybindings);
 		});
+	});
+
+	pi.on("session_shutdown", () => {
+		cleanupViewportInputBridge?.();
+		cleanupViewportInputBridge = undefined;
 	});
 }

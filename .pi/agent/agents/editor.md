@@ -1,7 +1,7 @@
 ---
 name: editor
 description: Apply focused code and configuration edits, then run focused tests.
-tools: read, bash, edit
+tools: read, bash, edit, implementation_done
 skills: coding
 extensions: coding-tdd, rtk
 ---
