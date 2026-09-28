@@ -21,6 +21,17 @@ function agentConfigBuild(name: string, model: string, source: "user" | "project
 	};
 }
 
+function repositoryAgentFind(name: string): AgentConfig | undefined {
+	const previousAgentDir = process.env.PI_CODING_AGENT_DIR;
+	process.env.PI_CODING_AGENT_DIR = `${process.cwd()}/.pi/agent`;
+	try {
+		return discoverAgents(process.cwd(), "user", undefined).agents.find((agent) => agent.name === name);
+	} finally {
+		if (previousAgentDir === undefined) delete process.env.PI_CODING_AGENT_DIR;
+		else process.env.PI_CODING_AGENT_DIR = previousAgentDir;
+	}
+}
+
 test("uses the Azure main provider for an Azure shared child", () => {
 	assert.equal(sharedAgentModelSelectorBuild("gpt-5.6-luna", "azure", "azure"), "azure/gpt-5.6-luna");
 });
@@ -186,11 +197,24 @@ test("git agent activates Git skill and RTK", () => {
 	assert.deepEqual(agent?.extensions, ["rtk"]);
 });
 
-test("editor agent is discoverable and activates RTK", () => {
-	const agent = discoverAgents(process.cwd(), "user", undefined).agents.find(
-		(item) => item.name === "editor",
-	);
+test("editor coordinator is discoverable with nested subagent orchestration", () => {
+	const prompt = readFileSync(new URL("../../../.pi/agent/agents/editor.md", import.meta.url), "utf8");
+	const agent = repositoryAgentFind("editor");
 
-	assert.equal(agent?.name, "editor");
+	assert.deepEqual(agent?.tools, ["read", "bash", "edit", "subagent", "implementation_done"]);
+	assert.deepEqual(agent?.extensions, ["coding-tdd", "rtk", "subagent"]);
+	assert.match(prompt, /one main `context` coordinator invocation/);
+	assert.match(prompt, /explicit, non-overlapping path ownership/);
+	assert.match(prompt, /parent remains responsible for integration review, final verification, and calling `implementation_done`/);
+});
+
+test("editor worker is discoverable, scoped, and non-recursive", () => {
+	const prompt = readFileSync(new URL("../../../.pi/agent/agents/editor-worker.md", import.meta.url), "utf8");
+	const agent = repositoryAgentFind("editor-worker");
+
+	assert.deepEqual(agent?.tools, ["read", "bash", "edit"]);
 	assert.deepEqual(agent?.extensions, ["coding-tdd", "rtk"]);
+	assert.match(prompt, /Edit only the paths explicitly assigned to you/);
+	assert.match(prompt, /ownership is missing, ambiguous, or overlaps another worker, stop and report the conflict without editing/);
+	assert.match(prompt, /Do not invoke subagents or delegate work/);
 });

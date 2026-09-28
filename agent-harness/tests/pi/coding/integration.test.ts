@@ -678,14 +678,24 @@ test("Pi adapter loads the current objective for external editing", async () => 
 	assert.equal(entries.at(-1)?.data.objective, "Corrected objective");
 });
 
-test("editor subagent selects only coding resources needed for guarded TDD", () => {
+test("editor coordinator and worker select scoped coding resources", () => {
 	const editorUrl = new URL("../../../../.pi/agent/agents/editor.md", import.meta.url);
 	const editor = readFileSync(editorUrl, "utf8");
+	const workerUrl = new URL("../../../../.pi/agent/agents/editor-worker.md", import.meta.url);
+	const worker = readFileSync(workerUrl, "utf8");
 
-	assert.match(editor, /^tools: read, bash, edit, implementation_done$/m);
+	assert.match(editor, /^tools: read, bash, edit, subagent, implementation_done$/m);
 	assert.match(editor, /^skills: coding$/m);
-	assert.match(editor, /^extensions: coding-tdd, rtk$/m);
-	assert.match(editor, /Use `bash` only to run tests/);
+	assert.match(editor, /^extensions: coding-tdd, rtk, subagent$/m);
+	assert.match(editor, /Never assign overlapping paths or writes to multiple workers/);
+	assert.match(editor, /parent remains responsible for integration review, final verification/);
+
+	assert.match(worker, /^tools: read, bash, edit$/m);
+	assert.match(worker, /^skills: coding$/m);
+	assert.match(worker, /^extensions: coding-tdd, rtk$/m);
+	assert.match(worker, /Edit only the paths explicitly assigned to you/);
+	assert.match(worker, /Do not invoke subagents or delegate work/);
+	assert.match(worker, /parent editor owns integration review, final verification, and `implementation_done`/);
 });
 
 test("Pi adapter applies a one-request TDD kill switch", async () => {
