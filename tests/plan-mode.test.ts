@@ -26,11 +26,24 @@ test("preserves newly registered tools when restoring plan mode", () => {
 test("exposes model-callable plan entry while preserving approval and enforcement", () => {
 	assert.match(source, /name:\s*"enter_plan_mode"/);
 	assert.match(source, /togglePlanMode\(ctx\)/);
-	assert.match(source, /ctx\.ui\.select\("Plan mode - what next\?"/);
+	assert.doesNotMatch(source, /ctx\.ui\.(?:select|editor)\(/);
+	assert.match(source, /pi\.on\("input"/);
 	assert.match(source, /pi\.on\("tool_call"/);
 	assert.match(source, /isSafeCommand\(command\)/);
 	assert.match(agentInstructions, /Use `enter_plan_mode` for non-trivial implementation work or when the user asks for a plan\./);
 	assert.match(agentInstructions, /always send a final completion summary after all tool and monitor output/);
 	assert.match(agentInstructions, /Never leave a background-job, tool, or monitor notification as the final user-facing response/);
 	assert.doesNotMatch(agentInstructions, /^## Plan Approval Gate$/m);
+});
+
+test("handles explicit chat approval without consuming refinement", () => {
+	assert.match(source, /function isPlanApproval\(input: string\): boolean/);
+	assert.match(source, /approve\(\?:d\)\?/);
+	assert.match(source, /execute\(\?: the plan\)\?/);
+	assert.match(source, /implement\(\?: the plan\| it\)\?/);
+	assert.match(source, /go ahead\|proceed/);
+	assert.match(source, /event\.streamingBehavior !== undefined/);
+	assert.match(source, /!isPlanApproval\(event\.text\)/);
+	assert.match(source, /return \{ action: "handled" \}/);
+	assert.match(source, /return \{ action: "continue" \}/);
 });

@@ -31,9 +31,11 @@ Plan:
 3. Third step description
 ```
 
-4. Choose "Execute the plan" when prompted
+4. Continue chatting to refine the plan, or reply with an explicit approval such as `approve`, `execute`, `implement it`, `go ahead`, or `proceed`
 5. During execution, the agent marks steps complete with `[DONE:n]` tags
 6. Progress widget shows completion status
+
+Plan approval stays in normal chat. No blocking selector or editor opens after a plan response.
 
 ## How It Works
 

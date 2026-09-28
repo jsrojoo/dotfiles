@@ -47,6 +47,10 @@ function getTextContent(message: AssistantMessage): string {
 		.join("\n");
 }
 
+function isPlanApproval(input: string): boolean {
+	return /^(?:approve(?:d)?|execute(?: the plan)?|implement(?: the plan| it)?|go ahead|proceed)[.!]?$/i.test(input.trim());
+}
+
 export default function planModeExtension(pi: ExtensionAPI): void {
 	let planModeEnabled = false;
 	let executionMode = false;
@@ -123,6 +127,40 @@ export default function planModeExtension(pi: ExtensionAPI): void {
 		});
 	}
 
+	function executePlan(ctx: ExtensionContext): void {
+		const firstTodoItem = todoItems[0];
+		if (!firstTodoItem) return;
+
+		planModeEnabled = false;
+		executionMode = true;
+		restoreNormalModeTools();
+		updateStatus(ctx);
+		persistState();
+
+		const todoListText = todoItems.map((todo, index) => `${index + 1}. ☐ ${todo.text}`).join("\n");
+		pi.sendMessage(
+			{
+				customType: "plan-todo-list",
+				content: `**Plan Steps (${todoItems.length}):**\n\n${todoListText}`,
+				display: true,
+			},
+			{ deliverAs: "followUp" },
+		);
+
+		const remainingList = todoItems.map((todo) => `${todo.step}. ${todo.text}`).join("\n");
+		const execMessage = `Execute the plan.
+
+Remaining steps:
+${remainingList}
+
+Start with: ${firstTodoItem.text}
+After completing a step, include a [DONE:n] tag in your response.`;
+		pi.sendMessage(
+			{ customType: "plan-mode-execute", content: execMessage, display: true },
+			{ triggerTurn: true, deliverAs: "followUp" },
+		);
+	}
+
 	function togglePlanMode(ctx: ExtensionContext): void {
 		planModeEnabled = !planModeEnabled;
 		executionMode = false;
@@ -173,6 +211,22 @@ export default function planModeExtension(pi: ExtensionAPI): void {
 	pi.registerShortcut(Key.ctrlAlt("p"), {
 		description: "Toggle plan mode",
 		handler: async (ctx) => togglePlanMode(ctx),
+	});
+
+	// Accept explicit plan approval from chat; all other input remains normal planning conversation.
+	pi.on("input", async (event, ctx) => {
+		if (
+			event.source === "extension" ||
+			event.streamingBehavior !== undefined ||
+			!planModeEnabled ||
+			todoItems.length === 0 ||
+			!isPlanApproval(event.text)
+		) {
+			return { action: "continue" };
+		}
+
+		executePlan(ctx);
+		return { action: "handled" };
 	});
 
 	// Block destructive bash commands in plan mode
@@ -273,62 +327,15 @@ After completing a step, include a [DONE:n] tag in your response.`,
 			return;
 		}
 
-		if (!planModeEnabled || !ctx.hasUI) return;
+		if (!planModeEnabled) return;
 
-		// Extract todos from last assistant message
+		// Extract todos from last assistant message so chat can approve or refine without blocking on UI.
 		const lastAssistant = [...event.messages].reverse().find(isAssistantMessage);
 		if (lastAssistant) {
 			const extracted = extractTodoItems(getTextContent(lastAssistant));
 			if (extracted.length > 0) {
 				todoItems = extracted;
-			}
-		}
-
-		if (todoItems.length === 0) return;
-		persistState();
-
-		// Show plan steps and prompt for next action
-		const todoListText = todoItems.map((t, i) => `${i + 1}. ☐ ${t.text}`).join("\n");
-		const planTodoListMessage = {
-			customType: "plan-todo-list",
-			content: `**Plan Steps (${todoItems.length}):**\n\n${todoListText}`,
-			display: true,
-		};
-
-		const choice = await ctx.ui.select("Plan mode - what next?", [
-			"Execute the plan (track progress)",
-			"Stay in plan mode",
-			"Refine the plan",
-		]);
-
-		if (choice?.startsWith("Execute")) {
-			const firstTodoItem = todoItems[0];
-			if (!firstTodoItem) return;
-
-			planModeEnabled = false;
-			executionMode = true;
-			restoreNormalModeTools();
-			updateStatus(ctx);
-			persistState();
-
-			const remainingList = todoItems.map((t) => `${t.step}. ${t.text}`).join("\n");
-			const execMessage = `Execute the plan.
-
-Remaining steps:
-${remainingList}
-
-Start with: ${firstTodoItem.text}
-After completing a step, include a [DONE:n] tag in your response.`;
-			pi.sendMessage(planTodoListMessage, { deliverAs: "followUp" });
-			pi.sendMessage(
-				{ customType: "plan-mode-execute", content: execMessage, display: true },
-				{ triggerTurn: true, deliverAs: "followUp" },
-			);
-		} else if (choice === "Refine the plan") {
-			const refinement = await ctx.ui.editor("Refine the plan:", "");
-			if (refinement?.trim()) {
-				pi.sendMessage(planTodoListMessage, { deliverAs: "followUp" });
-				pi.sendUserMessage(refinement.trim(), { deliverAs: "followUp" });
+				persistState();
 			}
 		}
 	});
