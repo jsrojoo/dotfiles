@@ -35,4 +35,3 @@ Editing guidelines:
 - `.yaml` / `.yml`: preserve indentation and scalar types. Avoid changing key order unless required.
 - `.toml`: preserve valid TOML, quoting, and section structure.
 - After editing, reread changed regions and report files changed plus verification still needed.
-
