@@ -9,13 +9,15 @@
  *   - Parallel: { tasks: [{ agent: "name", task: "..." }, ...] }
  *   - Chain: { chain: [{ agent: "name", task: "... {previous} ..." }, ...] }
  *
- * Uses JSON mode to capture structured output from subagents.
+ * Uses RPC mode to capture structured output from subagents.
  */
 
 import { spawn } from "node:child_process";
+import { randomUUID } from "node:crypto";
 import * as fs from "node:fs";
 import * as os from "node:os";
 import * as path from "node:path";
+import { StringDecoder } from "node:string_decoder";
 import { fileURLToPath } from "node:url";
 import type { AgentToolResult, ThinkingLevel } from "@earendil-works/pi-agent-core";
 import type { Message } from "@earendil-works/pi-ai";
@@ -23,11 +25,12 @@ import { StringEnum } from "@earendil-works/pi-ai";
 import {
 	CONFIG_DIR_NAME,
 	type ExtensionAPI,
+	type ExtensionContext,
 	getAgentDir,
 	getMarkdownTheme,
 	withFileMutationQueue,
 } from "@earendil-works/pi-coding-agent";
-import { Container, Markdown, Spacer, Text } from "@earendil-works/pi-tui";
+import { Container, Markdown, Spacer, Text, truncateToWidth } from "@earendil-works/pi-tui";
 import { Type } from "typebox";
 import { type AgentConfig, type AgentScope, discoverAgents } from "./agents.ts";
 import { subagentDisplayLabelBuild } from "./display-label.ts";
@@ -38,10 +41,14 @@ const MAX_CONCURRENCY = 4;
 
 const COLLAPSED_ITEM_COUNT = 10;
 const PER_TASK_OUTPUT_CAP = 50 * 1024;
+const MAX_LIFECYCLE_MESSAGES = 50;
+const MAX_SETTLED_LIFECYCLE_ENTRIES = 50;
+const MAX_WIDGET_ENTRIES = 3;
+const TRANSCRIPT_LINE_WIDTH = 88;
 
 // Child pi runs skip extension discovery and load only local user extensions.
 // Why: package extensions (pi-patty-bg-tasks replaces `bash` with an unref'd
-// detached spawn) let `pi -p` exit mid tool call, so children returned no output.
+// detached spawn) can let child processes exit mid tool call, so children returned no output.
 // "subagent" is excluded so children cannot spawn nested subagents.
 // ponytail: local files only; package extensions are dropped for children, add an allowlist if one is needed.
 function childExtensionArgs(selected: string[] | undefined, cwd: string): string[] {
@@ -228,6 +235,142 @@ interface SubagentDetails {
 	results: SingleResult[];
 }
 
+type LifecycleState = "running" | "settled" | "aborted" | "error";
+
+interface LifecycleEntry {
+	id: string;
+	agent: string;
+	task: string;
+	state: LifecycleState;
+	startedAt: number;
+	updatedAt: number;
+	settledAt?: number;
+	latestActivity: string;
+	messages: Message[];
+	result?: SingleResult;
+	send?: (message: string) => boolean;
+	abort?: () => void;
+}
+
+interface LifecycleRuntime {
+	send: (message: string) => boolean;
+	abort: () => void;
+}
+
+interface LifecycleCallbacks {
+	onStart: (agent: string, task: string) => string;
+	onRuntime: (id: string, runtime: LifecycleRuntime | undefined) => void;
+	onActivity: (id: string, activity: string, message?: Message) => void;
+	onSettled: (id: string, result: SingleResult) => void;
+	onError: (id: string, error: unknown) => void;
+}
+
+function lifecycleEntriesSort(entries: Iterable<LifecycleEntry>): LifecycleEntry[] {
+	return Array.from(entries).sort((a, b) => {
+		if (a.state === "running" && b.state !== "running") return -1;
+		if (a.state !== "running" && b.state === "running") return 1;
+		return b.updatedAt - a.updatedAt;
+	});
+}
+
+function pruneLifecycleEntries(entries: Map<string, LifecycleEntry>): void {
+	const expired = Array.from(entries.values())
+		.filter((entry) => entry.state !== "running")
+		.sort((a, b) => b.updatedAt - a.updatedAt)
+		.slice(MAX_SETTLED_LIFECYCLE_ENTRIES);
+	for (const entry of expired) entries.delete(entry.id);
+}
+
+function compactTranscriptValue(value: unknown): string {
+	let text: string;
+	if (typeof value === "string") text = value;
+	else {
+		try {
+			text = JSON.stringify(value) ?? String(value);
+		} catch {
+			text = String(value);
+		}
+	}
+	return text.replace(/\s+/g, " ").trim() || "(empty)";
+}
+
+function compactTranscriptLine(label: string, value: unknown): string {
+	return truncateToWidth(`${label}: ${compactTranscriptValue(value)}`, TRANSCRIPT_LINE_WIDTH);
+}
+
+function renderLifecycleStatusSummary(entry: LifecycleEntry): string {
+	return `[${entry.state}] ${entry.id} ${entry.agent}: ${compactTranscriptValue(entry.latestActivity)}`;
+}
+
+function requestLifecycleStop(entry: LifecycleEntry): string | undefined {
+	if (entry.state !== "running") return `Subagent ${entry.id} is already ${entry.state}.`;
+	if (!entry.abort) return `Subagent ${entry.id} is running but its stop callback is not ready.`;
+	entry.abort();
+	entry.latestActivity = "stopping";
+	entry.updatedAt = Date.now();
+	return undefined;
+}
+
+function renderLifecycleTranscript(entry: LifecycleEntry): string {
+	const lines = [
+		compactTranscriptLine("Agent ID", entry.id),
+		compactTranscriptLine("Agent", entry.agent),
+		compactTranscriptLine("Task", entry.task),
+		compactTranscriptLine("State", entry.state),
+		compactTranscriptLine("Started", new Date(entry.startedAt).toISOString()),
+		compactTranscriptLine("Updated", new Date(entry.updatedAt).toISOString()),
+		compactTranscriptLine("Settled", entry.settledAt ? new Date(entry.settledAt).toISOString() : "(not settled)"),
+		compactTranscriptLine("Latest activity", entry.latestActivity),
+	];
+	if (entry.result) {
+		lines.push(compactTranscriptLine("Exit code", entry.result.exitCode));
+		lines.push(compactTranscriptLine("Stop reason", entry.result.stopReason ?? "(none)"));
+		lines.push(compactTranscriptLine("Model", entry.result.model ?? "(unknown)"));
+	}
+	const contentCounts = { assistant: 0, thinking: 0, toolCall: 0, toolResult: 0 };
+	const messages = entry.result?.messages ?? entry.messages;
+	for (const message of messages) {
+		const rawMessage = message as any;
+		if (rawMessage.role === "assistant") {
+			for (const part of rawMessage.content ?? []) {
+				if (part.type === "text") {
+					lines.push(compactTranscriptLine("Assistant", part.text));
+					contentCounts.assistant++;
+				} else if (part.type === "thinking") {
+					lines.push(compactTranscriptLine("Thinking", part.thinking));
+					contentCounts.thinking++;
+				} else if (part.type === "toolCall") {
+					lines.push(compactTranscriptLine("Tool call", `${part.name} ${compactTranscriptValue(part.arguments)}`));
+					contentCounts.toolCall++;
+				}
+			}
+		} else if (rawMessage.role === "toolResult") {
+			const resultText = (rawMessage.content ?? [])
+				.filter((part: any) => part.type === "text")
+				.map((part: any) => part.text)
+				.join(" ");
+			lines.push(
+				compactTranscriptLine(
+					"Tool result",
+					`${rawMessage.toolName ?? rawMessage.toolCallId ?? "tool"} ${compactTranscriptValue(resultText)}`,
+				),
+			);
+			contentCounts.toolResult++;
+		}
+	}
+	if (contentCounts.assistant === 0) lines.push("Assistant: (none yet)");
+	if (contentCounts.thinking === 0) lines.push("Thinking: (none)");
+	if (contentCounts.toolCall === 0) lines.push("Tool call: (none)");
+	if (contentCounts.toolResult === 0) lines.push("Tool result: (none)");
+	const detail =
+		entry.state === "aborted" || entry.state === "error"
+			? entry.result?.errorMessage || entry.result?.stderr || entry.latestActivity
+			: "(none)";
+	lines.push(compactTranscriptLine("Error/abort detail", detail));
+	if (entry.state !== "running") lines.push("Continuation unavailable: this subagent has finished.");
+	return lines.join("\n");
+}
+
 function getFinalOutput(messages: Message[]): string {
 	for (let i = messages.length - 1; i >= 0; i--) {
 		const msg = messages[i];
@@ -342,12 +485,13 @@ async function runSingleAgentAttempt(
 	signal: AbortSignal | undefined,
 	onUpdate: OnUpdateCallback | undefined,
 	makeDetails: (results: SingleResult[]) => SubagentDetails,
+	lifecycle: LifecycleCallbacks | undefined,
+	lifecycleId: string | undefined,
 ): Promise<SingleResult> {
 	const childCwd = cwd ?? defaultCwd;
 	const args: string[] = [
 		"--mode",
-		"json",
-		"-p",
+		"rpc",
 		"--no-session",
 		...childExtensionArgs(agent.extensions, childCwd),
 		...childSkillArgs(agent.skills, childCwd),
@@ -391,7 +535,6 @@ async function runSingleAgentAttempt(
 			args.push("--append-system-prompt", tmpPromptPath);
 		}
 
-		args.push(`Task: ${task}`);
 		let wasAborted = false;
 
 		const exitCode = await new Promise<number>((resolve) => {
@@ -399,23 +542,99 @@ async function runSingleAgentAttempt(
 			const proc = spawn(invocation.command, invocation.args, {
 				cwd: childCwd,
 				shell: false,
-				stdio: ["ignore", "pipe", "pipe"],
+				stdio: ["pipe", "pipe", "pipe"],
 				env: process.env,
 			});
+			const decoder = new StringDecoder("utf8");
 			let buffer = "";
+			let stdoutEnded = false;
+			let settled = false;
+			let terminateTimer: ReturnType<typeof setTimeout> | undefined;
+			let killTimer: ReturnType<typeof setTimeout> | undefined;
+			let abortProc: (() => void) | undefined;
+
+			const cleanup = () => {
+				if (signal && abortProc) signal.removeEventListener("abort", abortProc);
+				if (terminateTimer) clearTimeout(terminateTimer);
+				if (killTimer) clearTimeout(killTimer);
+			};
+
+			const resolveOnce = (code: number) => {
+				if (settled) return;
+				settled = true;
+				cleanup();
+				if (!proc.stdin.destroyed) proc.stdin.end();
+				resolve(code);
+			};
+
+			const terminateProc = () => {
+				if (settled || killTimer) return;
+				proc.kill("SIGTERM");
+				killTimer = setTimeout(() => {
+					if (!settled) proc.kill("SIGKILL");
+				}, 5000);
+			};
+
+			const failRpc = (error: unknown) => {
+				if (settled) return;
+				currentResult.stopReason = "error";
+				currentResult.errorMessage = error instanceof Error ? error.message : String(error);
+				if (lifecycleId) lifecycle?.onActivity(lifecycleId, `error: ${currentResult.errorMessage}`);
+				terminateProc();
+			};
+
+			const writeRpcCommand = (command: Record<string, unknown>): boolean => {
+				if (!proc.stdin.writable || proc.stdin.destroyed) {
+					failRpc(`Unable to write ${String(command.type)} RPC command`);
+					return false;
+				}
+				try {
+					proc.stdin.write(`${JSON.stringify(command)}\n`, (error) => {
+						if (error) failRpc(error);
+					});
+					return true;
+				} catch (error) {
+					failRpc(error);
+					return false;
+				}
+			};
 
 			const processLine = (line: string) => {
 				if (!line.trim()) return;
 				let event: any;
 				try {
 					event = JSON.parse(line);
-				} catch {
+				} catch (error) {
+					failRpc(
+						new Error(`Malformed RPC JSONL: ${error instanceof Error ? error.message : String(error)}`),
+					);
 					return;
+				}
+
+				if (event.type === "response" && event.success === false) {
+					currentResult.stopReason = "error";
+					currentResult.errorMessage = event.error || `RPC command ${event.command || "unknown"} failed`;
+					if (lifecycleId) lifecycle?.onActivity(lifecycleId, `error: ${currentResult.errorMessage}`);
+					terminateProc();
+					return;
+				}
+
+				if (event.type === "tool_execution_start") {
+					const toolName = event.toolCall?.name || event.toolName || event.name || "tool";
+					if (lifecycleId) lifecycle?.onActivity(lifecycleId, `tool: ${toolName}`);
+				}
+
+				if (event.type === "tool_execution_end") {
+					const toolName = event.toolCall?.name || event.toolName || event.name || "tool";
+					const failed = Boolean(event.isError || event.result?.isError || event.error);
+					if (lifecycleId)
+						lifecycle?.onActivity(lifecycleId, failed ? `tool error: ${toolName}` : `tool done: ${toolName}`);
 				}
 
 				if (event.type === "message_end" && event.message) {
 					const msg = event.message as Message;
 					currentResult.messages.push(msg);
+					if (lifecycleId) lifecycle?.onActivity(lifecycleId, `message: ${msg.role}`, msg);
 
 					if (msg.role === "assistant") {
 						currentResult.usage.turns++;
@@ -435,49 +654,90 @@ async function runSingleAgentAttempt(
 					emitUpdate();
 				}
 
-				if (event.type === "tool_result_end" && event.message) {
-					currentResult.messages.push(event.message as Message);
-					emitUpdate();
+				if (event.type === "agent_settled") {
+					resolveOnce(currentResult.stopReason === "error" ? 1 : 0);
 				}
 			};
 
-			proc.stdout.on("data", (data) => {
-				buffer += data.toString();
+			const processStdoutText = (text: string) => {
+				buffer += text;
 				const lines = buffer.split("\n");
 				buffer = lines.pop() || "";
 				for (const line of lines) processLine(line);
+			};
+
+			const flushStdout = () => {
+				if (stdoutEnded) return;
+				stdoutEnded = true;
+				processStdoutText(decoder.end());
+				if (buffer.trim()) processLine(buffer);
+				buffer = "";
+			};
+
+			proc.stdout.on("data", (data) => {
+				processStdoutText(decoder.write(data));
 			});
+			proc.stdout.once("end", flushStdout);
 
 			proc.stderr.on("data", (data) => {
 				currentResult.stderr += data.toString();
 			});
 
 			proc.on("close", (code) => {
-				if (buffer.trim()) processLine(buffer);
-				resolve(code ?? 0);
+				flushStdout();
+				if (!settled) {
+					currentResult.stopReason = "error";
+					currentResult.errorMessage ||= "Subagent exited before agent_settled";
+					if (lifecycleId) lifecycle?.onActivity(lifecycleId, `error: ${currentResult.errorMessage}`);
+					resolveOnce(code && code !== 0 ? code : 1);
+				}
 			});
 
-			proc.on("error", () => {
-				resolve(1);
+			proc.on("error", (error) => {
+				currentResult.stopReason = "error";
+				currentResult.errorMessage = error.message;
+				if (lifecycleId) lifecycle?.onActivity(lifecycleId, `error: ${error.message}`);
+				resolveOnce(1);
 			});
+
+			proc.stdin.on("error", failRpc);
+
+			abortProc = () => {
+				if (settled || wasAborted) return;
+				wasAborted = true;
+				const abortCommand = { id: "abort", type: "abort" };
+				if (!writeRpcCommand(abortCommand)) {
+					terminateProc();
+					return;
+				}
+				terminateTimer = setTimeout(terminateProc, 5000);
+			};
+			if (lifecycleId) {
+				lifecycle?.onRuntime(lifecycleId, {
+					send: (message) => writeRpcCommand({ id: `steer-${randomUUID()}`, type: "steer", message }),
+					abort: abortProc,
+				});
+			}
+
+			const promptCommand = { id: "prompt", type: "prompt", message: `Task: ${task}` };
+			writeRpcCommand(promptCommand);
 
 			if (signal) {
-				const killProc = () => {
-					wasAborted = true;
-					proc.kill("SIGTERM");
-					setTimeout(() => {
-						if (!proc.killed) proc.kill("SIGKILL");
-					}, 5000);
-				};
-				if (signal.aborted) killProc();
-				else signal.addEventListener("abort", killProc, { once: true });
+				if (signal.aborted) abortProc();
+				else signal.addEventListener("abort", abortProc, { once: true });
 			}
 		});
 
-		currentResult.exitCode = exitCode;
-		if (wasAborted) throw new Error("Subagent was aborted");
+		if (wasAborted) {
+			currentResult.exitCode = exitCode === 0 ? 1 : exitCode;
+			currentResult.stopReason = "aborted";
+			currentResult.errorMessage = "Subagent was aborted";
+		} else {
+			currentResult.exitCode = exitCode;
+		}
 		return currentResult;
 	} finally {
+		if (lifecycleId) lifecycle?.onRuntime(lifecycleId, undefined);
 		if (tmpPromptPath)
 			try {
 				fs.unlinkSync(tmpPromptPath);
@@ -505,6 +765,7 @@ async function runSingleAgent(
 	signal: AbortSignal | undefined,
 	onUpdate: OnUpdateCallback | undefined,
 	makeDetails: (results: SingleResult[]) => SubagentDetails,
+	lifecycle?: LifecycleCallbacks,
 ): Promise<SingleResult> {
 	const agent = agents.find((candidate) => candidate.name === agentName);
 	if (!agent) {
@@ -539,24 +800,77 @@ async function runSingleAgent(
 		};
 	}
 
-	return subagentModelFallbackRun(
-		models,
-		(model) =>
-			runSingleAgentAttempt(
-				defaultCwd,
-				dispatchDefaults,
-				agent,
-				model,
-				task,
-				purpose,
-				cwd,
-				step,
-				signal,
-				onUpdate,
-				makeDetails,
-			),
-		isFailedResult,
-	);
+	const lifecycleId = lifecycle?.onStart(agentName, task);
+	let stopRequested = signal?.aborted ?? false;
+	const lifecycleAbortController = new AbortController();
+	const attemptSignal = signal
+		? AbortSignal.any([signal, lifecycleAbortController.signal])
+		: lifecycleAbortController.signal;
+	let activeSend: ((message: string) => boolean) | undefined;
+	const requestStop = () => {
+		stopRequested = true;
+		lifecycleAbortController.abort();
+	};
+	const persistentRuntime: LifecycleRuntime = {
+		send: (message) => activeSend?.(message) ?? false,
+		abort: requestStop,
+	};
+	const attemptLifecycle =
+		lifecycle && lifecycleId
+			? {
+					...lifecycle,
+					onRuntime(id: string, runtime: LifecycleRuntime | undefined) {
+						activeSend = runtime?.send;
+						lifecycle.onRuntime(id, persistentRuntime);
+					},
+				}
+			: lifecycle;
+	if (lifecycleId) lifecycle?.onRuntime(lifecycleId, persistentRuntime);
+
+	const createAbortedResult = (model: string | undefined): SingleResult => ({
+		agent: agentName,
+		displayLabel: subagentDisplayLabelBuild(agentName, purpose),
+		agentSource: agent.source,
+		task,
+		exitCode: 1,
+		messages: [],
+		stderr: "",
+		usage: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0, cost: 0, contextTokens: 0, turns: 0 },
+		model,
+		stopReason: "aborted",
+		errorMessage: "Subagent was aborted",
+		step,
+	});
+
+	try {
+		const result = await subagentModelFallbackRun(
+			models,
+			async (model) => {
+				if (stopRequested || signal?.aborted) return createAbortedResult(model);
+				return runSingleAgentAttempt(
+					defaultCwd,
+					dispatchDefaults,
+					agent,
+					model,
+					task,
+					purpose,
+					cwd,
+					step,
+					attemptSignal,
+					onUpdate,
+					makeDetails,
+					attemptLifecycle,
+					lifecycleId,
+				);
+			},
+			(result) => isFailedResult(result) && result.stopReason !== "aborted",
+		);
+		if (lifecycleId) lifecycle?.onSettled(lifecycleId, result);
+		return result;
+	} catch (error) {
+		if (lifecycleId) lifecycle?.onError(lifecycleId, error);
+		throw error;
+	}
 }
 
 const TaskItem = Type.Object({
@@ -591,7 +905,156 @@ const SubagentParams = Type.Object({
 	cwd: Type.Optional(Type.String({ description: "Working directory for the agent process (single mode)" })),
 });
 
+const SubagentStatusParams = Type.Object({
+	agentId: Type.Optional(Type.String({ description: "Stable subagent ID for full lifecycle details" })),
+});
+
+const SubagentStopParams = Type.Object({
+	agentId: Type.String({ description: "Stable ID of the running subagent to stop" }),
+});
+
 export default function (pi: ExtensionAPI) {
+	const lifecycleEntries = new Map<string, LifecycleEntry>();
+
+	const updateLifecycleWidget = (ctx: ExtensionContext) => {
+		if (ctx.mode !== "tui") return;
+		const labels: Record<LifecycleState, string> = {
+			running: "RUN",
+			settled: "DONE",
+			aborted: "ABORT",
+			error: "ERROR",
+		};
+		const lines = lifecycleEntriesSort(lifecycleEntries.values())
+			.slice(0, MAX_WIDGET_ENTRIES)
+			.map((entry) =>
+				truncateToWidth(
+					`[${labels[entry.state]}] ${entry.id} ${entry.agent}: ${compactTranscriptValue(entry.latestActivity)}`,
+					TRANSCRIPT_LINE_WIDTH,
+				),
+			);
+		ctx.ui.setWidget("subagent-lifecycle", lines.length > 0 ? lines : undefined);
+	};
+
+	pi.on("session_start", (_event, ctx) => {
+		lifecycleEntries.clear();
+		if (ctx.mode === "tui") ctx.ui.setWidget("subagent-lifecycle", undefined);
+	});
+
+	pi.on("session_shutdown", (_event, ctx) => {
+		for (const entry of lifecycleEntries.values()) {
+			if (entry.state === "running") entry.abort?.();
+		}
+		lifecycleEntries.clear();
+		if (ctx.mode === "tui") ctx.ui.setWidget("subagent-lifecycle", undefined);
+	});
+
+	pi.registerCommand("agents", {
+		description: "View and control subagent invocations",
+		handler: async (_args, ctx) => {
+			if (ctx.mode !== "tui") {
+				ctx.ui.notify("/agents is available only in TUI mode", "warning");
+				return;
+			}
+			const entries = lifecycleEntriesSort(lifecycleEntries.values());
+			if (entries.length === 0) {
+				ctx.ui.notify("No subagent invocations in this session", "info");
+				return;
+			}
+			const optionToId = new Map<string, string>();
+			for (const entry of entries) {
+				const option = `${truncateToWidth(
+					`[${entry.state}] ${entry.agent}: ${entry.task}`,
+					TRANSCRIPT_LINE_WIDTH,
+				)} (${entry.id})`;
+				optionToId.set(option, entry.id);
+			}
+			const selected = await ctx.ui.select("Subagents", Array.from(optionToId.keys()));
+			if (!selected) return;
+			const entry = lifecycleEntries.get(optionToId.get(selected) ?? "");
+			if (!entry) {
+				ctx.ui.notify("That subagent is no longer available", "warning");
+				return;
+			}
+
+			ctx.ui.notify(renderLifecycleTranscript(entry));
+			const actions = entry.state === "running" ? ["Steer", "Stop", "Close"] : ["Close"];
+			const action = await ctx.ui.select("Subagent action", actions);
+			if (!action) return;
+			if (action === "Close") {
+				updateLifecycleWidget(ctx);
+				return;
+			}
+
+			if (action === "Steer") {
+				const message = await ctx.ui.input("Steer subagent", "Additional instruction");
+				if (!message?.trim()) return;
+				if (entry.state !== "running" || !entry.send || !entry.send(message.trim())) {
+					ctx.ui.notify("Unable to steer this subagent", "error");
+				} else {
+					entry.latestActivity = `steered: ${compactTranscriptValue(message)}`;
+					entry.updatedAt = Date.now();
+					ctx.ui.notify("Steering message sent", "info");
+				}
+			} else if (action === "Stop") {
+				const error = requestLifecycleStop(entry);
+				ctx.ui.notify(error ?? "Stop requested", error ? "error" : "info");
+			}
+			pruneLifecycleEntries(lifecycleEntries);
+			updateLifecycleWidget(ctx);
+		},
+	});
+
+	pi.registerTool({
+		name: "subagent_status",
+		label: "Subagent Status",
+		description: "List running and recent subagents, or inspect one by its stable ID.",
+		parameters: SubagentStatusParams,
+		async execute(_toolCallId, params) {
+			if (params.agentId) {
+				const entry = lifecycleEntries.get(params.agentId);
+				if (!entry) {
+					return {
+						content: [{ type: "text", text: `Unknown subagent ID: ${params.agentId}` }],
+						isError: true,
+					};
+				}
+				return { content: [{ type: "text", text: renderLifecycleTranscript(entry) }] };
+			}
+
+			const entries = lifecycleEntriesSort(lifecycleEntries.values());
+			return {
+				content: [
+					{
+						type: "text",
+						text: entries.length > 0
+							? entries.map(renderLifecycleStatusSummary).join("\n")
+							: "No running or recent subagents.",
+					},
+				],
+			};
+		},
+	});
+
+	pi.registerTool({
+		name: "subagent_stop",
+		label: "Stop Subagent",
+		description: "Request that a running subagent stop through its RPC abort path.",
+		parameters: SubagentStopParams,
+		async execute(_toolCallId, params, _signal, _onUpdate, ctx) {
+			const entry = lifecycleEntries.get(params.agentId);
+			if (!entry) {
+				return {
+					content: [{ type: "text", text: `Unknown subagent ID: ${params.agentId}` }],
+					isError: true,
+				};
+			}
+			const error = requestLifecycleStop(entry);
+			if (error) return { content: [{ type: "text", text: error }], isError: true };
+			updateLifecycleWidget(ctx);
+			return { content: [{ type: "text", text: `Stop requested for subagent ${entry.id}.` }] };
+		},
+	});
+
 	const initAgents = discoverAgents(process.cwd(), "user", undefined).agents;
 	const agentList = initAgents.length > 0
 		? `Available agents: ${initAgents.map((a) => `${a.name} (${a.description})`).join("; ")}.`
@@ -611,6 +1074,68 @@ export default function (pi: ExtensionAPI) {
 		parameters: SubagentParams,
 
 		async execute(_toolCallId, params, signal, onUpdate, ctx) {
+			const lifecycle: LifecycleCallbacks = {
+				onStart(agent, task) {
+					const now = Date.now();
+					const entry: LifecycleEntry = {
+						id: randomUUID(),
+						agent,
+						task,
+						state: "running",
+						startedAt: now,
+						updatedAt: now,
+						latestActivity: "starting",
+						messages: [],
+					};
+					lifecycleEntries.set(entry.id, entry);
+					updateLifecycleWidget(ctx);
+					return entry.id;
+				},
+				onRuntime(id, runtime) {
+					const entry = lifecycleEntries.get(id);
+					if (!entry) return;
+					entry.send = runtime?.send;
+					entry.abort = runtime?.abort;
+					updateLifecycleWidget(ctx);
+				},
+				onActivity(id, activity, message) {
+					const entry = lifecycleEntries.get(id);
+					if (!entry) return;
+					entry.latestActivity = activity;
+					entry.updatedAt = Date.now();
+					if (message) {
+						entry.messages.push(message);
+						entry.messages = entry.messages.slice(-MAX_LIFECYCLE_MESSAGES);
+					}
+					updateLifecycleWidget(ctx);
+				},
+				onSettled(id, result) {
+					const entry = lifecycleEntries.get(id);
+					if (!entry) return;
+					entry.result = result;
+					entry.state = result.stopReason === "aborted" ? "aborted" : isFailedResult(result) ? "error" : "settled";
+					entry.latestActivity = entry.state;
+					entry.updatedAt = Date.now();
+					entry.settledAt = entry.updatedAt;
+					entry.send = undefined;
+					entry.abort = undefined;
+					pruneLifecycleEntries(lifecycleEntries);
+					updateLifecycleWidget(ctx);
+				},
+				onError(id, error) {
+					const entry = lifecycleEntries.get(id);
+					if (!entry) return;
+					entry.state = "error";
+					entry.latestActivity = `error: ${error instanceof Error ? error.message : String(error)}`;
+					entry.updatedAt = Date.now();
+					entry.settledAt = entry.updatedAt;
+					entry.send = undefined;
+					entry.abort = undefined;
+					pruneLifecycleEntries(lifecycleEntries);
+					updateLifecycleWidget(ctx);
+				},
+			};
+
 			const agentScope: AgentScope = params.agentScope ?? "user";
 			const dispatchDefaults: DispatchDefaults = {
 				model: ctx.model ? `${ctx.model.provider}/${ctx.model.id}` : undefined,
@@ -713,6 +1238,7 @@ export default function (pi: ExtensionAPI) {
 						signal,
 						chainUpdate,
 						makeDetails("chain"),
+						lifecycle,
 					);
 					results.push(result);
 
@@ -794,6 +1320,7 @@ export default function (pi: ExtensionAPI) {
 							}
 						},
 						makeDetails("parallel"),
+						lifecycle,
 					);
 					allResults[index] = result;
 					emitParallelUpdate();
@@ -832,6 +1359,7 @@ export default function (pi: ExtensionAPI) {
 					signal,
 					onUpdate,
 					makeDetails("single"),
+					lifecycle,
 				);
 				const isError = isFailedResult(result);
 				if (isError) {
