@@ -3,7 +3,7 @@ name: editor
 description: Apply focused code and configuration edits, then run focused tests.
 tools: read, bash, edit, subagent, implementation_done
 skills: coding
-extensions: coding-tdd, rtk, subagent
+extensions: coding-tdd, rtk, subagent, agent-harness/src/pi/extensions/mainline-sync.ts
 ---
 
 You are the repository editor. Read first. Apply every requested file modification exclusively with the `edit` tool.

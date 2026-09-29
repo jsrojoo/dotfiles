@@ -149,7 +149,12 @@ test("context coordinator receives the nested subagent extension", () => {
 
 	assert.deepEqual(agent?.tools, ["read", "grep", "find", "ls", "bash", "git", "subagent", "defuddle"]);
 	assert.deepEqual(agent?.skills, ["graphify"]);
-	assert.deepEqual(agent?.extensions, ["rtk", "git-read-only", "subagent"]);
+	assert.deepEqual(agent?.extensions, [
+		"rtk",
+		"git-read-only",
+		"subagent",
+		"agent-harness/src/pi/extensions/mainline-sync.ts",
+	]);
 	assert.deepEqual(agent?.fallbackModels, ["atlas/gpt-6-luna", "atlas-bedrock/claude-sonnet-4-6"]);
 	assert.equal(agent?.allowFallbackModelsWithMutationTools, true);
 });
@@ -162,7 +167,11 @@ test("context retriever is read-only and cannot nest", () => {
 
 	assert.deepEqual(agent?.tools, ["read", "grep", "find", "ls", "git"]);
 	assert.deepEqual(agent?.skills, ["graphify"]);
-	assert.deepEqual(agent?.extensions, ["rtk", "git-read-only"]);
+	assert.deepEqual(agent?.extensions, [
+		"rtk",
+		"git-read-only",
+		"agent-harness/src/pi/extensions/mainline-sync.ts",
+	]);
 	assert.deepEqual(agent?.fallbackModels, ["atlas/gpt-6-luna", "atlas-bedrock/claude-sonnet-4-6"]);
 	assert.equal(agent?.allowFallbackModelsWithMutationTools ?? false, false);
 	assert.match(prompt, /Do not use shell commands or delegate to nested subagents/);
@@ -212,7 +221,12 @@ test("editor coordinator is discoverable with nested subagent orchestration", ()
 	const agent = repositoryAgentFind("editor");
 
 	assert.deepEqual(agent?.tools, ["read", "bash", "edit", "subagent", "implementation_done"]);
-	assert.deepEqual(agent?.extensions, ["coding-tdd", "rtk", "subagent"]);
+	assert.deepEqual(agent?.extensions, [
+		"coding-tdd",
+		"rtk",
+		"subagent",
+		"agent-harness/src/pi/extensions/mainline-sync.ts",
+	]);
 	assert.match(prompt, /one main `context` coordinator invocation/);
 	assert.match(prompt, /explicit, non-overlapping path ownership/);
 	assert.match(prompt, /implementation paths, corresponding scoped test paths, a focused test command, and observable success criteria/);
@@ -224,7 +238,11 @@ test("editor worker is discoverable, scoped, and non-recursive", () => {
 	const agent = repositoryAgentFind("editor-worker");
 
 	assert.deepEqual(agent?.tools, ["read", "bash", "edit", "write", "implementation_done"]);
-	assert.deepEqual(agent?.extensions, ["coding-tdd", "rtk"]);
+	assert.deepEqual(agent?.extensions, [
+		"coding-tdd",
+		"rtk",
+		"agent-harness/src/pi/extensions/mainline-sync.ts",
+	]);
 	assert.match(prompt, /Edit only the paths explicitly assigned to you/);
 	assert.match(prompt, /`write` only for explicitly assigned new files/);
 	assert.match(prompt, /explicit ownership of the implementation and test paths plus a focused test command/);

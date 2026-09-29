@@ -7,4 +7,4 @@ allow_fallback_models_with_mutation_tools = true
 sandbox_mode = "read-only-with-bash"
 tools = "git,subagent,defuddle"
 skills = "graphify"
-extensions = "rtk,git-read-only,subagent"
+extensions = "rtk,git-read-only,subagent,agent-harness/src/pi/extensions/mainline-sync.ts"

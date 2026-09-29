@@ -26,8 +26,9 @@ Before creating a worktree:
 
 1. Inspect the source checkout with `git status --short --branch` and preserve
    unrelated changes.
-2. Choose and state an explicit task branch and start point; do not rely on an
-   implicit current branch or `HEAD`.
+2. Choose and state an explicit task branch, source branch, and start point; do
+   not rely on an implicit current branch or `HEAD`. Record the source branch so
+   it can be configured as the new task branch's upstream.
 3. Confirm the task path is unused and obtain approval before any Git mutation.
 
 After approval, create a new task branch and worktree from the stated start
@@ -38,6 +39,8 @@ git -C <project-root> worktree add \
   -b <task-branch> \
   <project-root>/.agents/tasks/<task>/worktree \
   <start-point>
+git -C <project-root>/.agents/tasks/<task>/worktree \
+  branch --set-upstream-to=<source-branch> <task-branch>
 ```
 
 If the task branch already exists, use the appropriate non-creating form only
@@ -51,6 +54,8 @@ after confirming that reusing it is intentional.
 - Treat branches and repository metadata as shared across worktrees; never
   reset, rebase, delete, or force-update shared state without explicit approval.
 - Preserve unrelated changes, and inspect status before handoff or cleanup.
+- When synchronizing, use the current task branch's configured upstream. Do not
+  hard-code a remote, branch, or mainline name.
 
 ## Verification and handoff
 
