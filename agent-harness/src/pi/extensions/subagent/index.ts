@@ -31,6 +31,7 @@ import { Container, Markdown, Spacer, Text } from "@earendil-works/pi-tui";
 import { Type } from "typebox";
 import { type AgentConfig, type AgentScope, discoverAgents } from "./agents.ts";
 import { subagentDisplayLabelBuild } from "./display-label.ts";
+import { ChildRunError, runChild } from "./run-child.ts";
 import { subagentModelCandidatesBuild, subagentModelFallbackRun } from "./model-selector.ts";
 
 const MAX_PARALLEL_TASKS = 8;
@@ -254,9 +255,22 @@ function isFailedResult(result: SingleResult): boolean {
 	return result.exitCode !== 0 || result.stopReason === "error" || result.stopReason === "aborted";
 }
 
+function getPartialOutput(messages: Message[]): string {
+	const output: string[] = [];
+	for (const msg of messages) {
+		if (msg.role !== "assistant" && msg.role !== "toolResult") continue;
+		for (const part of msg.content) {
+			if (part.type === "text" && part.text) output.push(part.text);
+		}
+	}
+	return output.join("\n\n");
+}
+
 function getResultOutput(result: SingleResult): string {
 	if (isFailedResult(result)) {
-		return result.errorMessage || result.stderr || getFinalOutput(result.messages) || "(no output)";
+		const partialOutput = getPartialOutput(result.messages);
+		const diagnostic = result.errorMessage || result.stderr;
+		return [diagnostic, partialOutput].filter(Boolean).join("\n\n") || "(no output)";
 	}
 	return getFinalOutput(result.messages) || "(no output)";
 }
@@ -386,23 +400,15 @@ async function runSingleAgentAttempt(
 	};
 
 	let startedAt: number | undefined;
-	let completedAt: number | undefined;
-	let elapsedUpdateInterval: ReturnType<typeof setInterval> | undefined;
-	let abortHandler: (() => void) | undefined;
-	const updateElapsed = () => {
-		if (startedAt !== undefined) currentResult.elapsedMs = (completedAt ?? performance.now()) - startedAt;
-	};
-	const freezeElapsed = () => {
-		if (startedAt !== undefined && completedAt === undefined) completedAt = performance.now();
-		updateElapsed();
-	};
-	const makeUpdate = (): AgentToolResult<SubagentDetails> => ({
-		content: [{ type: "text", text: getFinalOutput(currentResult.messages) || "(running...)" }],
-		details: makeDetails([currentResult]),
-	});
-	const emitUpdate = () => {
-		updateElapsed();
-		if (onUpdate) onUpdate(makeUpdate());
+	const emitUpdate = (elapsedMs?: number) => {
+		if (elapsedMs !== undefined) currentResult.elapsedMs = elapsedMs;
+		else if (startedAt !== undefined) currentResult.elapsedMs = performance.now() - startedAt;
+		if (onUpdate) {
+			onUpdate({
+				content: [{ type: "text", text: getFinalOutput(currentResult.messages) || "(running...)" }],
+				details: makeDetails([currentResult]),
+			});
+		}
 	};
 
 	try {
@@ -414,106 +420,104 @@ async function runSingleAgentAttempt(
 		}
 
 		args.push(`Task: ${task}`);
-		let wasAborted = false;
+		const invocation = getPiInvocation(args);
+		const proc = spawn(invocation.command, invocation.args, {
+			cwd: childCwd,
+			shell: false,
+			stdio: ["ignore", "pipe", "pipe"],
+			env: process.env,
+		});
+		startedAt = performance.now();
+		let buffer = "";
 
-		const exitCode = await new Promise<number>((resolve) => {
-			const invocation = getPiInvocation(args);
-			startedAt = performance.now();
-			const proc = spawn(invocation.command, invocation.args, {
-				cwd: childCwd,
-				shell: false,
-				stdio: ["ignore", "pipe", "pipe"],
-				env: process.env,
-			});
-			elapsedUpdateInterval = setInterval(() => {
-				updateElapsed();
-				if (onUpdate) onUpdate(makeUpdate());
-			}, 1000);
-			let buffer = "";
-
-			const processLine = (line: string) => {
-				if (!line.trim()) return;
-				let event: any;
-				try {
-					event = JSON.parse(line);
-				} catch {
-					return;
-				}
-
-				if (event.type === "message_end" && event.message) {
-					const msg = event.message as Message;
-					currentResult.messages.push(msg);
-
-					if (msg.role === "assistant") {
-						currentResult.usage.turns++;
-						const usage = msg.usage;
-						if (usage) {
-							currentResult.usage.input += usage.input || 0;
-							currentResult.usage.output += usage.output || 0;
-							currentResult.usage.cacheRead += usage.cacheRead || 0;
-							currentResult.usage.cacheWrite += usage.cacheWrite || 0;
-							currentResult.usage.cost += usage.cost?.total || 0;
-							currentResult.usage.contextTokens = usage.totalTokens || 0;
-						}
-						if (!currentResult.model && msg.model) currentResult.model = msg.model;
-						if (msg.stopReason) currentResult.stopReason = msg.stopReason;
-						if (msg.errorMessage) currentResult.errorMessage = msg.errorMessage;
-					}
-					emitUpdate();
-				}
-
-				if (event.type === "tool_result_end" && event.message) {
-					currentResult.messages.push(event.message as Message);
-					emitUpdate();
-				}
-			};
-
-			proc.stdout.on("data", (data) => {
-				buffer += data.toString();
-				const lines = buffer.split("\n");
-				buffer = lines.pop() || "";
-				for (const line of lines) processLine(line);
-			});
-
-			proc.stderr.on("data", (data) => {
-				currentResult.stderr += data.toString();
-			});
-
-			proc.on("close", (code) => {
-				freezeElapsed();
-				if (buffer.trim()) processLine(buffer);
-				resolve(code ?? 0);
-			});
-
-			proc.on("error", () => {
-				freezeElapsed();
-				resolve(1);
-			});
-
-			if (signal) {
-				abortHandler = () => {
-					wasAborted = true;
-					proc.kill("SIGTERM");
-					setTimeout(() => {
-						if (!proc.killed) proc.kill("SIGKILL");
-					}, 5000);
-				};
-				if (signal.aborted) abortHandler();
-				else signal.addEventListener("abort", abortHandler, { once: true });
+		const processLine = (line: string) => {
+			if (!line.trim()) return;
+			let event: any;
+			try {
+				event = JSON.parse(line);
+			} catch {
+				return;
 			}
+
+			if (event.type === "message_end" && event.message) {
+				const msg = event.message as Message;
+				currentResult.messages.push(msg);
+
+				if (msg.role === "assistant") {
+					currentResult.usage.turns++;
+					const usage = msg.usage;
+					if (usage) {
+						currentResult.usage.input += usage.input || 0;
+						currentResult.usage.output += usage.output || 0;
+						currentResult.usage.cacheRead += usage.cacheRead || 0;
+						currentResult.usage.cacheWrite += usage.cacheWrite || 0;
+						currentResult.usage.cost += usage.cost?.total || 0;
+						currentResult.usage.contextTokens = usage.totalTokens || 0;
+					}
+					if (!currentResult.model && msg.model) currentResult.model = msg.model;
+					if (msg.stopReason) currentResult.stopReason = msg.stopReason;
+					if (msg.errorMessage) currentResult.errorMessage = msg.errorMessage;
+				}
+				emitUpdate();
+			}
+
+			if (event.type === "tool_result_end" && event.message) {
+				currentResult.messages.push(event.message as Message);
+				emitUpdate();
+			}
+		};
+
+		proc.stdout.on("data", (data) => {
+			buffer += data.toString();
+			const lines = buffer.split("\n");
+			buffer = lines.pop() || "";
+			for (const line of lines) processLine(line);
 		});
 
-		currentResult.exitCode = exitCode;
-		if (wasAborted) {
-			const error = new Error("Subagent was aborted") as Error & { elapsedMs: number };
-			error.elapsedMs = currentResult.elapsedMs;
-			throw error;
+		proc.stderr.on("data", (data) => {
+			currentResult.stderr += data.toString();
+		});
+
+		proc.once("close", () => {
+			if (buffer.trim()) processLine(buffer);
+		});
+
+		try {
+			const outcome = await runChild(proc, {
+				signal,
+				onHeartbeat: emitUpdate,
+				onTimeout: (diagnostic, elapsedMs) => {
+					currentResult.exitCode = 1;
+					currentResult.stopReason = "timeout";
+					currentResult.errorMessage = diagnostic;
+					emitUpdate(elapsedMs);
+				},
+			});
+			currentResult.exitCode = outcome.exitCode ?? 0;
+			currentResult.elapsedMs = outcome.elapsedMs;
+			return currentResult;
+		} catch (error) {
+			if (!(error instanceof ChildRunError)) throw error;
+			currentResult.elapsedMs = error.elapsedMs;
+			if (error.kind === "aborted") {
+				const abortError = new Error("Subagent was aborted") as Error & { elapsedMs: number };
+				abortError.elapsedMs = currentResult.elapsedMs;
+				throw abortError;
+			}
+			currentResult.exitCode = 1;
+			if (error.kind === "timeout") {
+				currentResult.stopReason = "timeout";
+				currentResult.errorMessage = error.diagnostic ?? error.message;
+			} else if (error.kind === "callback") {
+				currentResult.stopReason = "error";
+				currentResult.errorMessage = error.message;
+			} else if (error.kind === "process") {
+				currentResult.stopReason = "error";
+				currentResult.errorMessage = error.diagnostic ?? error.message;
+			}
+			return currentResult;
 		}
-		return currentResult;
 	} finally {
-		if (elapsedUpdateInterval) clearInterval(elapsedUpdateInterval);
-		if (signal && abortHandler) signal.removeEventListener("abort", abortHandler);
-		freezeElapsed();
 		if (tmpPromptPath)
 			try {
 				fs.unlinkSync(tmpPromptPath);
@@ -593,7 +597,7 @@ async function runSingleAgent(
 				onUpdate,
 				makeDetails,
 			),
-		isFailedResult,
+		(result) => result.stopReason !== "timeout" && isFailedResult(result),
 	);
 }
 
@@ -847,6 +851,7 @@ export default function (pi: ExtensionAPI) {
 				parallelCompletedAt = performance.now();
 
 				const successCount = results.filter((r) => !isFailedResult(r)).length;
+				const hasFailures = results.some(isFailedResult);
 				const summaries = results.map((r) => {
 					const output = truncateParallelOutput(getResultOutput(r));
 					const status = isFailedResult(r)
@@ -862,6 +867,7 @@ export default function (pi: ExtensionAPI) {
 						},
 					],
 					details: makeParallelDetails(results),
+					isError: hasFailures,
 				};
 			}
 

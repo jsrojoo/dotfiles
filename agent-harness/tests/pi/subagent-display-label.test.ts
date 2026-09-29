@@ -64,27 +64,49 @@ test("uses purpose labels for call and result rendering", () => {
 	assert.match(subagentSource, /`### \[\$\{r\.displayLabel\}\] \$\{status\}/);
 });
 
-test("tracks elapsed time from spawn and freezes it at process completion", () => {
+test("wires child lifecycle policy into each spawned attempt", () => {
 	const attempt = sourceSlice("async function runSingleAgentAttempt", "async function runSingleAgent(");
-	assert.match(attempt, /elapsedMs: 0/);
-	assert.match(attempt, /startedAt = performance\.now\(\);\n\s*const proc = spawn\(/);
-	assert.match(attempt, /setInterval\([\s\S]*?onUpdate\(makeUpdate\(\)\)[\s\S]*?, 1000\)/);
-	assert.match(attempt, /currentResult\.elapsedMs = \(completedAt \?\? performance\.now\(\)\) - startedAt/);
-	assert.match(attempt, /if \(startedAt !== undefined && completedAt === undefined\) completedAt = performance\.now\(\)/);
-	assert.match(attempt, /proc\.on\("close", \(code\) => \{\n\s*freezeElapsed\(\);/);
-	assert.match(attempt, /proc\.on\("error", \(\) => \{\n\s*freezeElapsed\(\);/);
-	assert.match(attempt, /finally \{\n\s*if \(elapsedUpdateInterval\) clearInterval\(elapsedUpdateInterval\);[\s\S]*?freezeElapsed\(\);/);
+	assert.match(attempt, /const proc = spawn\(/);
+	assert.match(attempt, /const outcome = await runChild\(proc, \{/);
+	assert.match(attempt, /signal,\s+onHeartbeat: emitUpdate,/);
+	assert.match(attempt, /currentResult\.elapsedMs = outcome\.elapsedMs/);
+	assert.doesNotMatch(attempt, /setInterval|clearInterval|addEventListener\("abort"|removeEventListener\("abort"/);
+	assert.doesNotMatch(attempt, /proc\.kill|SIGTERM|SIGKILL/);
 });
 
-test("preserves elapsed time and removes the abort listener when an attempt aborts", () => {
+test("preserves partial assistant and tool output alongside failure diagnostics", () => {
+	const outputHelpers = sourceSlice("function getPartialOutput", "function truncateParallelOutput");
+	assert.match(outputHelpers, /msg\.role !== "assistant" && msg\.role !== "toolResult"/);
+	assert.match(outputHelpers, /getPartialOutput\(result\.messages\)/);
+	assert.match(outputHelpers, /result\.errorMessage \|\| result\.stderr/);
+	assert.match(outputHelpers, /\.filter\(Boolean\)\.join\("\\n\\n"\)/);
+	assert.doesNotMatch(outputHelpers, /return result\.errorMessage \|\|/);
+});
+
+test("marks a parallel invocation as an error when any task fails", () => {
+	const parallelResult = sourceSlice("const successCount = results.filter", "if (params.agent && params.task)");
+	assert.match(parallelResult, /const hasFailures = results\.some\(isFailedResult\)/);
+	assert.match(parallelResult, /isError: hasFailures/);
+});
+
+test("renders timeout diagnostics immediately and bypasses model fallback", () => {
 	const attempt = sourceSlice("async function runSingleAgentAttempt", "async function runSingleAgent(");
-	assert.match(attempt, /error\.elapsedMs = currentResult\.elapsedMs;\n\s*throw error;/);
-	assert.match(attempt, /signal\.addEventListener\("abort", abortHandler, \{ once: true \}\)/);
-	assert.match(attempt, /if \(signal && abortHandler\) signal\.removeEventListener\("abort", abortHandler\)/);
-	assert.ok(
-		attempt.indexOf('signal.removeEventListener("abort", abortHandler)') < attempt.lastIndexOf("freezeElapsed();"),
-		"abort listener cleanup should happen before the final frozen elapsed update",
-	);
+	const dispatch = sourceSlice("async function runSingleAgent(", "const TaskItem = Type.Object(");
+	assert.match(attempt, /onTimeout: \(diagnostic, elapsedMs\) => \{[\s\S]*?stopReason = "timeout";[\s\S]*?errorMessage = diagnostic;[\s\S]*?emitUpdate\(elapsedMs\)/);
+	assert.match(attempt, /error\.kind === "timeout"[\s\S]*?error\.diagnostic \?\? error\.message/);
+	assert.match(dispatch, /result\.stopReason !== "timeout" && isFailedResult\(result\)/);
+});
+
+test("preserves process errors as result diagnostics for model fallback", () => {
+	const attempt = sourceSlice("async function runSingleAgentAttempt", "async function runSingleAgent(");
+	assert.match(attempt, /error\.kind === "process"[\s\S]*?stopReason = "error";[\s\S]*?errorMessage = error\.diagnostic \?\? error\.message/);
+});
+
+test("preserves the externally visible caller abort error and elapsed time", () => {
+	const attempt = sourceSlice("async function runSingleAgentAttempt", "async function runSingleAgent(");
+	assert.match(attempt, /error\.kind === "aborted"/);
+	assert.match(attempt, /new Error\("Subagent was aborted"\)/);
+	assert.match(attempt, /abortError\.elapsedMs = currentResult\.elapsedMs;\n\s*throw abortError;/);
 });
 
 test("renders elapsed time for single, chain, and parallel details", () => {
