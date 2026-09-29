@@ -5,13 +5,10 @@
 - When `triggerOnCompletion: false`, retrieve results with `bg_logs` only when explicitly asked or when the output is needed for a follow-up step.
 - Subagent execution emits a heartbeat every 60 seconds. At the exact 5-minute deadline, it freezes elapsed time at 5 minutes, sends SIGKILL to an open child, and settles the timeout immediately without waiting for child `close`, inherited stdio, or descendants. Caller abort remains distinct: send SIGTERM, then escalate to SIGKILL after 5 seconds. After a timeout, inspect partial output and logs, then re-scope the task into smaller actionable work.
 - Editor-worker scope should include matching production and focused test files, and should permit focused test execution for TDD.
-- Run checks expected to finish within 10 seconds in the foreground; background only genuinely long checks.
-- Before verification, confirm the intended working directory, package scripts, and local dependencies once instead of discovering them through repeated failed runs.
 
 ## Planning
 
 - Use `enter_plan_mode` for non-trivial implementation work or when the user asks for a plan.
-- After approval, create and update plan artifacts directly with `plan-mode-tasks` `agent-taskctl`; do not delegate artifact file creation to an editor.
 
 ## Task Worktrees
 
@@ -42,8 +39,6 @@
 
 - Delegate code and configuration changes to the `editor` subagent.
 - The `editor` subagent follows the shared `coding` skill and must return changed paths and verification results to the main session.
-- Prefer one editor invocation for one coherent implementation and its focused tests; do not split approved plan steps into separate calls unless ownership or a real dependency requires it.
-- A successful subagent tool call only means the child returned. Treat `blocked`, `unable`, unchanged required files, or failed/skipped required verification as incomplete.
 - Keep integration review and final verification in the main session.
 - After implementation and fresh verification, always call `implementation_done` before final response. Do not call it before verification passes.
 

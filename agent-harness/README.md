@@ -33,7 +33,7 @@ Start a new agent session after installation.
 - `/tdd-skip` skips guardrail for next request.
 - Test and implementation edits may happen in either order or in parallel.
 - `tdd-watch watch -- <test command>` delegates file watching to `watchexec` and records each run's status.
-- `tdd-watch status` verifies that the latest watcher run passed after the latest dirty-file change without rerunning tests.
+- `tdd-watch status -- <same focused test command>` verifies the exact watcher command and that its latest run passed after the latest dirty-file change without rerunning tests. In Pi, a successful command-bound status also completes the implementation flow without a separate `implementation_done` call.
 - After implementation changes, guardrail requires a relevant test change and a fresh passing watcher result before finishing.
 - TDD state is stored per session under `~/.agent-harness/tdd/`; set `AGENT_HARNESS_TDD_STATE_DIR` to override.
 - Hooks inspect supported edit tools (`Edit`/`Write` in Claude; `apply_patch` in Codex) and common test commands. Shell commands that modify files directly bypass edit blocking.
@@ -64,5 +64,5 @@ tdd-watch watch -- npm test
 After edits, inspect its latest completed run without running tests again:
 
 ```sh
-tdd-watch status
+tdd-watch status -- npm test
 ```

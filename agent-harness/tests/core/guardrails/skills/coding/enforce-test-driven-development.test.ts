@@ -6,6 +6,7 @@ import {
 	workflowCodePathClassify,
 	workflowCodeStateCreate,
 	workflowCodeStateSkip,
+	workflowCodeTestCommandIsCommandBoundWatcherStatus,
 	workflowCodeTestCommandIsRecognized,
 	workflowCodeTestResultApply,
 	workflowCodeWriteEvaluate,
@@ -29,10 +30,21 @@ test("recognizes common test commands without treating arbitrary failures as tes
 		"cargo test",
 		"node /plugin/src/cli/tdd-watch.ts status",
 		"node \"/plugin/src/cli/tdd-watch.ts\" status",
+		"node --experimental-strip-types /plugin/src/cli/tdd-watch.ts status",
 		"tdd-watch status",
+		"tdd-watch status -- npm test",
+		"node /plugin/src/cli/tdd-watch.ts status -- npm test",
+		"node --experimental-strip-types \"/plugin/src/cli/tdd-watch.ts\" status -- node --test tests/account.test.ts",
+		"/opt/node/bin/node --experimental-strip-types /plugin/src/cli/tdd-watch.ts status -- npm test",
 	]) {
 		assert.equal(workflowCodeTestCommandIsRecognized(command), true, command);
 	}
+	assert.equal(workflowCodeTestCommandIsCommandBoundWatcherStatus("tdd-watch status"), false);
+	assert.equal(
+		workflowCodeTestCommandIsCommandBoundWatcherStatus("tdd-watch status -- npm test"),
+		true,
+	);
+	assert.equal(workflowCodeTestCommandIsRecognized("tdd-watch status -- npm run build"), false);
 	assert.equal(workflowCodeTestCommandIsRecognized("npm run build"), false);
 	assert.equal(workflowCodeTestCommandIsRecognized("python3 scripts/build.py"), false);
 });

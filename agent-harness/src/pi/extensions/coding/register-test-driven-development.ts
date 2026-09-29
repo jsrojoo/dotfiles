@@ -9,6 +9,7 @@ import {
 	workflowCodeCompletionEvaluate,
 	workflowCodeStateCreate,
 	workflowCodeStateSkip,
+	workflowCodeTestCommandIsCommandBoundWatcherStatus,
 	workflowCodeTestCommandIsRecognized,
 	workflowCodeTestResultApply,
 	workflowCodeWriteEvaluate,
@@ -16,7 +17,7 @@ import {
 import type { WorkflowCodeState } from "#agent-harness/core/guardrails/skills/coding/coding-contracts";
 
 const GREEN_REMINDER =
-	"TDD guardrail: add or update a relevant test, then inspect the latest watcher result with tdd-watch status.";
+	"TDD guardrail: add or update a relevant test, then inspect the latest watcher result with tdd-watch status -- <same focused test command>.";
 const RED_ESTABLISHED = "TDD guardrail: red";
 const GREEN_ESTABLISHED = "TDD guardrail: green";
 const IMPLEMENTATION_DONE_REMINDER = "TDD guardrail: call implementation_done after fresh verification before completion.";
@@ -139,6 +140,13 @@ export function testDrivenDevelopmentEnforcementCreate(
 			if (!workflowCodeTestCommandIsRecognized(command)) return;
 			const previousPhase = session.cycle.phase;
 			session.cycle = workflowCodeTestResultApply(session.cycle, command, event.isError);
+			if (
+				!event.isError
+				&& session.cycle.phase === "green"
+				&& workflowCodeTestCommandIsCommandBoundWatcherStatus(command)
+			) {
+				session.implementationDone = true;
+			}
 			if (previousPhase !== "red" && session.cycle.phase === "red") {
 				ctx.ui.notify(RED_ESTABLISHED, "info");
 			}

@@ -16,7 +16,6 @@ const SOURCE_FILE_PATTERN = /\.(?:c|cc|cpp|cs|go|h|hpp|java|js|jsx|kt|mjs|cjs|ph
 const TEST_DIRECTORY_PATTERN = /(?:^|[\\/])(?:__tests__|tests?)(?:[\\/]|$)/i;
 const TEST_FILE_PATTERN = /(?:^|[\\/])(?:test_[^\\/]+|[^\\/]+\.(?:test|spec)\.[a-z0-9]+|[^\\/]+_test\.[a-z0-9]+)$/i;
 const TEST_COMMAND_PATTERNS = [
-	/\btdd-watch(?:\.ts)?["']?\s+status\b/i,
 	/\b(?:pytest|py\.test|jest|vitest|mocha|rspec|phpunit)\b/i,
 	/\bpython(?:\d+(?:\.\d+)*)?\s+-m\s+(?:pytest|unittest)\b/i,
 	/\bnode\s+--test\b/i,
@@ -45,7 +44,30 @@ export function workflowCodePathClassify(path: string): WorkflowCodePathKind {
 	return "other";
 }
 
+interface WatcherStatusCommand {
+	expectedCommand?: string;
+}
+
+function workflowCodeWatcherStatusCommandParse(command: string): WatcherStatusCommand | undefined {
+	const match = /^\s*(?:(?:"[^"]*node"|'[^']*node'|[^\s"';&|]*node)(?:\s+--experimental-strip-types)?\s+)?(?:"[^"]*tdd-watch\.ts"|'[^']*tdd-watch\.ts'|[^\s"';&|]*tdd-watch(?:\.ts)?)\s+status(?:(\s+--)(?:\s+(.+?))?)?\s*$/i.exec(command);
+	if (!match) return undefined;
+	if (!match[1]) return {};
+	const expectedCommand = match[2]?.trim();
+	return expectedCommand ? { expectedCommand } : undefined;
+}
+
+export function workflowCodeTestCommandIsCommandBoundWatcherStatus(command: string): boolean {
+	const watcherStatus = workflowCodeWatcherStatusCommandParse(command);
+	return watcherStatus?.expectedCommand !== undefined
+		&& TEST_COMMAND_PATTERNS.some((pattern) => pattern.test(watcherStatus.expectedCommand!));
+}
+
 export function workflowCodeTestCommandIsRecognized(command: string): boolean {
+	const watcherStatus = workflowCodeWatcherStatusCommandParse(command);
+	if (watcherStatus) {
+		return watcherStatus.expectedCommand === undefined
+			|| workflowCodeTestCommandIsCommandBoundWatcherStatus(command);
+	}
 	return TEST_COMMAND_PATTERNS.some((pattern) => pattern.test(command));
 }
 

@@ -123,7 +123,7 @@ test("implementation_done reports TDD state back to the main session", async () 
 	assert.deepEqual(result.details, { phase: "locked", testChanged: false, implementationDone: true });
 });
 
-test("Pi adapter allows parallel source and test edits, then requires green", async () => {
+test("Pi adapter keeps bare watcher status compatible with explicit implementation_done", async () => {
 	const { context, handlers, notifications, tools } = harnessCreate();
 	const toolCall = handlers.get("tool_call")!;
 	const toolResult = handlers.get("tool_result")!;
@@ -146,7 +146,7 @@ test("Pi adapter allows parallel source and test edits, then requires green", as
 	assert.equal(reminder.entries[0].customType, "workflow-code-guardrail");
 	assert.equal(
 		reminder.entries[0].content,
-		"TDD guardrail: add or update a relevant test, then inspect the latest watcher result with tdd-watch status.",
+		"TDD guardrail: add or update a relevant test, then inspect the latest watcher result with tdd-watch status -- <same focused test command>.",
 	);
 	assert.equal(notifications.at(-1), undefined);
 	assert.equal(await beforeSettle({}, context), undefined);
@@ -220,6 +220,80 @@ test("Pi adapter allows parallel source and test edits, then requires green", as
 	assert.equal(
 		refreshedCompletionReminder.entries[0].content,
 		"TDD guardrail: call implementation_done after fresh verification before completion.",
+	);
+});
+
+test("Pi adapter auto-completes after a successful command-bound watcher status", async () => {
+	const { context, handlers, notifications } = harnessCreate();
+	const toolCall = handlers.get("tool_call")!;
+	const toolResult = handlers.get("tool_result")!;
+
+	await toolCall(
+		{ toolCallId: "source-edit", toolName: "edit", input: { path: "src/account.ts", edits: [] } },
+		context,
+	);
+	await toolResult(
+		{ toolCallId: "source-edit", toolName: "edit", input: {}, isError: false },
+		context,
+	);
+	await toolCall(
+		{ toolCallId: "test-edit", toolName: "edit", input: { path: "tests/account.test.ts", edits: [] } },
+		context,
+	);
+	await toolResult(
+		{ toolCallId: "test-edit", toolName: "edit", input: {}, isError: false },
+		context,
+	);
+	await toolResult(
+		{
+			toolName: "bash",
+			input: { command: "node --experimental-strip-types /plugin/src/cli/tdd-watch.ts status -- npm test" },
+			isError: false,
+		},
+		context,
+	);
+
+	assert.equal(notifications.at(-1), "TDD guardrail: green");
+	assert.equal(await handlers.get("agent_before_settle")!({}, context), undefined);
+});
+
+test("Pi adapter resets command-bound watcher completion after a source edit", async () => {
+	const { context, handlers } = harnessCreate();
+	const toolCall = handlers.get("tool_call")!;
+	const toolResult = handlers.get("tool_result")!;
+	const beforeSettle = handlers.get("agent_before_settle")!;
+
+	for (const [toolCallId, path] of [
+		["source-edit", "src/account.ts"],
+		["test-edit", "tests/account.test.ts"],
+	] as const) {
+		await toolCall({ toolCallId, toolName: "edit", input: { path, edits: [] } }, context);
+		await toolResult({ toolCallId, toolName: "edit", input: {}, isError: false }, context);
+	}
+	await toolResult(
+		{
+			toolName: "bash",
+			input: { command: "tdd-watch status -- npm test" },
+			isError: false,
+		},
+		context,
+	);
+	assert.equal(await beforeSettle({}, context), undefined);
+
+	await toolCall(
+		{ toolCallId: "later-source-edit", toolName: "edit", input: { path: "src/account.ts", edits: [] } },
+		context,
+	);
+	await toolResult(
+		{ toolCallId: "later-source-edit", toolName: "edit", input: {}, isError: false },
+		context,
+	);
+
+	const reminder = await beforeSettle({}, context);
+	assert.equal(reminder.continue, true);
+	assert.equal(
+		reminder.entries[0].content,
+		"TDD guardrail: add or update a relevant test, then inspect the latest watcher result with tdd-watch status -- <same focused test command>.",
 	);
 });
 
