@@ -46,6 +46,7 @@ const MAX_LIFECYCLE_MESSAGES = 50;
 const MAX_SETTLED_LIFECYCLE_ENTRIES = 50;
 const MAX_WIDGET_ENTRIES = 3;
 const TRANSCRIPT_LINE_WIDTH = 88;
+const CONFIG_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../../../..");
 
 // Child pi runs skip extension discovery and load only local user extensions.
 // Why: package extensions (pi-patty-bg-tasks replaces `bash` with an unref'd
@@ -59,9 +60,11 @@ function childExtensionArgs(selected: string[] | undefined, cwd: string): string
 		for (const name of selected) {
 			const candidates = name === "subagent"
 				? [path.dirname(fileURLToPath(import.meta.url))]
-				: path.isAbsolute(name) || name.includes(path.sep)
-					? [path.resolve(cwd, name)]
-					: [path.join(dir, `${name}.ts`), path.join(dir, `${name}.js`), path.join(dir, name)];
+				: path.isAbsolute(name)
+					? [name]
+					: name.includes(path.sep)
+						? [path.resolve(CONFIG_ROOT, name), path.resolve(cwd, name)]
+						: [path.join(dir, `${name}.ts`), path.join(dir, `${name}.js`), path.join(dir, name)];
 			args.push("-e", candidates.find((candidate) => fs.existsSync(candidate)) ?? candidates[0]);
 		}
 		return args;
@@ -568,6 +571,12 @@ async function runSingleAgentAttempt(
 
 		let wasAborted = false;
 		const invocation = getPiInvocation(args);
+		const childCommand = [
+			invocation.command,
+			...invocation.args.map((arg, index) =>
+				invocation.args[index - 1] === "--append-system-prompt" ? "[redacted]" : JSON.stringify(arg),
+			),
+		].join(" ");
 		const proc = spawn(invocation.command, invocation.args, {
 			cwd: childCwd,
 			shell: false,
@@ -732,7 +741,16 @@ async function runSingleAgentAttempt(
 			} else if (!logicallySettled) {
 				currentResult.exitCode = outcome.exitCode && outcome.exitCode !== 0 ? outcome.exitCode : 1;
 				currentResult.stopReason = "error";
-				currentResult.errorMessage ||= "Subagent exited before agent_settled";
+				const startupStderr = currentResult.stderr.trim();
+				const startupDetails = [
+					"Subagent exited before agent_settled",
+					`Child cwd: ${childCwd}`,
+					`Child command: ${childCommand}`,
+					...(startupStderr ? [`Startup stderr:\n${startupStderr}`] : []),
+				].join("\n");
+				currentResult.errorMessage = currentResult.errorMessage
+					? `${currentResult.errorMessage}\n${startupDetails}`
+					: startupDetails;
 			} else {
 				currentResult.exitCode = currentResult.stopReason === "error" ? 1 : (outcome.exitCode ?? 0);
 			}

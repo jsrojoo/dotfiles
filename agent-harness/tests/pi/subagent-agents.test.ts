@@ -133,7 +133,7 @@ test("context coordinator is bundled and delegates scoped retrieval", () => {
 	assert.match(agent, /^name = "context"$/m);
 	assert.match(agent, /^model_provider = "azure"$/m);
 	assert.match(agent, /^model = "gpt-5\.6-luna"$/m);
-	assert.match(agent, /^fallback_models = "atlas\/gpt-6-luna,atlas-bedrock\/claude-sonnet-4-6"$/m);
+	assert.match(agent, /^fallback_models = "atlas\/gpt-6-luna,atlas\/gpt-5\.6-sol"$/m);
 	assert.match(agent, /^allow_fallback_models_with_mutation_tools = true$/m);
 	assert.match(agent, /^sandbox_mode = "read-only-with-bash"$/m);
 	assert.match(agent, /^tools = "git,subagent,defuddle"$/m);
@@ -142,6 +142,8 @@ test("context coordinator is bundled and delegates scoped retrieval", () => {
 	assert.match(prompt, /Synthesize the leaf results into one compact integrated handoff/);
 	assert.match(implementation, /name === "subagent"/);
 	assert.match(implementation, /path\.dirname\(fileURLToPath\(import\.meta\.url\)\)/);
+	assert.match(implementation, /const CONFIG_ROOT = path\.resolve/);
+	assert.match(implementation, /path\.resolve\(CONFIG_ROOT, name\), path\.resolve\(cwd, name\)/);
 });
 
 test("context coordinator receives the nested subagent extension", () => {
@@ -154,8 +156,9 @@ test("context coordinator receives the nested subagent extension", () => {
 		"git-read-only",
 		"subagent",
 		"agent-harness/src/pi/extensions/mainline-sync.ts",
+		"atlas",
 	]);
-	assert.deepEqual(agent?.fallbackModels, ["atlas/gpt-6-luna", "atlas-bedrock/claude-sonnet-4-6"]);
+	assert.deepEqual(agent?.fallbackModels, ["atlas/gpt-6-luna", "atlas/gpt-5.6-sol"]);
 	assert.equal(agent?.allowFallbackModelsWithMutationTools, true);
 });
 
@@ -171,8 +174,9 @@ test("context retriever is read-only and cannot nest", () => {
 		"rtk",
 		"git-read-only",
 		"agent-harness/src/pi/extensions/mainline-sync.ts",
+		"atlas",
 	]);
-	assert.deepEqual(agent?.fallbackModels, ["atlas/gpt-6-luna", "atlas-bedrock/claude-sonnet-4-6"]);
+	assert.deepEqual(agent?.fallbackModels, ["atlas/gpt-6-luna", "atlas/gpt-5.6-sol"]);
 	assert.equal(agent?.allowFallbackModelsWithMutationTools ?? false, false);
 	assert.match(prompt, /Do not use shell commands or delegate to nested subagents/);
 });
@@ -226,6 +230,7 @@ test("editor coordinator is discoverable with nested subagent orchestration", ()
 		"rtk",
 		"subagent",
 		"agent-harness/src/pi/extensions/mainline-sync.ts",
+		"atlas",
 	]);
 	assert.match(prompt, /`write` only for explicitly requested new files/);
 	assert.match(prompt, /one main `context` coordinator invocation/);
@@ -243,6 +248,7 @@ test("editor worker is discoverable, scoped, and non-recursive", () => {
 		"coding-tdd",
 		"rtk",
 		"agent-harness/src/pi/extensions/mainline-sync.ts",
+		"atlas",
 	]);
 	assert.match(prompt, /Edit only the paths explicitly assigned to you/);
 	assert.match(prompt, /`write` only for explicitly assigned new files/);

@@ -765,7 +765,7 @@ test("editor coordinator and worker select scoped coding resources", () => {
 	assert.match(editor, /^skills: coding$/m);
 	assert.match(
 		editor,
-		/^extensions: coding-tdd, rtk, subagent, agent-harness\/src\/pi\/extensions\/mainline-sync\.ts$/m,
+		/^extensions: coding-tdd, rtk, subagent, agent-harness\/src\/pi\/extensions\/mainline-sync\.ts, atlas$/m,
 	);
 	assert.match(editor, /`write` only for explicitly requested new files/);
 	assert.match(editor, /Never assign overlapping paths or writes to multiple workers/);
@@ -776,7 +776,7 @@ test("editor coordinator and worker select scoped coding resources", () => {
 	assert.match(worker, /^skills: coding$/m);
 	assert.match(
 		worker,
-		/^extensions: coding-tdd, rtk, agent-harness\/src\/pi\/extensions\/mainline-sync\.ts$/m,
+		/^extensions: coding-tdd, rtk, agent-harness\/src\/pi\/extensions\/mainline-sync\.ts, atlas$/m,
 	);
 	assert.match(worker, /Edit only the paths explicitly assigned to you/);
 	assert.match(worker, /`write` only for explicitly assigned new files/);

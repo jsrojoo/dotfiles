@@ -28,6 +28,9 @@ test("subagent child lifecycle uses RPC through settlement and preserves structu
 	assert.doesNotMatch(source, /if \(wasAborted\) throw new Error/);
 
 	assert.match(source, /Subagent exited before agent_settled/);
+	assert.match(source, /Child cwd:/);
+	assert.match(source, /Child command:/);
+	assert.match(source, /Startup stderr:/);
 	assert.match(source, /const outcome = await runChild\(proc/);
 	assert.match(source, /signal: watchdogAbortController\.signal/);
 	assert.doesNotMatch(source, /proc\.(?:on|once)\("(?:close|error)"/);

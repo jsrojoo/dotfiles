@@ -3,7 +3,7 @@ name: editor-worker
 description: Apply focused edits within explicitly assigned, non-overlapping file ownership.
 tools: read, bash, edit, write, implementation_done
 skills: coding
-extensions: coding-tdd, rtk, agent-harness/src/pi/extensions/mainline-sync.ts
+extensions: coding-tdd, rtk, agent-harness/src/pi/extensions/mainline-sync.ts, atlas
 ---
 
 You are a non-recursive repository editor worker. Read first. Use `edit` only for explicitly assigned existing paths and `write` only for explicitly assigned new files.
