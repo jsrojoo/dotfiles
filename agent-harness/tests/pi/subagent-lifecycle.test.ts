@@ -80,6 +80,61 @@ test("updates lifecycle activity from authoritative RPC events and renders only 
 	assert.match(source, /\.slice\(0, MAX_WIDGET_ENTRIES\)/);
 });
 
+test("steer lifecycle feedback is queued and correlated to matching RPC responses without aborting", () => {
+	assert.match(source, /type SteerEventStatus = "queued" \| "accepted" \| "rpc-rejected" \| "write-failure"/);
+	assert.match(source, /steerEvents: SteerEvent\[\]/);
+	assert.match(source, /onSteer: \(id: string, event: SteerEvent\) => void/);
+	assert.match(source, /const steerId = `steer-\$\{randomUUID\(\)\}`/);
+	assert.match(source, /pendingSteers\.set\(steerId, message\)/);
+	assert.match(
+		source,
+		/lifecycle\?\.onActivity\(lifecycleId, `steer queued \(\$\{steerId\}\): \$\{compactTranscriptValue\(message\)\}`\)/,
+	);
+	assert.match(source, /writeRpcCommand\(\{ id: steerId, type: "steer", message \}\)/);
+	assert.match(
+		source,
+		/lifecycle\?\.onActivity\(lifecycleId, `steer failed \(\$\{steerId\}\): unable to queue RPC command`\)/,
+	);
+
+	const responseStart = source.indexOf('if (event.type === "response" && typeof event.id === "string" && pendingSteers.has(event.id))');
+	const genericFailureStart = source.indexOf('if (event.type === "response" && event.success === false)', responseStart);
+	assert.ok(responseStart >= 0 && genericFailureStart > responseStart);
+	const steerResponseHandler = source.slice(responseStart, genericFailureStart);
+	assert.match(steerResponseHandler, /pendingSteers\.delete\(event\.id\)/);
+	assert.match(steerResponseHandler, /event\.success === false/);
+	assert.match(steerResponseHandler, /`steer accepted \(\$\{event\.id\}\)`/);
+	assert.match(steerResponseHandler, /`steer failed \(\$\{event\.id\}\):/);
+	assert.doesNotMatch(steerResponseHandler, /failRpc|abortProc|\.abort\(/);
+	assert.match(source, /ctx\.ui\.notify\("Steering message queued", "info"\)/);
+});
+
+test("retains bounded structured steer history across settlement and renders it independently", () => {
+	assert.match(source, /steerEvents: \[\]/);
+	assert.match(source, /entry\.steerEvents\.push\(event\)/);
+	assert.match(source, /entry\.steerEvents = entry\.steerEvents\.slice\(-MAX_LIFECYCLE_MESSAGES\)/);
+	assert.match(source, /for \(const event of entry\.steerEvents\)/);
+	assert.match(source, /compactTranscriptLine\("Steer", `\[\$\{event\.status\}\] \$\{event\.id\}/);
+
+	const settledStart = source.indexOf("onSettled(id, result)");
+	const settledEnd = source.indexOf("onError(id, error)", settledStart);
+	const settledHandler = source.slice(settledStart, settledEnd);
+	assert.doesNotMatch(settledHandler, /steerEvents\s*=|steerEvents\.splice|steerEvents\.length/);
+
+	assert.match(source, /status: "queued"/);
+	assert.match(source, /status: event\.success === false \? "rpc-rejected" : "accepted"/);
+	assert.match(source, /status: "write-failure"/);
+
+	const steerResponseStart = source.indexOf('if (event.type === "response" && typeof event.id === "string" && pendingSteers.has(event.id))');
+	const genericFailureStart = source.indexOf('if (event.type === "response" && event.success === false)', steerResponseStart);
+	const steerResponseHandler = source.slice(steerResponseStart, genericFailureStart);
+	assert.doesNotMatch(steerResponseHandler, /failRpc|abortProc|\.abort\(/);
+
+	const sendStart = source.indexOf("send: (message) => {");
+	const sendEnd = source.indexOf("abort: abortProc", sendStart);
+	const sendHandler = source.slice(sendStart, sendEnd);
+	assert.doesNotMatch(sendHandler, /abortProc|type: "abort"/);
+});
+
 test("registers a native /agents registry viewer with lifecycle actions", () => {
 	assert.match(source, /pi\.registerCommand\("agents"/);
 	assert.match(source, /ctx\.ui\.select\("Subagents"/);

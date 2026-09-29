@@ -254,6 +254,15 @@ interface SubagentDetails {
 }
 
 type LifecycleState = "running" | "settled" | "aborted" | "error";
+type SteerEventStatus = "queued" | "accepted" | "rpc-rejected" | "write-failure";
+
+interface SteerEvent {
+	id: string;
+	status: SteerEventStatus;
+	message: string;
+	detail?: string;
+	at: number;
+}
 
 interface LifecycleEntry {
 	id: string;
@@ -265,6 +274,7 @@ interface LifecycleEntry {
 	settledAt?: number;
 	latestActivity: string;
 	messages: Message[];
+	steerEvents: SteerEvent[];
 	result?: SingleResult;
 	send?: (message: string) => boolean;
 	abort?: () => void;
@@ -279,6 +289,7 @@ interface LifecycleCallbacks {
 	onStart: (agent: string, task: string) => string;
 	onRuntime: (id: string, runtime: LifecycleRuntime | undefined) => void;
 	onActivity: (id: string, activity: string, message?: Message) => void;
+	onSteer: (id: string, event: SteerEvent) => void;
 	onSettled: (id: string, result: SingleResult) => void;
 	onError: (id: string, error: unknown) => void;
 }
@@ -344,6 +355,10 @@ function renderLifecycleTranscript(entry: LifecycleEntry): string {
 		lines.push(compactTranscriptLine("Exit code", entry.result.exitCode));
 		lines.push(compactTranscriptLine("Stop reason", entry.result.stopReason ?? "(none)"));
 		lines.push(compactTranscriptLine("Model", entry.result.model ?? "(unknown)"));
+	}
+	for (const event of entry.steerEvents) {
+		const detail = event.detail ? `: ${event.detail}` : "";
+		lines.push(compactTranscriptLine("Steer", `[${event.status}] ${event.id}: ${event.message}${detail}`));
 	}
 	const contentCounts = { assistant: 0, thinking: 0, toolCall: 0, toolResult: 0 };
 	const messages = entry.result?.messages ?? entry.messages;
@@ -590,6 +605,7 @@ async function runSingleAgentAttempt(
 		let logicallySettled = false;
 		let runChildSettled = false;
 		let abortEscalationTimer: ReturnType<typeof setTimeout> | undefined;
+		const pendingSteers = new Map<string, string>();
 
 		const failRpc = (error: unknown) => {
 			if (runChildSettled || watchdogAbortController.signal.aborted) return;
@@ -623,6 +639,28 @@ async function runSingleAgentAttempt(
 				event = JSON.parse(line);
 			} catch (error) {
 				failRpc(new Error(`Malformed RPC JSONL: ${error instanceof Error ? error.message : String(error)}`));
+				return;
+			}
+
+			if (event.type === "response" && typeof event.id === "string" && pendingSteers.has(event.id)) {
+				const message = pendingSteers.get(event.id) ?? "";
+				pendingSteers.delete(event.id);
+				if (lifecycleId) {
+					const detail = event.success === false
+						? compactTranscriptValue(event.error || "unknown error")
+						: undefined;
+					const activity = detail
+						? `steer failed (${event.id}): ${detail}`
+						: `steer accepted (${event.id})`;
+					lifecycle?.onSteer(lifecycleId, {
+						id: event.id,
+						status: event.success === false ? "rpc-rejected" : "accepted",
+						message,
+						detail,
+						at: Date.now(),
+					});
+					lifecycle?.onActivity(lifecycleId, activity);
+				}
 				return;
 			}
 
@@ -707,7 +745,23 @@ async function runSingleAgentAttempt(
 		};
 		if (lifecycleId) {
 			lifecycle?.onRuntime(lifecycleId, {
-				send: (message) => writeRpcCommand({ id: `steer-${randomUUID()}`, type: "steer", message }),
+				send: (message) => {
+					const steerId = `steer-${randomUUID()}`;
+					pendingSteers.set(steerId, message);
+					lifecycle?.onSteer(lifecycleId, { id: steerId, status: "queued", message, at: Date.now() });
+					lifecycle?.onActivity(lifecycleId, `steer queued (${steerId}): ${compactTranscriptValue(message)}`);
+					if (writeRpcCommand({ id: steerId, type: "steer", message })) return true;
+					pendingSteers.delete(steerId);
+					lifecycle?.onSteer(lifecycleId, {
+						id: steerId,
+						status: "write-failure",
+						message,
+						detail: "unable to queue RPC command",
+						at: Date.now(),
+					});
+					lifecycle?.onActivity(lifecycleId, `steer failed (${steerId}): unable to queue RPC command`);
+					return false;
+				},
 				abort: abortProc,
 			});
 		}
@@ -1033,9 +1087,7 @@ export default function (pi: ExtensionAPI) {
 				if (entry.state !== "running" || !entry.send || !entry.send(message.trim())) {
 					ctx.ui.notify("Unable to steer this subagent", "error");
 				} else {
-					entry.latestActivity = `steered: ${compactTranscriptValue(message)}`;
-					entry.updatedAt = Date.now();
-					ctx.ui.notify("Steering message sent", "info");
+					ctx.ui.notify("Steering message queued", "info");
 				}
 			} else if (action === "Stop") {
 				const error = requestLifecycleStop(entry);
@@ -1128,6 +1180,7 @@ export default function (pi: ExtensionAPI) {
 						updatedAt: now,
 						latestActivity: "starting",
 						messages: [],
+						steerEvents: [],
 					};
 					lifecycleEntries.set(entry.id, entry);
 					updateLifecycleWidget(ctx);
@@ -1149,6 +1202,13 @@ export default function (pi: ExtensionAPI) {
 						entry.messages.push(message);
 						entry.messages = entry.messages.slice(-MAX_LIFECYCLE_MESSAGES);
 					}
+					updateLifecycleWidget(ctx);
+				},
+				onSteer(id, event) {
+					const entry = lifecycleEntries.get(id);
+					if (!entry) return;
+					entry.steerEvents.push(event);
+					entry.steerEvents = entry.steerEvents.slice(-MAX_LIFECYCLE_MESSAGES);
 					updateLifecycleWidget(ctx);
 				},
 				onSettled(id, result) {
