@@ -68,9 +68,10 @@ test("wires child lifecycle policy into each spawned attempt", () => {
 	const attempt = sourceSlice("async function runSingleAgentAttempt", "async function runSingleAgent(");
 	assert.match(attempt, /const proc = spawn\(/);
 	assert.match(attempt, /const outcome = await runChild\(proc, \{/);
-	assert.match(attempt, /signal,\s+onHeartbeat: emitUpdate,/);
+	assert.match(attempt, /signal: watchdogAbortController\.signal,\s+onHeartbeat: emitUpdate,/);
 	assert.match(attempt, /currentResult\.elapsedMs = outcome\.elapsedMs/);
-	assert.doesNotMatch(attempt, /setInterval|clearInterval|addEventListener\("abort"|removeEventListener\("abort"/);
+	assert.doesNotMatch(attempt, /setInterval|clearInterval/);
+	assert.doesNotMatch(attempt, /proc\.(?:on|once)\("(?:close|error)"/);
 	assert.doesNotMatch(attempt, /proc\.kill|SIGTERM|SIGKILL/);
 });
 
@@ -92,21 +93,22 @@ test("marks a parallel invocation as an error when any task fails", () => {
 test("renders timeout diagnostics immediately and bypasses model fallback", () => {
 	const attempt = sourceSlice("async function runSingleAgentAttempt", "async function runSingleAgent(");
 	const dispatch = sourceSlice("async function runSingleAgent(", "const TaskItem = Type.Object(");
-	assert.match(attempt, /onTimeout: \(diagnostic, elapsedMs\) => \{[\s\S]*?stopReason = "timeout";[\s\S]*?errorMessage = diagnostic;[\s\S]*?emitUpdate\(elapsedMs\)/);
+	assert.match(attempt, /onTimeout\(diagnostic, elapsedMs\) \{[\s\S]*?stopReason = "timeout";[\s\S]*?errorMessage = diagnostic;[\s\S]*?emitUpdate\(elapsedMs\)/);
 	assert.match(attempt, /error\.kind === "timeout"[\s\S]*?error\.diagnostic \?\? error\.message/);
-	assert.match(dispatch, /result\.stopReason !== "timeout" && isFailedResult\(result\)/);
+	assert.match(dispatch, /isFailedResult\(result\) && result\.stopReason !== "timeout" && result\.stopReason !== "aborted"/);
 });
 
-test("preserves process errors as result diagnostics for model fallback", () => {
+test("preserves process and callback errors as result diagnostics for model fallback", () => {
 	const attempt = sourceSlice("async function runSingleAgentAttempt", "async function runSingleAgent(");
-	assert.match(attempt, /error\.kind === "process"[\s\S]*?stopReason = "error";[\s\S]*?errorMessage = error\.diagnostic \?\? error\.message/);
+	assert.match(attempt, /else \{\s+currentResult\.stopReason = "error";\s+currentResult\.errorMessage \|\|= error\.diagnostic \?\? error\.message/);
 });
 
-test("preserves the externally visible caller abort error and elapsed time", () => {
+test("maps an external watchdog abort to a structured result with elapsed time", () => {
 	const attempt = sourceSlice("async function runSingleAgentAttempt", "async function runSingleAgent(");
-	assert.match(attempt, /error\.kind === "aborted"/);
-	assert.match(attempt, /new Error\("Subagent was aborted"\)/);
-	assert.match(attempt, /abortError\.elapsedMs = currentResult\.elapsedMs;\n\s*throw abortError;/);
+	assert.match(attempt, /error\.kind === "aborted" && wasAborted/);
+	assert.match(attempt, /currentResult\.elapsedMs = error\.elapsedMs/);
+	assert.match(attempt, /currentResult\.stopReason = "aborted"/);
+	assert.match(attempt, /currentResult\.errorMessage = "Subagent was aborted"/);
 });
 
 test("renders elapsed time for single, chain, and parallel details", () => {
