@@ -1,7 +1,7 @@
 name = "context-retriever"
 description = "Gather scoped read-only repository context and return compact evidence with exact file references."
 model_provider = "azure"
-model = "gpt-5.6-luna"
+model = "gpt-6-luna"
 fallback_models = "atlas/gpt-6-luna,atlas/gpt-5.6-sol"
 sandbox_mode = "read-only"
 tools = "git"

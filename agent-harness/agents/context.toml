@@ -1,7 +1,7 @@
 name = "context"
 description = "Quickly gather minimal repository context and return concise, evidence-backed findings."
 model_provider = "azure"
-model = "gpt-5.6-luna"
+model = "gpt-6-luna"
 fallback_models = "atlas/gpt-6-luna,atlas/gpt-5.6-sol"
 allow_fallback_models_with_mutation_tools = true
 sandbox_mode = "read-only-with-bash"

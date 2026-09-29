@@ -132,7 +132,7 @@ test("context coordinator is bundled and delegates scoped retrieval", () => {
 
 	assert.match(agent, /^name = "context"$/m);
 	assert.match(agent, /^model_provider = "azure"$/m);
-	assert.match(agent, /^model = "gpt-5\.6-luna"$/m);
+	assert.match(agent, /^model = "gpt-6-luna"$/m);
 	assert.match(agent, /^fallback_models = "atlas\/gpt-6-luna,atlas\/gpt-5\.6-sol"$/m);
 	assert.match(agent, /^allow_fallback_models_with_mutation_tools = true$/m);
 	assert.match(agent, /^sandbox_mode = "read-only-with-bash"$/m);
@@ -191,7 +191,7 @@ test("git agent is bundled and keeps Git workflow separate from implementation",
 		/^description = "Git-only worker for repository status, diff review, surgical staging, commits, and merge-request hygiene\."$/m,
 	);
 	assert.match(agent, /^model_provider = "azure"$/m);
-	assert.match(agent, /^model = "gpt-5\.6-luna"$/m);
+	assert.match(agent, /^model = "gpt-6-luna"$/m);
 	assert.match(agent, /^skills = "git"$/m);
 	assert.match(agent, /^sandbox_mode = "read-only-with-bash"$/m);
 	assert.match(agent, /^extensions = "rtk"$/m);
