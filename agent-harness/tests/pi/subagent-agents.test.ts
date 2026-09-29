@@ -187,6 +187,13 @@ test("git agent is bundled and keeps Git workflow separate from implementation",
 	assert.match(prompt, /Require explicit user approval before staging, committing, rebasing, pushing/);
 	assert.match(prompt, /Never stage secrets, `\.env` files, credentials/);
 	assert.match(prompt, /Use surgical staging when mixed changes need separation/);
+	assert.match(
+		prompt,
+		/(?:must|required to|always)[^\n]*`bash scripts\/git-commit-msg`[^\n]*exact final commit message/i,
+		"Git agent must require the Bash validator to run on the exact final message",
+	);
+	assert.match(prompt, /hard-stop[^\n]*validator failure/i, "Git agent must hard-stop on validator failure");
+	assert.match(prompt, /(?:never|do not)[^\n]*`--no-verify`/i, "Git agent must explicitly prohibit --no-verify");
 	assert.match(prompt, /Do not use `edit` or `write` for implementation work/);
 	assert.match(prompt, /Exact commands run and their outcomes/);
 	assert.match(prompt, /Never reset, restore, checkout, clean, overwrite, or discard/);

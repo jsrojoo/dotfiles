@@ -1,0 +1,77 @@
+#!/bin/sh
+set -eu
+
+usage() {
+    echo "usage: git-commit-msg [message-file]" >&2
+    exit 2
+}
+
+fail() {
+    echo "invalid commit message: $1" >&2
+    exit 1
+}
+
+validate() {
+    header=
+    if ! IFS= read -r header && [ -z "$header" ]; then
+        fail "missing header"
+    fi
+
+    case "$header" in
+        *": "*) ;;
+        *) fail "header must follow Conventional Commits" ;;
+    esac
+
+    descriptor=${header%%: *}
+    subject=${header#*: }
+
+    case "$subject" in
+        ""|[[:space:]]*|*[[:space:]])
+            fail "subject must not have edge whitespace"
+            ;;
+    esac
+
+    case "$descriptor" in
+        *!) descriptor=${descriptor%!} ;;
+    esac
+
+    case "$descriptor" in
+        *"("*)
+            type=${descriptor%%(*}
+            scope_and_close=${descriptor#*(}
+            case "$scope_and_close" in
+                *")") scope=${scope_and_close%)} ;;
+                *) fail "header must follow Conventional Commits" ;;
+            esac
+            case "$scope" in
+                [a-z0-9]*) ;;
+                *) fail "invalid scope" ;;
+            esac
+            case "$scope" in
+                *[!a-z0-9._/-]*) fail "invalid scope" ;;
+            esac
+            ;;
+        *)
+            type=$descriptor
+            ;;
+    esac
+
+    case "$type" in
+        build|chore|ci|docs|feat|fix|perf|refactor|revert|test) ;;
+        *) fail "invalid type" ;;
+    esac
+
+    second_line=
+    if IFS= read -r second_line || [ -n "$second_line" ]; then
+        [ -z "$second_line" ] || fail "body must follow a blank line"
+    fi
+}
+
+[ "$#" -le 1 ] || usage
+
+if [ "$#" -eq 1 ]; then
+    [ -f "$1" ] || fail "message file is not readable"
+    validate < "$1"
+else
+    validate
+fi
