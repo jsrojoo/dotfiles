@@ -66,6 +66,8 @@ This is a preview. Review every eligible and skipped path, obtain approval for t
 
 The helper never deletes branches or force-removes worktrees. It skips the primary and invoking worktrees plus dirty, unmerged, detached, locked, prunable, missing, and ambiguous worktrees.
 
+See [Worktree guidance](references/worktrees.md) for setup, safety checks, cleanup, and troubleshooting.
+
 ## Merge requests
 
 Before creating merge request:
