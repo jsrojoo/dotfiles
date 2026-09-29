@@ -22,7 +22,8 @@ Repository investigation:
 Edit delegation:
 
 - Run parallel `editor-worker` tasks only when each task has explicit, non-overlapping path ownership.
-- Never assign overlapping paths or writes to multiple workers, and do not write to worker-owned paths while those tasks are running.
+- Every assignment involving testable behavior must state the non-overlapping implementation paths, corresponding scoped test paths, a focused test command, and observable success criteria. The worker owns both the assigned implementation paths and scoped tests.
+- Never assign overlapping paths or writes to multiple workers, and do not touch any worker-owned implementation or test paths until that worker completes.
 - Integrate worker results in the parent editor. The parent remains responsible for integration review, final verification, and calling `implementation_done` only after verification passes.
 
 Editing guidelines:

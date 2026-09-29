@@ -208,6 +208,7 @@ test("editor coordinator is discoverable with nested subagent orchestration", ()
 	assert.deepEqual(agent?.extensions, ["coding-tdd", "rtk", "subagent"]);
 	assert.match(prompt, /one main `context` coordinator invocation/);
 	assert.match(prompt, /explicit, non-overlapping path ownership/);
+	assert.match(prompt, /implementation paths, corresponding scoped test paths, a focused test command, and observable success criteria/);
 	assert.match(prompt, /parent remains responsible for integration review, final verification, and calling `implementation_done`/);
 });
 
@@ -215,12 +216,16 @@ test("editor worker is discoverable, scoped, and non-recursive", () => {
 	const prompt = readFileSync(new URL("../../../.pi/agent/agents/editor-worker.md", import.meta.url), "utf8");
 	const agent = repositoryAgentFind("editor-worker");
 
-	assert.deepEqual(agent?.tools, ["read", "bash", "edit", "implementation_done"]);
+	assert.deepEqual(agent?.tools, ["read", "bash", "edit", "write", "implementation_done"]);
 	assert.deepEqual(agent?.extensions, ["coding-tdd", "rtk"]);
 	assert.match(prompt, /Edit only the paths explicitly assigned to you/);
+	assert.match(prompt, /`write` only for explicitly assigned new files/);
+	assert.match(prompt, /explicit ownership of the implementation and test paths plus a focused test command/);
 	assert.match(prompt, /ownership is missing, ambiguous, or overlaps another worker, stop and report the conflict without editing/);
+	assert.match(prompt, /Before implementation, run the focused test command and confirm it fails for the expected behavior/);
+	assert.match(prompt, /After reaching green, run fresh scoped verification before calling `implementation_done`/);
 	assert.match(prompt, /After assigned-scope verification passes, call `implementation_done`/);
-	assert.match(prompt, /parent editor owns global integration review and verification, and must call `implementation_done` again after they pass/);
+	assert.match(prompt, /parent editor owns integration, final verification, and final completion, and must call `implementation_done` again after they pass/);
 	assert.match(prompt, /Do not invoke subagents or delegate work/);
 	assert.ok(!agent?.tools.includes("subagent"));
 });
