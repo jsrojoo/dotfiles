@@ -688,14 +688,19 @@ test("editor coordinator and worker select scoped coding resources", () => {
 	assert.match(editor, /^skills: coding$/m);
 	assert.match(editor, /^extensions: coding-tdd, rtk, subagent$/m);
 	assert.match(editor, /Never assign overlapping paths or writes to multiple workers/);
+	assert.match(editor, /implementation paths, corresponding scoped test paths, a focused test command, and observable success criteria/);
 	assert.match(editor, /parent remains responsible for integration review, final verification/);
 
-	assert.match(worker, /^tools: read, bash, edit, implementation_done$/m);
+	assert.match(worker, /^tools: read, bash, edit, write, implementation_done$/m);
 	assert.match(worker, /^skills: coding$/m);
 	assert.match(worker, /^extensions: coding-tdd, rtk$/m);
 	assert.match(worker, /Edit only the paths explicitly assigned to you/);
+	assert.match(worker, /`write` only for explicitly assigned new files/);
+	assert.match(worker, /explicit ownership of the implementation and test paths plus a focused test command/);
+	assert.match(worker, /Before implementation, run the focused test command and confirm it fails for the expected behavior/);
+	assert.match(worker, /After reaching green, run fresh scoped verification before calling `implementation_done`/);
 	assert.match(worker, /After assigned-scope verification passes, call `implementation_done`/);
-	assert.match(worker, /parent editor owns global integration review and verification, and must call `implementation_done` again after they pass/);
+	assert.match(worker, /parent editor owns integration, final verification, and final completion, and must call `implementation_done` again after they pass/);
 	assert.match(worker, /Do not invoke subagents or delegate work/);
 	assert.doesNotMatch(worker, /^tools: .*\bsubagent\b/m);
 });
