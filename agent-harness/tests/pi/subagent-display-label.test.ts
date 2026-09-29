@@ -135,3 +135,8 @@ test("measures parallel aggregate elapsed across the whole scheduled batch", () 
 	assert.match(subagentSource, /details\.parallelElapsedMs \?\? 0/);
 	assert.doesNotMatch(subagentSource, /Math\.max\(0, \.\.\.results\.map\(\(r\) => r\.elapsedMs\)\)/);
 });
+
+test("keeps the subagent dispatcher specific to subagent dispatch", () => {
+	assert.match(subagentSource, /pi\.registerTool\(\{/);
+	assert.doesNotMatch(subagentSource, /mainlineSync|pi-mainline-sync|pi\.on\("tool_call"/);
+});

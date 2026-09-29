@@ -22,12 +22,14 @@ test("Pi settings load shared extensions independently of the working directory"
 	const tddWrapper = readFileSync(tddWrapperUrl, "utf8");
 	const sqlWrapperUrl = new URL("../../../../.pi/agent/extensions/sql-guardrail.ts", import.meta.url);
 	const sqlWrapper = readFileSync(sqlWrapperUrl, "utf8");
+	const mainlineSyncUrl = new URL("../../../src/pi/extensions/mainline-sync.ts", import.meta.url);
 
 	assert.deepEqual(settings.extensions, [
 		"~/dotfiles/.pi/agent/extensions/coding-tdd.ts",
 		"~/dotfiles/.pi/agent/extensions/custom-keybinds.ts",
 		"~/dotfiles/.pi/agent/extensions/plan-mode",
 		"~/dotfiles/agent-harness/src/pi/extensions/subagent",
+
 		"~/dotfiles/agent-harness/src/pi/extensions/notify.ts",
 		"~/dotfiles/.pi/agent/extensions/sql-guardrail.ts",
 	]);
@@ -42,6 +44,7 @@ test("Pi settings load shared extensions independently of the working directory"
 	);
 	assert.equal(typeof (await import(tddWrapperUrl.href)).default, "function");
 	assert.equal(typeof (await import(sqlWrapperUrl.href)).default, "function");
+	assert.equal(typeof (await import(mainlineSyncUrl.href)).default, "function");
 });
 
 function harnessCreate(
@@ -686,14 +689,20 @@ test("editor coordinator and worker select scoped coding resources", () => {
 
 	assert.match(editor, /^tools: read, bash, edit, subagent, implementation_done$/m);
 	assert.match(editor, /^skills: coding$/m);
-	assert.match(editor, /^extensions: coding-tdd, rtk, subagent$/m);
+	assert.match(
+		editor,
+		/^extensions: coding-tdd, rtk, subagent, agent-harness\/src\/pi\/extensions\/mainline-sync\.ts$/m,
+	);
 	assert.match(editor, /Never assign overlapping paths or writes to multiple workers/);
 	assert.match(editor, /implementation paths, corresponding scoped test paths, a focused test command, and observable success criteria/);
 	assert.match(editor, /parent remains responsible for integration review, final verification/);
 
 	assert.match(worker, /^tools: read, bash, edit, write, implementation_done$/m);
 	assert.match(worker, /^skills: coding$/m);
-	assert.match(worker, /^extensions: coding-tdd, rtk$/m);
+	assert.match(
+		worker,
+		/^extensions: coding-tdd, rtk, agent-harness\/src\/pi\/extensions\/mainline-sync\.ts$/m,
+	);
 	assert.match(worker, /Edit only the paths explicitly assigned to you/);
 	assert.match(worker, /`write` only for explicitly assigned new files/);
 	assert.match(worker, /explicit ownership of the implementation and test paths plus a focused test command/);

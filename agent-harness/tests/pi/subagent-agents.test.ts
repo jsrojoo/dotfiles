@@ -224,7 +224,11 @@ test("editor worker is discoverable, scoped, and non-recursive", () => {
 	const agent = repositoryAgentFind("editor-worker");
 
 	assert.deepEqual(agent?.tools, ["read", "bash", "edit", "write", "implementation_done"]);
-	assert.deepEqual(agent?.extensions, ["coding-tdd", "rtk"]);
+	assert.deepEqual(agent?.extensions, [
+		"coding-tdd",
+		"rtk",
+		"agent-harness/src/pi/extensions/mainline-sync.ts",
+	]);
 	assert.match(prompt, /Edit only the paths explicitly assigned to you/);
 	assert.match(prompt, /`write` only for explicitly assigned new files/);
 	assert.match(prompt, /explicit ownership of the implementation and test paths plus a focused test command/);
