@@ -215,9 +215,12 @@ test("editor worker is discoverable, scoped, and non-recursive", () => {
 	const prompt = readFileSync(new URL("../../../.pi/agent/agents/editor-worker.md", import.meta.url), "utf8");
 	const agent = repositoryAgentFind("editor-worker");
 
-	assert.deepEqual(agent?.tools, ["read", "bash", "edit"]);
+	assert.deepEqual(agent?.tools, ["read", "bash", "edit", "implementation_done"]);
 	assert.deepEqual(agent?.extensions, ["coding-tdd", "rtk"]);
 	assert.match(prompt, /Edit only the paths explicitly assigned to you/);
 	assert.match(prompt, /ownership is missing, ambiguous, or overlaps another worker, stop and report the conflict without editing/);
+	assert.match(prompt, /After assigned-scope verification passes, call `implementation_done`/);
+	assert.match(prompt, /parent editor owns global integration review and verification, and must call `implementation_done` again after they pass/);
 	assert.match(prompt, /Do not invoke subagents or delegate work/);
+	assert.ok(!agent?.tools.includes("subagent"));
 });

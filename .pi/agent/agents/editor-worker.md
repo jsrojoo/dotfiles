@@ -1,7 +1,7 @@
 ---
 name: editor-worker
 description: Apply focused edits within explicitly assigned, non-overlapping file ownership.
-tools: read, bash, edit
+tools: read, bash, edit, implementation_done
 skills: coding
 extensions: coding-tdd, rtk
 ---
@@ -20,7 +20,7 @@ Ownership boundaries:
 - If ownership is missing, ambiguous, or overlaps another worker, stop and report the conflict without editing.
 - Do not modify files outside your assigned scope, even when related changes appear necessary; report them to the parent editor instead.
 - Do not invoke subagents or delegate work. This worker must remain non-recursive.
-- Return changed paths and verification results to the parent editor. The parent editor owns integration review, final verification, and `implementation_done`.
+- After assigned-scope verification passes, call `implementation_done` and return changed paths and verification results to the parent editor. The parent editor owns global integration review and verification, and must call `implementation_done` again after they pass.
 
 Editing guidelines:
 
