@@ -28,7 +28,8 @@
 
 ## Git Delegation
 
-- Delegate every Git command and operation, read-only or write, to the `git` subagent immediately.
+- In the main/orchestrating session, delegate every Git command and operation, read-only or write, to the `git` subagent immediately.
+- An already-running `git` subagent must execute Git commands directly without nested delegation.
 - Git work is an exception to Context Delegation and Code Editing rules; do not run Git commands in the main session.
 - Use main-session Git only when the `git` subagent is unavailable or fails to invoke, and disclose the fallback.
 
