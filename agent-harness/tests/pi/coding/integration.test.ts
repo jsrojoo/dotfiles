@@ -687,12 +687,13 @@ test("editor coordinator and worker select scoped coding resources", () => {
 	const workerUrl = new URL("../../../../.pi/agent/agents/editor-worker.md", import.meta.url);
 	const worker = readFileSync(workerUrl, "utf8");
 
-	assert.match(editor, /^tools: read, bash, edit, subagent, implementation_done$/m);
+	assert.match(editor, /^tools: read, bash, edit, write, subagent, implementation_done$/m);
 	assert.match(editor, /^skills: coding$/m);
 	assert.match(
 		editor,
 		/^extensions: coding-tdd, rtk, subagent, agent-harness\/src\/pi\/extensions\/mainline-sync\.ts$/m,
 	);
+	assert.match(editor, /`write` only for explicitly requested new files/);
 	assert.match(editor, /Never assign overlapping paths or writes to multiple workers/);
 	assert.match(editor, /implementation paths, corresponding scoped test paths, a focused test command, and observable success criteria/);
 	assert.match(editor, /parent remains responsible for integration review, final verification/);

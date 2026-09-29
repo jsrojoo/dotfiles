@@ -220,13 +220,14 @@ test("editor coordinator is discoverable with nested subagent orchestration", ()
 	const prompt = readFileSync(new URL("../../../.pi/agent/agents/editor.md", import.meta.url), "utf8");
 	const agent = repositoryAgentFind("editor");
 
-	assert.deepEqual(agent?.tools, ["read", "bash", "edit", "subagent", "implementation_done"]);
+	assert.deepEqual(agent?.tools, ["read", "bash", "edit", "write", "subagent", "implementation_done"]);
 	assert.deepEqual(agent?.extensions, [
 		"coding-tdd",
 		"rtk",
 		"subagent",
 		"agent-harness/src/pi/extensions/mainline-sync.ts",
 	]);
+	assert.match(prompt, /`write` only for explicitly requested new files/);
 	assert.match(prompt, /one main `context` coordinator invocation/);
 	assert.match(prompt, /explicit, non-overlapping path ownership/);
 	assert.match(prompt, /implementation paths, corresponding scoped test paths, a focused test command, and observable success criteria/);

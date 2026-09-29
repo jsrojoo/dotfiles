@@ -49,6 +49,7 @@ From `agent-harness/`:
 
 ```sh
 npm test
+npm run lint:imports
 claude plugin validate . --strict
 ```
 

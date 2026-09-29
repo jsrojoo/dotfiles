@@ -59,6 +59,12 @@ after confirming that reusing it is intentional.
 
 ## Verification and handoff
 
+Before integration, inspect whether the recorded local source branch moved. If
+it moved, obtain approval to update the task branch against that current local
+source inside the task worktree, resolve conflicts there, and rerun verification
+before changing the primary checkout. Do not use the primary checkout as the
+first place conflicts are discovered.
+
 Run the narrowest relevant checks in the task worktree, then broader checks when
 warranted. Before handoff, inspect the worktree status, confirm the diff is
 limited to the requested scope, and report the changed paths, checks and

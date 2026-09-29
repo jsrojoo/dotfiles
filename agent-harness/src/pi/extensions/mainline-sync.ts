@@ -12,6 +12,7 @@ export type MainlineSyncCommandResult = {
 export type MainlineSyncDependencies = {
 	gitRun: (cwd: string, args: string[]) => Promise<MainlineSyncCommandResult>;
 	lockRun: <T>(lockPath: string, action: () => Promise<T>) => Promise<T>;
+	pathExists: (candidatePath: string) => boolean;
 	stateRead: (statePath: string) => Promise<number>;
 	stateWrite: (statePath: string, count: number) => Promise<void>;
 };
@@ -62,6 +63,7 @@ export const mainlineSyncStateWrite = async (statePath: string, count: number): 
 const mainlineSyncDependencies: MainlineSyncDependencies = {
 	gitRun: mainlineSyncGitRun,
 	lockRun: mainlineSyncLockRun,
+	pathExists: fs.existsSync,
 	stateRead: mainlineSyncStateRead,
 	stateWrite: mainlineSyncStateWrite,
 };
@@ -84,6 +86,9 @@ export async function mainlineSyncBeforeTool(
 	}
 	const resolvedGitCommonDirectory = path.resolve(cwd, gitCommonDirectory.stdout.trim());
 	if (resolvedGitDirectory === resolvedGitCommonDirectory) return;
+
+	const operationMarkers = ["MERGE_HEAD", "CHERRY_PICK_HEAD", "REVERT_HEAD", "rebase-merge", "rebase-apply"];
+	if (operationMarkers.some((marker) => dependencies.pathExists(path.join(resolvedGitDirectory, marker)))) return;
 
 	const coordinationDirectory = resolvedGitDirectory;
 	const statePath = path.join(coordinationDirectory, "pi-mainline-sync-count");

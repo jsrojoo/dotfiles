@@ -53,6 +53,7 @@ function realCoordinationDependencies(
 	return {
 		gitRun,
 		lockRun: mainlineSyncLockRun,
+		pathExists: () => false,
 		stateRead: mainlineSyncStateRead,
 		stateWrite: mainlineSyncStateWrite,
 	};
@@ -67,6 +68,7 @@ test("primary checkout skips synchronization before counters and pull", async ()
 				return commandResult({ stdout: args[1] === "--git-dir" ? ".git\n" : `${path.join(directory, ".git")}\n` });
 			},
 			lockRun: async () => { throw new Error("lock must not run"); },
+			pathExists: () => false,
 			stateRead: async () => { throw new Error("counter must not be read"); },
 			stateWrite: async () => { throw new Error("counter must not be written"); },
 		};
@@ -92,6 +94,7 @@ test("linked worktree enables synchronization when Git and common directories di
 				return commandResult();
 			},
 			lockRun: async (_lockPath, action) => action(),
+			pathExists: () => false,
 			stateRead: async () => 0,
 			stateWrite: async (_statePath, count) => { writtenCount = count; },
 		};
@@ -105,6 +108,32 @@ test("linked worktree enables synchronization when Git and common directories di
 			["pull", "--rebase", "--autostash"],
 		]);
 	});
+});
+
+test("active Git operations skip synchronization and allow recovery edits", async () => {
+	for (const activeMarker of ["MERGE_HEAD", "CHERRY_PICK_HEAD", "REVERT_HEAD", "rebase-merge", "rebase-apply"]) {
+		await withTemporaryDirectory(async (directory) => {
+			const gitDirectory = path.join(directory, "git");
+			const calls: string[][] = [];
+			const dependencies: MainlineSyncDependencies = {
+				gitRun: async (_cwd, args) => {
+					calls.push(args);
+					if (args[1] === "--git-dir") return commandResult({ stdout: gitDirectory });
+					return commandResult({ stdout: path.join(directory, "common-git") });
+				},
+				lockRun: async () => { throw new Error("lock must not run"); },
+				pathExists: (candidatePath) => candidatePath === path.join(gitDirectory, activeMarker),
+				stateRead: async () => { throw new Error("counter must not be read"); },
+				stateWrite: async () => { throw new Error("counter must not be written"); },
+			};
+
+			assert.equal(await mainlineSyncBeforeTool("edit", directory, dependencies), undefined);
+			assert.deepEqual(calls, [
+				["rev-parse", "--git-dir"],
+				["rev-parse", "--git-common-dir"],
+			]);
+		});
+	}
 });
 
 test("read and edit share a counter, pull on calls 1, 21, and 41, and ignored tools do not increment", async () => {
