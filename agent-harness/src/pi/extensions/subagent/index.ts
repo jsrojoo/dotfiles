@@ -95,6 +95,14 @@ function childSkillArgs(selected: string[] | undefined, cwd: string): string[] {
 	return args;
 }
 
+function formatResponseDuration(milliseconds: number): string {
+	if (!Number.isFinite(milliseconds) || milliseconds < 0) {
+		throw new RangeError("Duration must be finite non-negative milliseconds");
+	}
+	if (milliseconds > 0 && milliseconds < 100) return "<0.1s";
+	return `${(milliseconds / 1000).toFixed(1)}s`;
+}
+
 function formatTokens(count: number): string {
 	if (count < 1000) return count.toString();
 	if (count < 10000) return `${(count / 1000).toFixed(1)}k`;
@@ -215,6 +223,7 @@ interface SingleResult {
 	messages: Message[];
 	stderr: string;
 	usage: UsageStats;
+	elapsedMs: number;
 	model?: string;
 	stopReason?: string;
 	errorMessage?: string;
@@ -226,6 +235,7 @@ interface SubagentDetails {
 	agentScope: AgentScope;
 	projectAgentsDir: string | null;
 	results: SingleResult[];
+	parallelElapsedMs?: number;
 }
 
 function getFinalOutput(messages: Message[]): string {
@@ -370,17 +380,29 @@ async function runSingleAgentAttempt(
 		messages: [],
 		stderr: "",
 		usage: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0, cost: 0, contextTokens: 0, turns: 0 },
+		elapsedMs: 0,
 		model,
 		step,
 	};
 
+	let startedAt: number | undefined;
+	let completedAt: number | undefined;
+	let elapsedUpdateInterval: ReturnType<typeof setInterval> | undefined;
+	let abortHandler: (() => void) | undefined;
+	const updateElapsed = () => {
+		if (startedAt !== undefined) currentResult.elapsedMs = (completedAt ?? performance.now()) - startedAt;
+	};
+	const freezeElapsed = () => {
+		if (startedAt !== undefined && completedAt === undefined) completedAt = performance.now();
+		updateElapsed();
+	};
+	const makeUpdate = (): AgentToolResult<SubagentDetails> => ({
+		content: [{ type: "text", text: getFinalOutput(currentResult.messages) || "(running...)" }],
+		details: makeDetails([currentResult]),
+	});
 	const emitUpdate = () => {
-		if (onUpdate) {
-			onUpdate({
-				content: [{ type: "text", text: getFinalOutput(currentResult.messages) || "(running...)" }],
-				details: makeDetails([currentResult]),
-			});
-		}
+		updateElapsed();
+		if (onUpdate) onUpdate(makeUpdate());
 	};
 
 	try {
@@ -396,12 +418,17 @@ async function runSingleAgentAttempt(
 
 		const exitCode = await new Promise<number>((resolve) => {
 			const invocation = getPiInvocation(args);
+			startedAt = performance.now();
 			const proc = spawn(invocation.command, invocation.args, {
 				cwd: childCwd,
 				shell: false,
 				stdio: ["ignore", "pipe", "pipe"],
 				env: process.env,
 			});
+			elapsedUpdateInterval = setInterval(() => {
+				updateElapsed();
+				if (onUpdate) onUpdate(makeUpdate());
+			}, 1000);
 			let buffer = "";
 
 			const processLine = (line: string) => {
@@ -453,31 +480,40 @@ async function runSingleAgentAttempt(
 			});
 
 			proc.on("close", (code) => {
+				freezeElapsed();
 				if (buffer.trim()) processLine(buffer);
 				resolve(code ?? 0);
 			});
 
 			proc.on("error", () => {
+				freezeElapsed();
 				resolve(1);
 			});
 
 			if (signal) {
-				const killProc = () => {
+				abortHandler = () => {
 					wasAborted = true;
 					proc.kill("SIGTERM");
 					setTimeout(() => {
 						if (!proc.killed) proc.kill("SIGKILL");
 					}, 5000);
 				};
-				if (signal.aborted) killProc();
-				else signal.addEventListener("abort", killProc, { once: true });
+				if (signal.aborted) abortHandler();
+				else signal.addEventListener("abort", abortHandler, { once: true });
 			}
 		});
 
 		currentResult.exitCode = exitCode;
-		if (wasAborted) throw new Error("Subagent was aborted");
+		if (wasAborted) {
+			const error = new Error("Subagent was aborted") as Error & { elapsedMs: number };
+			error.elapsedMs = currentResult.elapsedMs;
+			throw error;
+		}
 		return currentResult;
 	} finally {
+		if (elapsedUpdateInterval) clearInterval(elapsedUpdateInterval);
+		if (signal && abortHandler) signal.removeEventListener("abort", abortHandler);
+		freezeElapsed();
 		if (tmpPromptPath)
 			try {
 				fs.unlinkSync(tmpPromptPath);
@@ -518,6 +554,7 @@ async function runSingleAgent(
 			messages: [],
 			stderr: `Unknown agent: "${agentName}". Available agents: ${available}.`,
 			usage: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0, cost: 0, contextTokens: 0, turns: 0 },
+			elapsedMs: 0,
 			step,
 		};
 	}
@@ -535,6 +572,7 @@ async function runSingleAgent(
 			messages: [],
 			stderr: String(error),
 			usage: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0, cost: 0, contextTokens: 0, turns: 0 },
+			elapsedMs: 0,
 			step,
 		};
 	}
@@ -759,9 +797,16 @@ export default function (pi: ExtensionAPI) {
 						messages: [],
 						stderr: "",
 						usage: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0, cost: 0, contextTokens: 0, turns: 0 },
+						elapsedMs: 0,
 					};
 				}
 
+				const parallelStartedAt = performance.now();
+				let parallelCompletedAt: number | undefined;
+				const makeParallelDetails = (results: SingleResult[]): SubagentDetails => ({
+					...makeDetails("parallel")(results),
+					parallelElapsedMs: (parallelCompletedAt ?? performance.now()) - parallelStartedAt,
+				});
 				const emitParallelUpdate = () => {
 					if (onUpdate) {
 						const running = allResults.filter((r) => r.exitCode === -1).length;
@@ -770,7 +815,7 @@ export default function (pi: ExtensionAPI) {
 							content: [
 								{ type: "text", text: `Parallel: ${done}/${allResults.length} done, ${running} running...` },
 							],
-							details: makeDetails("parallel")([...allResults]),
+							details: makeParallelDetails([...allResults]),
 						});
 					}
 				};
@@ -799,6 +844,7 @@ export default function (pi: ExtensionAPI) {
 					emitParallelUpdate();
 					return result;
 				});
+				parallelCompletedAt = performance.now();
 
 				const successCount = results.filter((r) => !isFailedResult(r)).length;
 				const summaries = results.map((r) => {
@@ -815,7 +861,7 @@ export default function (pi: ExtensionAPI) {
 							text: `Parallel: ${successCount}/${results.length} succeeded\n\n${summaries.join("\n\n---\n\n")}`,
 						},
 					],
-					details: makeDetails("parallel")(results),
+					details: makeParallelDetails(results),
 				};
 			}
 
@@ -925,6 +971,14 @@ export default function (pi: ExtensionAPI) {
 				return text.trimEnd();
 			};
 
+			const elapsedText = (elapsedMs: number) => formatResponseDuration(elapsedMs);
+			const usageWithElapsed = (r: SingleResult) =>
+				[elapsedText(r.elapsedMs), formatUsageStats(r.usage, r.model)].filter(Boolean).join(" ");
+			const aggregateElapsed = (results: SingleResult[], mode: "chain" | "parallel") =>
+				mode === "chain"
+					? results.reduce((total, r) => total + r.elapsedMs, 0)
+					: (details.parallelElapsedMs ?? 0);
+
 			if (details.mode === "single" && details.results.length === 1) {
 				const r = details.results[0];
 				const isError = isFailedResult(r);
@@ -934,7 +988,7 @@ export default function (pi: ExtensionAPI) {
 
 				if (expanded) {
 					const container = new Container();
-					let header = `${icon} ${theme.fg("toolTitle", theme.bold(r.displayLabel))}${theme.fg("muted", ` (${r.agentSource})`)}`;
+					let header = `${icon} ${theme.fg("toolTitle", theme.bold(r.displayLabel))}${theme.fg("muted", ` (${r.agentSource}, ${elapsedText(r.elapsedMs)})`)}`;
 					if (isError && r.stopReason) header += ` ${theme.fg("error", `[${r.stopReason}]`)}`;
 					container.addChild(new Text(header, 0, 0));
 					if (isError && r.errorMessage)
@@ -962,7 +1016,7 @@ export default function (pi: ExtensionAPI) {
 							container.addChild(new Markdown(finalOutput.trim(), 0, 0, mdTheme));
 						}
 					}
-					const usageStr = formatUsageStats(r.usage, r.model);
+					const usageStr = usageWithElapsed(r);
 					if (usageStr) {
 						container.addChild(new Spacer(1));
 						container.addChild(new Text(theme.fg("dim", usageStr), 0, 0));
@@ -970,7 +1024,7 @@ export default function (pi: ExtensionAPI) {
 					return container;
 				}
 
-				let text = `${icon} ${theme.fg("toolTitle", theme.bold(r.displayLabel))}${theme.fg("muted", ` (${r.agentSource})`)}`;
+				let text = `${icon} ${theme.fg("toolTitle", theme.bold(r.displayLabel))}${theme.fg("muted", ` (${r.agentSource}, ${elapsedText(r.elapsedMs)})`)}`;
 				if (isError && r.stopReason) text += ` ${theme.fg("error", `[${r.stopReason}]`)}`;
 				if (isError && r.errorMessage) text += `\n${theme.fg("error", `Error: ${r.errorMessage}`)}`;
 				else if (displayItems.length === 0) text += `\n${theme.fg("muted", "(no output)")}`;
@@ -978,7 +1032,7 @@ export default function (pi: ExtensionAPI) {
 					text += `\n${renderDisplayItems(displayItems, COLLAPSED_ITEM_COUNT)}`;
 					if (displayItems.length > COLLAPSED_ITEM_COUNT) text += `\n${theme.fg("muted", "(Ctrl+O to expand)")}`;
 				}
-				const usageStr = formatUsageStats(r.usage, r.model);
+				const usageStr = usageWithElapsed(r);
 				if (usageStr) text += `\n${theme.fg("dim", usageStr)}`;
 				return new Text(text, 0, 0);
 			}
@@ -1007,7 +1061,7 @@ export default function (pi: ExtensionAPI) {
 							icon +
 								" " +
 								theme.fg("toolTitle", theme.bold("chain ")) +
-								theme.fg("accent", `${successCount}/${details.results.length} steps`),
+								theme.fg("accent", `${successCount}/${details.results.length} steps in ${elapsedText(aggregateElapsed(details.results, "chain"))}`),
 							0,
 							0,
 						),
@@ -1021,7 +1075,7 @@ export default function (pi: ExtensionAPI) {
 						container.addChild(new Spacer(1));
 						container.addChild(
 							new Text(
-								`${theme.fg("muted", `─── Step ${r.step}: `) + theme.fg("accent", r.displayLabel)} ${rIcon}`,
+								`${theme.fg("muted", `─── Step ${r.step}: `) + theme.fg("accent", r.displayLabel)} ${rIcon} ${theme.fg("muted", elapsedText(r.elapsedMs))}`,
 								0,
 								0,
 							),
@@ -1047,15 +1101,22 @@ export default function (pi: ExtensionAPI) {
 							container.addChild(new Markdown(finalOutput.trim(), 0, 0, mdTheme));
 						}
 
-						const stepUsage = formatUsageStats(r.usage, r.model);
+						const stepUsage = usageWithElapsed(r);
 						if (stepUsage) container.addChild(new Text(theme.fg("dim", stepUsage), 0, 0));
 					}
 
 					const usageStr = formatUsageStats(aggregateUsage(details.results));
-					if (usageStr) {
-						container.addChild(new Spacer(1));
-						container.addChild(new Text(theme.fg("dim", `Total: ${usageStr}`), 0, 0));
-					}
+					container.addChild(new Spacer(1));
+					container.addChild(
+						new Text(
+							theme.fg(
+								"dim",
+								`Total: ${elapsedText(aggregateElapsed(details.results, "chain"))}${usageStr ? ` ${usageStr}` : ""}`,
+							),
+							0,
+							0,
+						),
+					);
 					return container;
 				}
 
@@ -1064,16 +1125,16 @@ export default function (pi: ExtensionAPI) {
 					icon +
 					" " +
 					theme.fg("toolTitle", theme.bold("chain ")) +
-					theme.fg("accent", `${successCount}/${details.results.length} steps`);
+					theme.fg("accent", `${successCount}/${details.results.length} steps in ${elapsedText(aggregateElapsed(details.results, "chain"))}`);
 				for (const r of details.results) {
 					const rIcon = r.exitCode === 0 ? theme.fg("success", "✓") : theme.fg("error", "✗");
 					const displayItems = getDisplayItems(r.messages);
-					text += `\n\n${theme.fg("muted", `─── Step ${r.step}: `)}${theme.fg("accent", r.displayLabel)} ${rIcon}`;
+					text += `\n\n${theme.fg("muted", `─── Step ${r.step}: `)}${theme.fg("accent", r.displayLabel)} ${rIcon} ${theme.fg("muted", elapsedText(r.elapsedMs))}`;
 					if (displayItems.length === 0) text += `\n${theme.fg("muted", "(no output)")}`;
 					else text += `\n${renderDisplayItems(displayItems, 5)}`;
 				}
 				const usageStr = formatUsageStats(aggregateUsage(details.results));
-				if (usageStr) text += `\n\n${theme.fg("dim", `Total: ${usageStr}`)}`;
+				text += `\n\n${theme.fg("dim", `Total: ${elapsedText(aggregateElapsed(details.results, "chain"))}${usageStr ? ` ${usageStr}` : ""}`)}`;
 				text += `\n${theme.fg("muted", "(Ctrl+O to expand)")}`;
 				return new Text(text, 0, 0);
 			}
@@ -1088,9 +1149,10 @@ export default function (pi: ExtensionAPI) {
 					: failCount > 0
 						? theme.fg("warning", "◐")
 						: theme.fg("success", "✓");
+				const parallelElapsed = elapsedText(aggregateElapsed(details.results, "parallel"));
 				const status = isRunning
-					? `${successCount + failCount}/${details.results.length} done, ${running} running`
-					: `${successCount}/${details.results.length} tasks`;
+					? `${successCount + failCount}/${details.results.length} done, ${running} running, ${parallelElapsed}`
+					: `${successCount}/${details.results.length} tasks in ${parallelElapsed}`;
 
 				if (expanded && !isRunning) {
 					const container = new Container();
@@ -1109,7 +1171,11 @@ export default function (pi: ExtensionAPI) {
 
 						container.addChild(new Spacer(1));
 						container.addChild(
-							new Text(`${theme.fg("muted", "─── ") + theme.fg("accent", r.displayLabel)} ${rIcon}`, 0, 0),
+							new Text(
+								`${theme.fg("muted", "─── ") + theme.fg("accent", r.displayLabel)} ${rIcon} ${theme.fg("muted", elapsedText(r.elapsedMs))}`,
+								0,
+								0,
+							),
 						);
 						container.addChild(new Text(theme.fg("muted", "Task: ") + theme.fg("dim", r.task), 0, 0));
 
@@ -1132,15 +1198,15 @@ export default function (pi: ExtensionAPI) {
 							container.addChild(new Markdown(finalOutput.trim(), 0, 0, mdTheme));
 						}
 
-						const taskUsage = formatUsageStats(r.usage, r.model);
+						const taskUsage = usageWithElapsed(r);
 						if (taskUsage) container.addChild(new Text(theme.fg("dim", taskUsage), 0, 0));
 					}
 
 					const usageStr = formatUsageStats(aggregateUsage(details.results));
-					if (usageStr) {
-						container.addChild(new Spacer(1));
-						container.addChild(new Text(theme.fg("dim", `Total: ${usageStr}`), 0, 0));
-					}
+					container.addChild(new Spacer(1));
+					container.addChild(
+						new Text(theme.fg("dim", `Total: ${parallelElapsed}${usageStr ? ` ${usageStr}` : ""}`), 0, 0),
+					);
 					return container;
 				}
 
@@ -1154,14 +1220,14 @@ export default function (pi: ExtensionAPI) {
 								? theme.fg("error", "✗")
 								: theme.fg("success", "✓");
 					const displayItems = getDisplayItems(r.messages);
-					text += `\n\n${theme.fg("muted", "─── ")}${theme.fg("accent", r.displayLabel)} ${rIcon}`;
+					text += `\n\n${theme.fg("muted", "─── ")}${theme.fg("accent", r.displayLabel)} ${rIcon} ${theme.fg("muted", elapsedText(r.elapsedMs))}`;
 					if (displayItems.length === 0)
 						text += `\n${theme.fg("muted", r.exitCode === -1 ? "(running...)" : "(no output)")}`;
 					else text += `\n${renderDisplayItems(displayItems, 5)}`;
 				}
 				if (!isRunning) {
 					const usageStr = formatUsageStats(aggregateUsage(details.results));
-					if (usageStr) text += `\n\n${theme.fg("dim", `Total: ${usageStr}`)}`;
+					text += `\n\n${theme.fg("dim", `Total: ${parallelElapsed}${usageStr ? ` ${usageStr}` : ""}`)}`;
 				}
 				if (!expanded) text += `\n${theme.fg("muted", "(Ctrl+O to expand)")}`;
 				return new Text(text, 0, 0);
