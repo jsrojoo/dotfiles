@@ -20,8 +20,11 @@ Use this skill for diff review, staging, commits, rebases, pushes, and merge-req
 
 - Keep each commit focused on one coherent change.
 - Split unrelated changes into separate commits or ask before grouping them.
-- Use conventional commit prefixes such as `chore`, `feat`, `fix`, or `refactor`.
-- Include concise subject and body separated by a blank line.
+- Use the exact commit-message grammar `type(scope)!: subject`, where `type` is one of `build`, `chore`, `ci`, `docs`, `feat`, `fix`, `perf`, `refactor`, `revert`, or `test`; `(scope)` and `!` are optional, and `subject` is required.
+- A body is optional and, when present, must follow the subject after a blank line. Merge and revert commit messages must follow the same grammar.
+- Before every commit, run `bash scripts/git-commit-msg` on the exact final commit message. This command and the commit hook enforce the shared validator contract. A nonzero exit is a hard stop: correct the message and revalidate it before committing.
+- Never use `--no-verify` or otherwise bypass hooks or commit-message validation.
+- Validate staged diff atomicity separately, and obtain explicit approval before the actual commit.
 - Write commit messages in clear prose even when another response style is active.
 - Use `git commit --amend` only for most recent local commit.
 - For older local commits, prefer `fixup!` commits followed by interactive autosquash before sharing.
