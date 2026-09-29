@@ -75,16 +75,17 @@ export async function mainlineSyncBeforeTool(
 ): Promise<{ block: true; reason: string } | undefined> {
 	if (toolName !== "read" && toolName !== "edit") return;
 
-	const gitDirectory = await dependencies.gitRun(cwd, ["rev-parse", "--git-dir"]);
-	if (gitDirectory.exitCode !== 0) {
-		return { block: true, reason: `Mainline synchronization failed: ${gitDirectory.stderr.trim() || "unable to locate the worktree Git directory"}` };
+	const gitDirectories = await dependencies.gitRun(cwd, ["rev-parse", "--git-dir", "--git-common-dir"]);
+	if (gitDirectories.exitCode !== 0) {
+		return { block: true, reason: `Mainline synchronization failed: ${gitDirectories.stderr.trim() || "unable to locate the Git directories"}` };
 	}
-	const resolvedGitDirectory = path.resolve(cwd, gitDirectory.stdout.trim());
-	const gitCommonDirectory = await dependencies.gitRun(cwd, ["rev-parse", "--git-common-dir"]);
-	if (gitCommonDirectory.exitCode !== 0) {
-		return { block: true, reason: `Mainline synchronization failed: ${gitCommonDirectory.stderr.trim() || "unable to locate the common Git directory"}` };
+	const gitDirectoryOutput = gitDirectories.stdout.trim().split(/\r?\n/);
+	if (gitDirectoryOutput.length !== 2 || gitDirectoryOutput.some((directory) => directory.length === 0)) {
+		return { block: true, reason: "Mainline synchronization failed: invalid Git directory output" };
 	}
-	const resolvedGitCommonDirectory = path.resolve(cwd, gitCommonDirectory.stdout.trim());
+	const [gitDirectory, gitCommonDirectory] = gitDirectoryOutput;
+	const resolvedGitDirectory = path.resolve(cwd, gitDirectory);
+	const resolvedGitCommonDirectory = path.resolve(cwd, gitCommonDirectory);
 	if (resolvedGitDirectory === resolvedGitCommonDirectory) return;
 
 	const operationMarkers = ["MERGE_HEAD", "CHERRY_PICK_HEAD", "REVERT_HEAD", "rebase-merge", "rebase-apply"];

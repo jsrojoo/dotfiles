@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { createHook } from "node:async_hooks";
 import { spawn, type ChildProcess } from "node:child_process";
 import { EventEmitter, once } from "node:events";
 import { setTimeout as delay } from "node:timers/promises";
@@ -26,6 +27,28 @@ async function rejectedRun(run: Promise<unknown>): Promise<ChildRunError> {
 
 test("exports the production termination grace default", () => {
 	assert.equal(SUBAGENT_TERMINATION_GRACE_MS, 5_000);
+});
+
+test("does not allocate a heartbeat interval when the callback is omitted", async () => {
+	const child = new EventEmitter() as ChildProcess;
+	Object.assign(child, { exitCode: null, signalCode: null });
+	let timerAllocations = 0;
+	const timerHook = createHook({
+		init: (_asyncId, type) => {
+			if (type === "Timeout") timerAllocations++;
+		},
+	});
+
+	timerHook.enable();
+	const run = runChild(child, {
+		heartbeatIntervalMs: 10,
+		timeoutMs: 60_000,
+	});
+	timerHook.disable();
+
+	assert.equal(timerAllocations, 1, "only the timeout timer should be allocated");
+	child.emit("close", 0, null);
+	await run;
 });
 
 test("resolves a normal close and removes listeners and timers", async () => {

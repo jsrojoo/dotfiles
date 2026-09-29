@@ -84,11 +84,11 @@ export function runChild(child: ChildProcess, options: RunChildOptions = {}): Pr
 			return stoppedAtMs;
 		};
 
-		let heartbeatTimer: NodeJS.Timeout;
+		let heartbeatTimer: NodeJS.Timeout | undefined;
 		let timeoutTimer: NodeJS.Timeout;
 
 		const cleanup = (): void => {
-			clearInterval(heartbeatTimer);
+			if (heartbeatTimer !== undefined) clearInterval(heartbeatTimer);
 			clearTimeout(timeoutTimer);
 			if (escalationTimer !== undefined) clearTimeout(escalationTimer);
 			child.removeListener("close", onClose);
@@ -111,7 +111,7 @@ export function runChild(child: ChildProcess, options: RunChildOptions = {}): Pr
 			const callbackError = error instanceof Error ? error : new Error(String(error));
 			stoppedAtMs ??= lastElapsedMs;
 			pendingError = new ChildRunError("callback", callbackError.message, stoppedAtMs, { cause: callbackError });
-			clearInterval(heartbeatTimer);
+			if (heartbeatTimer !== undefined) clearInterval(heartbeatTimer);
 			clearTimeout(timeoutTimer);
 			terminate();
 		};
@@ -167,7 +167,7 @@ export function runChild(child: ChildProcess, options: RunChildOptions = {}): Pr
 				pendingError = new ChildRunError("aborted", "Subagent was aborted by the caller", elapsedMs, {
 					cause: options.signal?.reason,
 				});
-				clearInterval(heartbeatTimer);
+				if (heartbeatTimer !== undefined) clearInterval(heartbeatTimer);
 				clearTimeout(timeoutTimer);
 				terminate();
 			} catch (error) {
@@ -175,14 +175,16 @@ export function runChild(child: ChildProcess, options: RunChildOptions = {}): Pr
 			}
 		}
 
-		heartbeatTimer = setInterval(() => {
-			if (pendingError !== undefined || options.onHeartbeat === undefined) return;
-			try {
-				options.onHeartbeat(elapsed());
-			} catch (error) {
-				setCallbackError(error);
-			}
-		}, heartbeatIntervalMs);
+		if (options.onHeartbeat !== undefined) {
+			heartbeatTimer = setInterval(() => {
+				if (pendingError !== undefined || options.onHeartbeat === undefined) return;
+				try {
+					options.onHeartbeat(elapsed());
+				} catch (error) {
+					setCallbackError(error);
+				}
+			}, heartbeatIntervalMs);
+		}
 		timeoutTimer = setTimeout(() => {
 			if (settled) return;
 			const elapsedMs = timeoutMs;
@@ -190,7 +192,7 @@ export function runChild(child: ChildProcess, options: RunChildOptions = {}): Pr
 			lastElapsedMs = elapsedMs;
 			const diagnostic = buildTimeoutDiagnostic(elapsedMs, timeoutMs);
 			pendingError = new ChildRunError("timeout", diagnostic, elapsedMs, { diagnostic });
-			clearInterval(heartbeatTimer);
+			if (heartbeatTimer !== undefined) clearInterval(heartbeatTimer);
 			try {
 				options.onTimeout?.(diagnostic, elapsedMs);
 			} catch {
