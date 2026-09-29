@@ -77,7 +77,15 @@ export async function mainlineSyncBeforeTool(
 	if (gitDirectory.exitCode !== 0) {
 		return { block: true, reason: `Mainline synchronization failed: ${gitDirectory.stderr.trim() || "unable to locate the worktree Git directory"}` };
 	}
-	const coordinationDirectory = path.resolve(cwd, gitDirectory.stdout.trim());
+	const resolvedGitDirectory = path.resolve(cwd, gitDirectory.stdout.trim());
+	const gitCommonDirectory = await dependencies.gitRun(cwd, ["rev-parse", "--git-common-dir"]);
+	if (gitCommonDirectory.exitCode !== 0) {
+		return { block: true, reason: `Mainline synchronization failed: ${gitCommonDirectory.stderr.trim() || "unable to locate the common Git directory"}` };
+	}
+	const resolvedGitCommonDirectory = path.resolve(cwd, gitCommonDirectory.stdout.trim());
+	if (resolvedGitDirectory === resolvedGitCommonDirectory) return;
+
+	const coordinationDirectory = resolvedGitDirectory;
 	const statePath = path.join(coordinationDirectory, "pi-mainline-sync-count");
 	const lockPath = path.join(coordinationDirectory, "pi-mainline-sync.lock");
 

@@ -58,6 +58,55 @@ function realCoordinationDependencies(
 	};
 }
 
+test("primary checkout skips synchronization before counters and pull", async () => {
+	await withTemporaryDirectory(async (directory) => {
+		const calls: string[][] = [];
+		const dependencies: MainlineSyncDependencies = {
+			gitRun: async (_cwd, args) => {
+				calls.push(args);
+				return commandResult({ stdout: args[1] === "--git-dir" ? ".git\n" : `${path.join(directory, ".git")}\n` });
+			},
+			lockRun: async () => { throw new Error("lock must not run"); },
+			stateRead: async () => { throw new Error("counter must not be read"); },
+			stateWrite: async () => { throw new Error("counter must not be written"); },
+		};
+
+		assert.equal(await mainlineSyncBeforeTool("read", directory, dependencies), undefined);
+		assert.deepEqual(calls, [
+			["rev-parse", "--git-dir"],
+			["rev-parse", "--git-common-dir"],
+		]);
+	});
+});
+
+test("linked worktree enables synchronization when Git and common directories differ", async () => {
+	await withTemporaryDirectory(async (directory) => {
+		const calls: string[][] = [];
+		let writtenCount: number | undefined;
+		const dependencies: MainlineSyncDependencies = {
+			gitRun: async (_cwd, args) => {
+				calls.push(args);
+				if (args[1] === "--git-dir") return commandResult({ stdout: ".git/worktrees/topic\n" });
+				if (args[1] === "--git-common-dir") return commandResult({ stdout: ".git\n" });
+				if (args.includes("@{u}")) return commandResult({ stdout: "origin/topic\n" });
+				return commandResult();
+			},
+			lockRun: async (_lockPath, action) => action(),
+			stateRead: async () => 0,
+			stateWrite: async (_statePath, count) => { writtenCount = count; },
+		};
+
+		assert.equal(await mainlineSyncBeforeTool("edit", directory, dependencies), undefined);
+		assert.equal(writtenCount, 1);
+		assert.deepEqual(calls, [
+			["rev-parse", "--git-dir"],
+			["rev-parse", "--git-common-dir"],
+			["rev-parse", "--abbrev-ref", "--symbolic-full-name", "@{u}"],
+			["pull", "--rebase", "--autostash"],
+		]);
+	});
+});
+
 test("read and edit share a counter, pull on calls 1, 21, and 41, and ignored tools do not increment", async () => {
 	await withTemporaryDirectory(async (directory) => {
 		const gitDirectory = path.join(directory, "git");
@@ -69,6 +118,7 @@ test("read and edit share a counter, pull on calls 1, 21, and 41, and ignored to
 			calls.push(args);
 			if (args[0] === "pull") pullCalls.push(currentCall);
 			if (args[0] === "rev-parse" && args[1] === "--git-dir") return commandResult({ stdout: `${gitDirectory}\n` });
+			if (args[0] === "rev-parse" && args[1] === "--git-common-dir") return commandResult({ stdout: `${path.join(directory, "common-git")}\n` });
 			if (args.includes("@{u}")) return commandResult({ stdout: "origin/topic\n" });
 			return commandResult();
 		});
@@ -99,6 +149,7 @@ test("requires the current branch upstream and exposes a missing-upstream failur
 		const dependencies = realCoordinationDependencies(async (_cwd, args) => {
 			calls.push(args);
 			if (args[1] === "--git-dir") return commandResult({ stdout: gitDirectory });
+			if (args[1] === "--git-common-dir") return commandResult({ stdout: path.join(directory, "common-git") });
 			return commandResult({ exitCode: 128, stderr: "fatal: no upstream configured" });
 		});
 
@@ -107,6 +158,7 @@ test("requires the current branch upstream and exposes a missing-upstream failur
 		assert.match(result?.reason ?? "", /fatal: no upstream configured/);
 		assert.deepEqual(calls, [
 			["rev-parse", "--git-dir"],
+			["rev-parse", "--git-common-dir"],
 			["rev-parse", "--abbrev-ref", "--symbolic-full-name", "@{u}"],
 		]);
 		assert.equal(await mainlineSyncStateRead(path.join(gitDirectory, "pi-mainline-sync-count")), 0);
@@ -119,6 +171,7 @@ test("a pull failure blocks the tool and does not record a successful call", asy
 		await fs.promises.mkdir(gitDirectory);
 		const dependencies = realCoordinationDependencies(async (_cwd, args) => {
 			if (args[1] === "--git-dir") return commandResult({ stdout: gitDirectory });
+			if (args[1] === "--git-common-dir") return commandResult({ stdout: path.join(directory, "common-git") });
 			if (args[0] === "pull") return commandResult({ exitCode: 1, stderr: "rebase conflict" });
 			return commandResult({ stdout: "origin/topic" });
 		});
@@ -139,6 +192,7 @@ test("concurrent due calls in one worktree serialize and pull only once", async 
 		let pullCount = 0;
 		const dependencies = realCoordinationDependencies(async (_cwd, args) => {
 			if (args[1] === "--git-dir") return commandResult({ stdout: gitDirectory });
+			if (args[1] === "--git-common-dir") return commandResult({ stdout: path.join(directory, "common-git") });
 			if (args[0] === "pull") {
 				pullCount++;
 				activePulls++;
@@ -171,6 +225,7 @@ test("distinct worktrees use distinct identities and can pull independently", as
 		let maximumActivePulls = 0;
 		const dependencies = realCoordinationDependencies(async (cwd, args) => {
 			if (args[1] === "--git-dir") return commandResult({ stdout: gitDirectories.get(cwd) });
+			if (args[1] === "--git-common-dir") return commandResult({ stdout: path.join(directory, "common-git") });
 			if (args[0] === "pull") {
 				activePulls++;
 				maximumActivePulls = Math.max(maximumActivePulls, activePulls);
