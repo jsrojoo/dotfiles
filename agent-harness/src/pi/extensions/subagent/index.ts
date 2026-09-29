@@ -31,6 +31,7 @@ import { Container, Markdown, Spacer, Text } from "@earendil-works/pi-tui";
 import { Type } from "typebox";
 import { type AgentConfig, type AgentScope, discoverAgents } from "./agents.ts";
 import { subagentDisplayLabelBuild } from "./display-label.ts";
+import { ChildRunError, runChild } from "./run-child.ts";
 import { subagentModelCandidatesBuild, subagentModelFallbackRun } from "./model-selector.ts";
 
 const MAX_PARALLEL_TASKS = 8;
@@ -93,6 +94,14 @@ function childSkillArgs(selected: string[] | undefined, cwd: string): string[] {
 		args.push("--skill", candidates.find((candidate) => fs.existsSync(candidate)) ?? candidates[0]);
 	}
 	return args;
+}
+
+function formatResponseDuration(milliseconds: number): string {
+	if (!Number.isFinite(milliseconds) || milliseconds < 0) {
+		throw new RangeError("Duration must be finite non-negative milliseconds");
+	}
+	if (milliseconds > 0 && milliseconds < 100) return "<0.1s";
+	return `${(milliseconds / 1000).toFixed(1)}s`;
 }
 
 function formatTokens(count: number): string {
@@ -215,6 +224,7 @@ interface SingleResult {
 	messages: Message[];
 	stderr: string;
 	usage: UsageStats;
+	elapsedMs: number;
 	model?: string;
 	stopReason?: string;
 	errorMessage?: string;
@@ -226,6 +236,7 @@ interface SubagentDetails {
 	agentScope: AgentScope;
 	projectAgentsDir: string | null;
 	results: SingleResult[];
+	parallelElapsedMs?: number;
 }
 
 function getFinalOutput(messages: Message[]): string {
@@ -244,9 +255,22 @@ function isFailedResult(result: SingleResult): boolean {
 	return result.exitCode !== 0 || result.stopReason === "error" || result.stopReason === "aborted";
 }
 
+function getPartialOutput(messages: Message[]): string {
+	const output: string[] = [];
+	for (const msg of messages) {
+		if (msg.role !== "assistant" && msg.role !== "toolResult") continue;
+		for (const part of msg.content) {
+			if (part.type === "text" && part.text) output.push(part.text);
+		}
+	}
+	return output.join("\n\n");
+}
+
 function getResultOutput(result: SingleResult): string {
 	if (isFailedResult(result)) {
-		return result.errorMessage || result.stderr || getFinalOutput(result.messages) || "(no output)";
+		const partialOutput = getPartialOutput(result.messages);
+		const diagnostic = result.errorMessage || result.stderr;
+		return [diagnostic, partialOutput].filter(Boolean).join("\n\n") || "(no output)";
 	}
 	return getFinalOutput(result.messages) || "(no output)";
 }
@@ -370,11 +394,15 @@ async function runSingleAgentAttempt(
 		messages: [],
 		stderr: "",
 		usage: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0, cost: 0, contextTokens: 0, turns: 0 },
+		elapsedMs: 0,
 		model,
 		step,
 	};
 
-	const emitUpdate = () => {
+	let startedAt: number | undefined;
+	const emitUpdate = (elapsedMs?: number) => {
+		if (elapsedMs !== undefined) currentResult.elapsedMs = elapsedMs;
+		else if (startedAt !== undefined) currentResult.elapsedMs = performance.now() - startedAt;
 		if (onUpdate) {
 			onUpdate({
 				content: [{ type: "text", text: getFinalOutput(currentResult.messages) || "(running...)" }],
@@ -392,91 +420,103 @@ async function runSingleAgentAttempt(
 		}
 
 		args.push(`Task: ${task}`);
-		let wasAborted = false;
+		const invocation = getPiInvocation(args);
+		const proc = spawn(invocation.command, invocation.args, {
+			cwd: childCwd,
+			shell: false,
+			stdio: ["ignore", "pipe", "pipe"],
+			env: process.env,
+		});
+		startedAt = performance.now();
+		let buffer = "";
 
-		const exitCode = await new Promise<number>((resolve) => {
-			const invocation = getPiInvocation(args);
-			const proc = spawn(invocation.command, invocation.args, {
-				cwd: childCwd,
-				shell: false,
-				stdio: ["ignore", "pipe", "pipe"],
-				env: process.env,
-			});
-			let buffer = "";
-
-			const processLine = (line: string) => {
-				if (!line.trim()) return;
-				let event: any;
-				try {
-					event = JSON.parse(line);
-				} catch {
-					return;
-				}
-
-				if (event.type === "message_end" && event.message) {
-					const msg = event.message as Message;
-					currentResult.messages.push(msg);
-
-					if (msg.role === "assistant") {
-						currentResult.usage.turns++;
-						const usage = msg.usage;
-						if (usage) {
-							currentResult.usage.input += usage.input || 0;
-							currentResult.usage.output += usage.output || 0;
-							currentResult.usage.cacheRead += usage.cacheRead || 0;
-							currentResult.usage.cacheWrite += usage.cacheWrite || 0;
-							currentResult.usage.cost += usage.cost?.total || 0;
-							currentResult.usage.contextTokens = usage.totalTokens || 0;
-						}
-						if (!currentResult.model && msg.model) currentResult.model = msg.model;
-						if (msg.stopReason) currentResult.stopReason = msg.stopReason;
-						if (msg.errorMessage) currentResult.errorMessage = msg.errorMessage;
-					}
-					emitUpdate();
-				}
-
-				if (event.type === "tool_result_end" && event.message) {
-					currentResult.messages.push(event.message as Message);
-					emitUpdate();
-				}
-			};
-
-			proc.stdout.on("data", (data) => {
-				buffer += data.toString();
-				const lines = buffer.split("\n");
-				buffer = lines.pop() || "";
-				for (const line of lines) processLine(line);
-			});
-
-			proc.stderr.on("data", (data) => {
-				currentResult.stderr += data.toString();
-			});
-
-			proc.on("close", (code) => {
-				if (buffer.trim()) processLine(buffer);
-				resolve(code ?? 0);
-			});
-
-			proc.on("error", () => {
-				resolve(1);
-			});
-
-			if (signal) {
-				const killProc = () => {
-					wasAborted = true;
-					proc.kill("SIGTERM");
-					setTimeout(() => {
-						if (!proc.killed) proc.kill("SIGKILL");
-					}, 5000);
-				};
-				if (signal.aborted) killProc();
-				else signal.addEventListener("abort", killProc, { once: true });
+		const processLine = (line: string) => {
+			if (!line.trim()) return;
+			let event: any;
+			try {
+				event = JSON.parse(line);
+			} catch {
+				return;
 			}
+
+			if (event.type === "message_end" && event.message) {
+				const msg = event.message as Message;
+				currentResult.messages.push(msg);
+
+				if (msg.role === "assistant") {
+					currentResult.usage.turns++;
+					const usage = msg.usage;
+					if (usage) {
+						currentResult.usage.input += usage.input || 0;
+						currentResult.usage.output += usage.output || 0;
+						currentResult.usage.cacheRead += usage.cacheRead || 0;
+						currentResult.usage.cacheWrite += usage.cacheWrite || 0;
+						currentResult.usage.cost += usage.cost?.total || 0;
+						currentResult.usage.contextTokens = usage.totalTokens || 0;
+					}
+					if (!currentResult.model && msg.model) currentResult.model = msg.model;
+					if (msg.stopReason) currentResult.stopReason = msg.stopReason;
+					if (msg.errorMessage) currentResult.errorMessage = msg.errorMessage;
+				}
+				emitUpdate();
+			}
+
+			if (event.type === "tool_result_end" && event.message) {
+				currentResult.messages.push(event.message as Message);
+				emitUpdate();
+			}
+		};
+
+		proc.stdout.on("data", (data) => {
+			buffer += data.toString();
+			const lines = buffer.split("\n");
+			buffer = lines.pop() || "";
+			for (const line of lines) processLine(line);
 		});
 
-		currentResult.exitCode = exitCode;
-		if (wasAborted) throw new Error("Subagent was aborted");
-		return currentResult;
+		proc.stderr.on("data", (data) => {
+			currentResult.stderr += data.toString();
+		});
+
+		proc.once("close", () => {
+			if (buffer.trim()) processLine(buffer);
+		});
+
+		try {
+			const outcome = await runChild(proc, {
+				signal,
+				onHeartbeat: emitUpdate,
+				onTimeout: (diagnostic, elapsedMs) => {
+					currentResult.exitCode = 1;
+					currentResult.stopReason = "timeout";
+					currentResult.errorMessage = diagnostic;
+					emitUpdate(elapsedMs);
+				},
+			});
+			currentResult.exitCode = outcome.exitCode ?? 0;
+			currentResult.elapsedMs = outcome.elapsedMs;
+			return currentResult;
+		} catch (error) {
+			if (!(error instanceof ChildRunError)) throw error;
+			currentResult.elapsedMs = error.elapsedMs;
+			if (error.kind === "aborted") {
+				const abortError = new Error("Subagent was aborted") as Error & { elapsedMs: number };
+				abortError.elapsedMs = currentResult.elapsedMs;
+				throw abortError;
+			}
+			currentResult.exitCode = 1;
+			if (error.kind === "timeout") {
+				currentResult.stopReason = "timeout";
+				currentResult.errorMessage = error.diagnostic ?? error.message;
+			} else if (error.kind === "callback") {
+				currentResult.stopReason = "error";
+				currentResult.errorMessage = error.message;
+			} else if (error.kind === "process") {
+				currentResult.stopReason = "error";
+				currentResult.errorMessage = error.diagnostic ?? error.message;
+			}
+			return currentResult;
+		}
 	} finally {
 		if (tmpPromptPath)
 			try {
@@ -518,6 +558,7 @@ async function runSingleAgent(
 			messages: [],
 			stderr: `Unknown agent: "${agentName}". Available agents: ${available}.`,
 			usage: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0, cost: 0, contextTokens: 0, turns: 0 },
+			elapsedMs: 0,
 			step,
 		};
 	}
@@ -535,6 +576,7 @@ async function runSingleAgent(
 			messages: [],
 			stderr: String(error),
 			usage: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0, cost: 0, contextTokens: 0, turns: 0 },
+			elapsedMs: 0,
 			step,
 		};
 	}
@@ -555,7 +597,7 @@ async function runSingleAgent(
 				onUpdate,
 				makeDetails,
 			),
-		isFailedResult,
+		(result) => result.stopReason !== "timeout" && isFailedResult(result),
 	);
 }
 
@@ -759,9 +801,16 @@ export default function (pi: ExtensionAPI) {
 						messages: [],
 						stderr: "",
 						usage: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0, cost: 0, contextTokens: 0, turns: 0 },
+						elapsedMs: 0,
 					};
 				}
 
+				const parallelStartedAt = performance.now();
+				let parallelCompletedAt: number | undefined;
+				const makeParallelDetails = (results: SingleResult[]): SubagentDetails => ({
+					...makeDetails("parallel")(results),
+					parallelElapsedMs: (parallelCompletedAt ?? performance.now()) - parallelStartedAt,
+				});
 				const emitParallelUpdate = () => {
 					if (onUpdate) {
 						const running = allResults.filter((r) => r.exitCode === -1).length;
@@ -770,7 +819,7 @@ export default function (pi: ExtensionAPI) {
 							content: [
 								{ type: "text", text: `Parallel: ${done}/${allResults.length} done, ${running} running...` },
 							],
-							details: makeDetails("parallel")([...allResults]),
+							details: makeParallelDetails([...allResults]),
 						});
 					}
 				};
@@ -799,8 +848,10 @@ export default function (pi: ExtensionAPI) {
 					emitParallelUpdate();
 					return result;
 				});
+				parallelCompletedAt = performance.now();
 
 				const successCount = results.filter((r) => !isFailedResult(r)).length;
+				const hasFailures = results.some(isFailedResult);
 				const summaries = results.map((r) => {
 					const output = truncateParallelOutput(getResultOutput(r));
 					const status = isFailedResult(r)
@@ -815,7 +866,8 @@ export default function (pi: ExtensionAPI) {
 							text: `Parallel: ${successCount}/${results.length} succeeded\n\n${summaries.join("\n\n---\n\n")}`,
 						},
 					],
-					details: makeDetails("parallel")(results),
+					details: makeParallelDetails(results),
+					isError: hasFailures,
 				};
 			}
 
@@ -925,6 +977,14 @@ export default function (pi: ExtensionAPI) {
 				return text.trimEnd();
 			};
 
+			const elapsedText = (elapsedMs: number) => formatResponseDuration(elapsedMs);
+			const usageWithElapsed = (r: SingleResult) =>
+				[elapsedText(r.elapsedMs), formatUsageStats(r.usage, r.model)].filter(Boolean).join(" ");
+			const aggregateElapsed = (results: SingleResult[], mode: "chain" | "parallel") =>
+				mode === "chain"
+					? results.reduce((total, r) => total + r.elapsedMs, 0)
+					: (details.parallelElapsedMs ?? 0);
+
 			if (details.mode === "single" && details.results.length === 1) {
 				const r = details.results[0];
 				const isError = isFailedResult(r);
@@ -934,7 +994,7 @@ export default function (pi: ExtensionAPI) {
 
 				if (expanded) {
 					const container = new Container();
-					let header = `${icon} ${theme.fg("toolTitle", theme.bold(r.displayLabel))}${theme.fg("muted", ` (${r.agentSource})`)}`;
+					let header = `${icon} ${theme.fg("toolTitle", theme.bold(r.displayLabel))}${theme.fg("muted", ` (${r.agentSource}, ${elapsedText(r.elapsedMs)})`)}`;
 					if (isError && r.stopReason) header += ` ${theme.fg("error", `[${r.stopReason}]`)}`;
 					container.addChild(new Text(header, 0, 0));
 					if (isError && r.errorMessage)
@@ -962,7 +1022,7 @@ export default function (pi: ExtensionAPI) {
 							container.addChild(new Markdown(finalOutput.trim(), 0, 0, mdTheme));
 						}
 					}
-					const usageStr = formatUsageStats(r.usage, r.model);
+					const usageStr = usageWithElapsed(r);
 					if (usageStr) {
 						container.addChild(new Spacer(1));
 						container.addChild(new Text(theme.fg("dim", usageStr), 0, 0));
@@ -970,7 +1030,7 @@ export default function (pi: ExtensionAPI) {
 					return container;
 				}
 
-				let text = `${icon} ${theme.fg("toolTitle", theme.bold(r.displayLabel))}${theme.fg("muted", ` (${r.agentSource})`)}`;
+				let text = `${icon} ${theme.fg("toolTitle", theme.bold(r.displayLabel))}${theme.fg("muted", ` (${r.agentSource}, ${elapsedText(r.elapsedMs)})`)}`;
 				if (isError && r.stopReason) text += ` ${theme.fg("error", `[${r.stopReason}]`)}`;
 				if (isError && r.errorMessage) text += `\n${theme.fg("error", `Error: ${r.errorMessage}`)}`;
 				else if (displayItems.length === 0) text += `\n${theme.fg("muted", "(no output)")}`;
@@ -978,7 +1038,7 @@ export default function (pi: ExtensionAPI) {
 					text += `\n${renderDisplayItems(displayItems, COLLAPSED_ITEM_COUNT)}`;
 					if (displayItems.length > COLLAPSED_ITEM_COUNT) text += `\n${theme.fg("muted", "(Ctrl+O to expand)")}`;
 				}
-				const usageStr = formatUsageStats(r.usage, r.model);
+				const usageStr = usageWithElapsed(r);
 				if (usageStr) text += `\n${theme.fg("dim", usageStr)}`;
 				return new Text(text, 0, 0);
 			}
@@ -1007,7 +1067,7 @@ export default function (pi: ExtensionAPI) {
 							icon +
 								" " +
 								theme.fg("toolTitle", theme.bold("chain ")) +
-								theme.fg("accent", `${successCount}/${details.results.length} steps`),
+								theme.fg("accent", `${successCount}/${details.results.length} steps in ${elapsedText(aggregateElapsed(details.results, "chain"))}`),
 							0,
 							0,
 						),
@@ -1021,7 +1081,7 @@ export default function (pi: ExtensionAPI) {
 						container.addChild(new Spacer(1));
 						container.addChild(
 							new Text(
-								`${theme.fg("muted", `─── Step ${r.step}: `) + theme.fg("accent", r.displayLabel)} ${rIcon}`,
+								`${theme.fg("muted", `─── Step ${r.step}: `) + theme.fg("accent", r.displayLabel)} ${rIcon} ${theme.fg("muted", elapsedText(r.elapsedMs))}`,
 								0,
 								0,
 							),
@@ -1047,15 +1107,22 @@ export default function (pi: ExtensionAPI) {
 							container.addChild(new Markdown(finalOutput.trim(), 0, 0, mdTheme));
 						}
 
-						const stepUsage = formatUsageStats(r.usage, r.model);
+						const stepUsage = usageWithElapsed(r);
 						if (stepUsage) container.addChild(new Text(theme.fg("dim", stepUsage), 0, 0));
 					}
 
 					const usageStr = formatUsageStats(aggregateUsage(details.results));
-					if (usageStr) {
-						container.addChild(new Spacer(1));
-						container.addChild(new Text(theme.fg("dim", `Total: ${usageStr}`), 0, 0));
-					}
+					container.addChild(new Spacer(1));
+					container.addChild(
+						new Text(
+							theme.fg(
+								"dim",
+								`Total: ${elapsedText(aggregateElapsed(details.results, "chain"))}${usageStr ? ` ${usageStr}` : ""}`,
+							),
+							0,
+							0,
+						),
+					);
 					return container;
 				}
 
@@ -1064,16 +1131,16 @@ export default function (pi: ExtensionAPI) {
 					icon +
 					" " +
 					theme.fg("toolTitle", theme.bold("chain ")) +
-					theme.fg("accent", `${successCount}/${details.results.length} steps`);
+					theme.fg("accent", `${successCount}/${details.results.length} steps in ${elapsedText(aggregateElapsed(details.results, "chain"))}`);
 				for (const r of details.results) {
 					const rIcon = r.exitCode === 0 ? theme.fg("success", "✓") : theme.fg("error", "✗");
 					const displayItems = getDisplayItems(r.messages);
-					text += `\n\n${theme.fg("muted", `─── Step ${r.step}: `)}${theme.fg("accent", r.displayLabel)} ${rIcon}`;
+					text += `\n\n${theme.fg("muted", `─── Step ${r.step}: `)}${theme.fg("accent", r.displayLabel)} ${rIcon} ${theme.fg("muted", elapsedText(r.elapsedMs))}`;
 					if (displayItems.length === 0) text += `\n${theme.fg("muted", "(no output)")}`;
 					else text += `\n${renderDisplayItems(displayItems, 5)}`;
 				}
 				const usageStr = formatUsageStats(aggregateUsage(details.results));
-				if (usageStr) text += `\n\n${theme.fg("dim", `Total: ${usageStr}`)}`;
+				text += `\n\n${theme.fg("dim", `Total: ${elapsedText(aggregateElapsed(details.results, "chain"))}${usageStr ? ` ${usageStr}` : ""}`)}`;
 				text += `\n${theme.fg("muted", "(Ctrl+O to expand)")}`;
 				return new Text(text, 0, 0);
 			}
@@ -1088,9 +1155,10 @@ export default function (pi: ExtensionAPI) {
 					: failCount > 0
 						? theme.fg("warning", "◐")
 						: theme.fg("success", "✓");
+				const parallelElapsed = elapsedText(aggregateElapsed(details.results, "parallel"));
 				const status = isRunning
-					? `${successCount + failCount}/${details.results.length} done, ${running} running`
-					: `${successCount}/${details.results.length} tasks`;
+					? `${successCount + failCount}/${details.results.length} done, ${running} running, ${parallelElapsed}`
+					: `${successCount}/${details.results.length} tasks in ${parallelElapsed}`;
 
 				if (expanded && !isRunning) {
 					const container = new Container();
@@ -1109,7 +1177,11 @@ export default function (pi: ExtensionAPI) {
 
 						container.addChild(new Spacer(1));
 						container.addChild(
-							new Text(`${theme.fg("muted", "─── ") + theme.fg("accent", r.displayLabel)} ${rIcon}`, 0, 0),
+							new Text(
+								`${theme.fg("muted", "─── ") + theme.fg("accent", r.displayLabel)} ${rIcon} ${theme.fg("muted", elapsedText(r.elapsedMs))}`,
+								0,
+								0,
+							),
 						);
 						container.addChild(new Text(theme.fg("muted", "Task: ") + theme.fg("dim", r.task), 0, 0));
 
@@ -1132,15 +1204,15 @@ export default function (pi: ExtensionAPI) {
 							container.addChild(new Markdown(finalOutput.trim(), 0, 0, mdTheme));
 						}
 
-						const taskUsage = formatUsageStats(r.usage, r.model);
+						const taskUsage = usageWithElapsed(r);
 						if (taskUsage) container.addChild(new Text(theme.fg("dim", taskUsage), 0, 0));
 					}
 
 					const usageStr = formatUsageStats(aggregateUsage(details.results));
-					if (usageStr) {
-						container.addChild(new Spacer(1));
-						container.addChild(new Text(theme.fg("dim", `Total: ${usageStr}`), 0, 0));
-					}
+					container.addChild(new Spacer(1));
+					container.addChild(
+						new Text(theme.fg("dim", `Total: ${parallelElapsed}${usageStr ? ` ${usageStr}` : ""}`), 0, 0),
+					);
 					return container;
 				}
 
@@ -1154,14 +1226,14 @@ export default function (pi: ExtensionAPI) {
 								? theme.fg("error", "✗")
 								: theme.fg("success", "✓");
 					const displayItems = getDisplayItems(r.messages);
-					text += `\n\n${theme.fg("muted", "─── ")}${theme.fg("accent", r.displayLabel)} ${rIcon}`;
+					text += `\n\n${theme.fg("muted", "─── ")}${theme.fg("accent", r.displayLabel)} ${rIcon} ${theme.fg("muted", elapsedText(r.elapsedMs))}`;
 					if (displayItems.length === 0)
 						text += `\n${theme.fg("muted", r.exitCode === -1 ? "(running...)" : "(no output)")}`;
 					else text += `\n${renderDisplayItems(displayItems, 5)}`;
 				}
 				if (!isRunning) {
 					const usageStr = formatUsageStats(aggregateUsage(details.results));
-					if (usageStr) text += `\n\n${theme.fg("dim", `Total: ${usageStr}`)}`;
+					text += `\n\n${theme.fg("dim", `Total: ${parallelElapsed}${usageStr ? ` ${usageStr}` : ""}`)}`;
 				}
 				if (!expanded) text += `\n${theme.fg("muted", "(Ctrl+O to expand)")}`;
 				return new Text(text, 0, 0);

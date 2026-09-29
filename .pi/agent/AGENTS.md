@@ -3,6 +3,8 @@
 - Use `triggerOnCompletion: true` only for tasks that block the next step or whose output must be acted on immediately.
 - Use `triggerOnCompletion: false` for regression checks, secondary validations, and parallel verification runs.
 - When `triggerOnCompletion: false`, retrieve results with `bg_logs` only when explicitly asked or when the output is needed for a follow-up step.
+- Subagent execution emits a heartbeat every 60 seconds. At the exact 5-minute deadline, it freezes elapsed time at 5 minutes, sends SIGKILL to an open child, and settles the timeout immediately without waiting for child `close`, inherited stdio, or descendants. Caller abort remains distinct: send SIGTERM, then escalate to SIGKILL after 5 seconds. After a timeout, inspect partial output and logs, then re-scope the task into smaller actionable work.
+- Editor-worker scope should include matching production and focused test files, and should permit focused test execution for TDD.
 
 ## Planning
 
