@@ -126,6 +126,35 @@ class GitSkillTest(unittest.TestCase):
         self.assertIn('--assignee "$username"', content)
         self.assertIn('--reviewer "$username"', content)
 
+    def test_links_complete_worktree_guidance(self) -> None:
+        reference_path = SKILL_DIRECTORY / "references" / "worktrees.md"
+        self.assertTrue(reference_path.is_file())
+
+        skill_content = SKILL_PATH.read_text(encoding="utf-8")
+        link_match = re.search(r"\[Worktree guidance\]\(([^)]+)\)", skill_content)
+        self.assertIsNotNone(link_match)
+        if link_match is None:
+            self.fail("Git SKILL.md must link to its worktree guidance")
+        linked_path = (SKILL_PATH.parent / link_match.group(1)).resolve()
+        self.assertEqual(reference_path.resolve(), linked_path)
+
+        guidance = reference_path.read_text(encoding="utf-8")
+        self.assertIn("<project-root>/.agents/tasks/<task>/worktree/", guidance)
+        self.assertIn(".agents/tasks/<task>/plan.md", guidance)
+        self.assertIn(".agents/tasks/<task>/tasks.md", guidance)
+        self.assertIn("plan-mode-tasks", guidance)
+        self.assertIn("cleanup-worktrees.sh --base", guidance)
+        self.assertIn("--remove", guidance)
+        self.assertRegex(
+            guidance,
+            r"(?is)\bskip\w*\b[^.]*\bprimary\b[^.]*\b(?:current|invoking)\b[^.]*\bworktrees?\b",
+        )
+        self.assertRegex(guidance, r"(?is)\bpreview\b[^.]*\b(?:first|before|review)\b")
+        self.assertRegex(
+            guidance,
+            r"(?is)\b(?:explicit\s+)?approval\b[^.]*\b(?:remove|removal|rerun|write)\w*\b",
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

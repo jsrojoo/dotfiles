@@ -10,6 +10,15 @@
 
 - Use `enter_plan_mode` for non-trivial implementation work or when the user asks for a plan.
 
+## Task Worktrees
+
+- Use `<project-root>/.agents/tasks/<task>/worktree/` for every non-trivial implementation and every code or configuration change; never use the primary checkout or an unrelated task worktree.
+- Keep `.agents/tasks/<task>/plan.md` and `.agents/tasks/<task>/tasks.md` beside `worktree/`, never inside it.
+- Before creating a worktree, verify source status, record the explicit branch and start point, confirm the path is unused, and obtain approval.
+- Before handoff, verify worktree status and confirm the scoped diff contains only requested changes.
+- Do not move, merge or integrate, remove, or otherwise alter worktrees or related Git state without explicit approval.
+- Follow `agent-harness/src/skills/git/references/worktrees.md`.
+
 ## Context Delegation
 
 - Delegate all repository read and investigation work through one main `context` coordinator invocation; do not use direct `read` calls in the main session.

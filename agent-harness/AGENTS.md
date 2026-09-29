@@ -39,6 +39,10 @@ Harness-specific files should contain only rules tied to that harness, such as t
 
 Use the `plan` skill for non-trivial work or when the user asks for a plan. Implement routine, low-risk changes directly.
 
+Perform non-trivial tasks and all code changes in a dedicated Git worktree, never in the primary worktree.
+
+See [Git worktree guidance](src/skills/git/references/worktrees.md) for setup, safety checks, cleanup, and troubleshooting.
+
 ## 3. Filesystem and command safety
 
 - Prefer read-only inspection before mutation.

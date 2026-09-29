@@ -690,12 +690,14 @@ test("editor coordinator and worker select scoped coding resources", () => {
 	assert.match(editor, /Never assign overlapping paths or writes to multiple workers/);
 	assert.match(editor, /parent remains responsible for integration review, final verification/);
 
-	assert.match(worker, /^tools: read, bash, edit$/m);
+	assert.match(worker, /^tools: read, bash, edit, implementation_done$/m);
 	assert.match(worker, /^skills: coding$/m);
 	assert.match(worker, /^extensions: coding-tdd, rtk$/m);
 	assert.match(worker, /Edit only the paths explicitly assigned to you/);
+	assert.match(worker, /After assigned-scope verification passes, call `implementation_done`/);
+	assert.match(worker, /parent editor owns global integration review and verification, and must call `implementation_done` again after they pass/);
 	assert.match(worker, /Do not invoke subagents or delegate work/);
-	assert.match(worker, /parent editor owns integration review, final verification, and `implementation_done`/);
+	assert.doesNotMatch(worker, /^tools: .*\bsubagent\b/m);
 });
 
 test("Pi adapter applies a one-request TDD kill switch", async () => {
