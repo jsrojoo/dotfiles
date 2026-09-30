@@ -1,9 +1,0 @@
-{
-  "tui.editor.cursorLeft": ["left"],
-  "tui.altScreen.halfPageDown": ["ctrl+d"],
-  "tui.altScreen.halfPageUp": ["ctrl+u"],
-  "app.session.tree": ["ctrl+t"],
-  "app.thinking.toggle": [],
-  "app.clear": [],
-  "tui.input.copy": []
-}
