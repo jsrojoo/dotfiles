@@ -8,7 +8,7 @@
 
 ## Planning
 
-- Use `enter_plan_mode` for non-trivial implementation work or when the user asks for a plan.
+- For planning guidance, refer to `~/.pi/agent/references/planning-guidance.md`.
 
 ## Task Worktrees
 
@@ -19,28 +19,17 @@
 - Do not move, merge or integrate, remove, or otherwise alter worktrees or related Git state without explicit approval.
 - Follow `agent-harness/src/skills/git/references/worktrees.md`.
 
-## Context Delegation
+## Context
 
-- Delegate all repository read and investigation work through one main `context` coordinator invocation; do not use direct `read` calls in the main session.
-- The `context` coordinator may fan out internally to 2-4 read-only `context-retriever` leaves; the main session must not invoke leaf agents directly.
-- Return only relevant context needed for the task. Omit read-call details, exploratory output, and internal investigation mechanics.
-- Give every context invocation a concise `purpose` describing its intent; Pi renders it as `context: <purpose>`.
-- Context agents must remain read-only. External services, including databases, require verified read-only connections and read-only queries; otherwise do not access them.
-- Keep main-session reads limited to tool output already returned by `context`; use direct tools only for edits, execution, and required verification.
+- For context guidance, refer to `~/.pi/agent/references/context-guidance.md`.
 
-## Git Delegation
+## Git
 
-- In the main/orchestrating session, delegate every Git command and operation, read-only or write, to the `git` subagent immediately.
-- An already-running `git` subagent must execute Git commands directly without nested delegation.
-- Git work is an exception to Context Delegation and Code Editing rules; do not run Git commands in the main session.
-- Use main-session Git only when the `git` subagent is unavailable or fails to invoke, and disclose the fallback.
+- For Git guidance, refer to `~/.pi/agent/references/git-guidance.md`.
 
 ## Code Editing
 
-- Delegate code and configuration changes to the `editor` subagent.
-- The `editor` subagent follows the shared `coding` skill and must return changed paths and verification results to the main session.
-- Keep integration review and final verification in the main session.
-- After implementation and fresh verification, always call `implementation_done` before final response. Do not call it before verification passes.
+- For code-editing guidance, refer to `~/.pi/agent/references/code-editing-guidance.md`.
 
 ## Completion Responses
 
