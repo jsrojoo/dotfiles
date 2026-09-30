@@ -18,7 +18,8 @@
   ],
   "hideThinkingBlock": false,
   "extensions": [
-    "~/dotfiles/agent-harness/src/pi/extensions/notify.ts"
+    "~/dotfiles/agent-harness/src/pi/extensions/notify.ts",
+    "~/dotfiles/.pi/agent/extensions/atlas.ts"
   ],
   "skills": [
   ],

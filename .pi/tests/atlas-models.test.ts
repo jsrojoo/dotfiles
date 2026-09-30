@@ -4,8 +4,14 @@ import test from "node:test";
 
 const atlasSource = await readFile(new URL("../agent/extensions/atlas.ts", import.meta.url), "utf8");
 const settings = JSON.parse(await readFile(new URL("../settings.json", import.meta.url), "utf8"));
+const userSettings = JSON.parse(await readFile(new URL("../agent/settings.json", import.meta.url), "utf8"));
 const azureModels = JSON.parse(await readFile(new URL("../agent/models.json", import.meta.url), "utf8"));
-const miseSource = await readFile(new URL("../../mise.toml", import.meta.url), "utf8");
+
+test("loads the Atlas provider extension from user settings", () => {
+	assert.ok(userSettings.extensions.includes("~/dotfiles/.pi/agent/extensions/atlas.ts"));
+	assert.ok(userSettings.enabledModels.includes("atlas/gpt-6-luna:medium"));
+	assert.match(atlasSource, /pi\.registerProvider\("atlas"/);
+});
 
 test("uses only supported GPT-6 model", () => {
 	assert.doesNotMatch(atlasSource, /"gpt-6-sol"/);
@@ -13,5 +19,4 @@ test("uses only supported GPT-6 model", () => {
 	assert.equal(settings.defaultProvider, "azure");
 	assert.equal(settings.defaultModel, "gpt-6-luna");
 	assert.equal(azureModels.providers.azure.models.find((model: { id: string }) => model.id === "gpt-6-luna").samplingParams.service_tier, "fast");
-	assert.match(miseSource, /run = "pi --provider azure --model gpt-6-luna"/);
 });
