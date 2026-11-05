@@ -1,0 +1,7 @@
+{
+  "enabled": false,
+  "model": {
+    "provider": "azure",
+    "id": "gpt-6-luna"
+  }
+}

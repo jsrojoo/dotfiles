@@ -14,6 +14,10 @@ Apply instructions in this order, from highest to lowest priority:
 
 When instructions conflict, follow the higher-priority instruction and call out any material conflict.
 
+## Word shortcuts (linggos)
+
+- `g`: You have my approval; go ahead with the action under discussion.
+
 ## Agent harness-specific instructions
 
 - Pi-specific rules live in `~/.pi/agent/AGENTS.md`.
