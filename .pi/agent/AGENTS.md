@@ -25,7 +25,7 @@
 
 ## Subagents
 
-- Use pi subagents when independent work can safely proceed in parallel and materially reduce delivery time; keep tasks bounded and non-overlapping, then integrate and verify the results. Skip delegation when coordination costs more than doing the work directly.
+- Delegate all context retrieval and investigation (repository exploration, file/document/log lookup, and fact-finding) to pi subagents. Give them bounded, non-overlapping tasks and request only concise, actionable findings with paths/evidence, not raw output. Keep the parent focused on decisions and edits; integrate results and do only the direct verification needed to proceed safely.
 
 ## Completion Responses
 
