@@ -22,7 +22,9 @@
     "/Users/josephrojo/dotfiles/.codex/plugins/cache/ponytail/ponytail/4.10.0",
     "npm:@narumitw/pi-stamp",
     "npm:speak-like-you-eat",
-    "npm:@ff-labs/pi-fff"
+    "npm:@ff-labs/pi-fff",
+    "npm:pi-subagents",
+    "npm:billion-context"
   ],
   "steeringMode": "all",
   "tuiMode": "fullscreen",

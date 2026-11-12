@@ -87,6 +87,7 @@ export EZA_COLORS='reset'
 export CERT_DIR=/etc/ssl/certs
 # export CERT_PATH=/etc/ssl/cert.pem
 export CERT_PATH="$HOME/ca_certs/certifi-plus-zscaler-parent.pem"
+export AWS_CA_BUNDLE="$HOME/ca_certs/zscaler.crt" \
 
 export CURL_CA_BUNDLE=${CERT_PATH}
 export HTTPLIB2_CA_CERTS=${CERT_PATH}

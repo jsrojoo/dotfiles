@@ -23,6 +23,10 @@
 
 - For code-editing guidance, refer to `~/.pi/agent/references/code-editing-guidance.md`.
 
+## Subagents
+
+- Use pi subagents when independent work can safely proceed in parallel and materially reduce delivery time; keep tasks bounded and non-overlapping, then integrate and verify the results. Skip delegation when coordination costs more than doing the work directly.
+
 ## Completion Responses
 
 - After implementation work, always send a final completion summary after all tool and monitor output. Include completion status, changed behavior and files, verification results, remaining failures or risks, and whether user action is required.
