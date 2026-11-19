@@ -24,7 +24,7 @@
     "npm:speak-like-you-eat",
     "npm:@ff-labs/pi-fff",
     "npm:pi-subagents",
-    "npm:billion-context"
+    "npm:billion-context-pi"
   ],
   "steeringMode": "all",
   "tuiMode": "fullscreen",
@@ -45,5 +45,110 @@
   "enableInstallTelemetry": false,
   "cacheWarming": "streaming",
   "transport": "auto",
-  "followUpMode": "all"
+  "followUpMode": "all",
+  "subagents": {
+    "agentOverrides": {
+      "delegate": {
+        "tools": [
+          "read",
+          "grep",
+          "find",
+          "ls",
+          "bash",
+          "edit",
+          "write",
+          "contact_supervisor",
+          "compress",
+          "decompress",
+          "search_context",
+          "acp_status"
+        ]
+      },
+      "evidence-auditor": {
+        "tools": [
+          "read",
+          "web_search",
+          "fetch_content",
+          "get_search_content",
+          "source_check",
+          "compress",
+          "decompress",
+          "search_context",
+          "acp_status"
+        ]
+      },
+      "oracle": {
+        "tools": [
+          "read",
+          "grep",
+          "find",
+          "ls",
+          "bash",
+          "compress",
+          "decompress",
+          "search_context",
+          "acp_status"
+        ]
+      },
+      "researcher": {
+        "tools": [
+          "read",
+          "write",
+          "web_search",
+          "fetch_content",
+          "get_search_content",
+          "source_check",
+          "compress",
+          "decompress",
+          "search_context",
+          "acp_status"
+        ]
+      },
+      "reviewer": {
+        "tools": [
+          "read",
+          "grep",
+          "find",
+          "ls",
+          "watchdog_diff",
+          "contact_supervisor",
+          "compress",
+          "decompress",
+          "search_context",
+          "acp_status"
+        ]
+      },
+      "scout": {
+        "tools": [
+          "read",
+          "grep",
+          "find",
+          "ls",
+          "bash",
+          "write",
+          "contact_supervisor",
+          "compress",
+          "decompress",
+          "search_context",
+          "acp_status"
+        ]
+      },
+      "worker": {
+        "tools": [
+          "read",
+          "grep",
+          "find",
+          "ls",
+          "bash",
+          "edit",
+          "write",
+          "contact_supervisor",
+          "compress",
+          "decompress",
+          "search_context",
+          "acp_status"
+        ]
+      }
+    }
+  }
 }
