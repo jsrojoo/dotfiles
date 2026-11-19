@@ -1,5 +1,5 @@
 {
-  "lastChangelogVersion": "0.99.2",
+  "lastChangelogVersion": "1.5.2",
   "theme": "dark",
   "defaultProvider": "azure",
   "defaultModel": "gpt-6-luna",
@@ -46,6 +46,10 @@
   "cacheWarming": "streaming",
   "transport": "auto",
   "followUpMode": "all",
+  "extensionChangelogVersions": {
+    "{\"source\":\"npm:@narumitw/pi-stamp\",\"scope\":\"user\"}": "0.54.2",
+    "{\"source\":\"npm:pi-subagents\",\"scope\":\"user\"}": "0.89.1"
+  },
   "subagents": {
     "agentOverrides": {
       "delegate": {
