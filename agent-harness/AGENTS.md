@@ -53,6 +53,7 @@ See [Git worktree guidance](src/skills/git/references/worktrees.md) for setup, s
 - Confirm paths and targets before deleting, moving, or replacing files and symlinks.
 - Do not modify the source of a symlink when asked only to replace the symlink itself.
 - Avoid destructive commands when a safer targeted operation is available.
+- For non-trivial SQL queries, save the query in `.local.artifacts/<task-name>/<query-name>.sql` instead of embedding it inline in a CLI invocation. Point the CLI query command at that file and write its results to a temporary file under `/tmp`, preferably created with `mktemp` or `mktempfile`.
 - Never expose credentials, tokens, private keys, or sensitive environment values in output.
 - Explain any command whose effects are not obvious or easily reversible.
 
