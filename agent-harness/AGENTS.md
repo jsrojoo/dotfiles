@@ -41,6 +41,8 @@ Harness-specific files should contain only rules tied to that harness, such as t
 
 ## 2. Planning and approval
 
+Before executing any non-trivial task, first present a plan to the user and obtain the user's explicit approval.
+
 Use the `plan` skill for non-trivial work or when the user asks for a plan. Implement routine, low-risk changes directly.
 
 Perform non-trivial tasks and all code changes in a dedicated Git worktree, never in the primary worktree.
