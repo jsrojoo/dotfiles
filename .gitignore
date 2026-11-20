@@ -21,6 +21,11 @@
 .codex/.tmp*
 .codex/.codex
 .codex/.sandbox_migration
+.codex/.hook-trust/
+.codex/.sqlite-maintenance.lock
+.codex/app-server-control/
+.codex/session_index.jsonl.lock
+.codex/tui-thread-reference-capabilities/
 .claude/backups/
 .claude/cache/
 .claude/daemon/

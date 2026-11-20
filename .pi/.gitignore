@@ -8,6 +8,10 @@ agent/fff/frecency/
 agent/fff/history/
 agent/pi-subagents/last-seen-version.json
 agent/settings.json.bili-*
+agent/.billion-context-pi-update-check-*
+agent/missions/index/
+agent/missions/projects/
+agent/settings.json.acp-bak
 
 # Generated model catalog
 agent/models-store.json
