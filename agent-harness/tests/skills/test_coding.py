@@ -44,12 +44,19 @@ class CodingSkillTest(unittest.TestCase):
         self.assertIn("one script per approved test case", content)
         self.assertNotIn("`e2e/run.sh`", content)
 
-    def test_implementation_done_tool_triggers_e2e_handoff_assessment(self) -> None:
+    def test_completion_guidance_does_not_require_a_custom_tool(self) -> None:
         content = SKILL_PATH.read_text(encoding="utf-8")
 
-        self.assertIn("`implementation_done` tool", content)
-        self.assertIn("before the final response", content)
+        self.assertIn("provide the normal completion response", content)
         self.assertIn("self-service handoff", content)
+        self.assertIn("references/e2e-handoff.md", content)
+        self.assertNotIn("implementation_done", content)
+
+        for guidance_path in (
+            AGENT_HARNESS_ROOT / "src" / "skills" / "tdd" / "SKILL.md",
+            AGENT_HARNESS_ROOT / "README.md",
+        ):
+            self.assertNotIn("implementation_done", guidance_path.read_text(encoding="utf-8"))
 
     def test_contains_no_harness_specific_paths(self) -> None:
         content = SKILL_PATH.read_text(encoding="utf-8")

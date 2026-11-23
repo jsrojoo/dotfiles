@@ -123,8 +123,8 @@ test("implementation_done reports TDD state back to the main session", async () 
 	assert.deepEqual(result.details, { phase: "locked", testChanged: false, implementationDone: true });
 });
 
-test("Pi adapter keeps bare watcher status compatible with explicit implementation_done", async () => {
-	const { context, handlers, notifications, tools } = harnessCreate();
+test("Pi adapter allows completion after watcher verification without a separate tool", async () => {
+	const { context, handlers, notifications } = harnessCreate();
 	const toolCall = handlers.get("tool_call")!;
 	const toolResult = handlers.get("tool_result")!;
 	const beforeSettle = handlers.get("agent_before_settle")!;
@@ -171,24 +171,6 @@ test("Pi adapter keeps bare watcher status compatible with explicit implementati
 		context,
 	);
 	assert.equal(notifications.at(-1), "TDD guardrail: green");
-	const completionReminder = await beforeSettle({}, context);
-	assert.equal(completionReminder.continue, true);
-	assert.equal(
-		completionReminder.entries[0].content,
-		"TDD guardrail: call implementation_done after fresh verification before completion.",
-	);
-	const completion = await tools.get("implementation_done")!.execute(
-		"call-1",
-		{},
-		undefined,
-		undefined,
-		context,
-	);
-	assert.equal(
-		completion.content[0].text,
-		"Implementation completion recorded. TDD state: green; test changed: yes. Continue in the main session with the final completion summary.",
-	);
-	assert.deepEqual(completion.details, { phase: "green", testChanged: true, implementationDone: true });
 	assert.equal(await beforeSettle({}, context), undefined);
 
 	await toolCall(
@@ -215,12 +197,7 @@ test("Pi adapter keeps bare watcher status compatible with explicit implementati
 		},
 		context,
 	);
-	const refreshedCompletionReminder = await beforeSettle({}, context);
-	assert.equal(refreshedCompletionReminder.continue, true);
-	assert.equal(
-		refreshedCompletionReminder.entries[0].content,
-		"TDD guardrail: call implementation_done after fresh verification before completion.",
-	);
+	assert.equal(await beforeSettle({}, context), undefined);
 });
 
 test("Pi adapter auto-completes after a successful command-bound watcher status", async () => {

@@ -57,11 +57,7 @@
           "bash",
           "edit",
           "write",
-          "contact_supervisor",
-          "compress",
-          "decompress",
-          "search_context",
-          "acp_status"
+          "contact_supervisor"
         ]
       },
       "evidence-auditor": {
@@ -70,11 +66,7 @@
           "web_search",
           "fetch_content",
           "get_search_content",
-          "source_check",
-          "compress",
-          "decompress",
-          "search_context",
-          "acp_status"
+          "source_check"
         ]
       },
       "oracle": {
@@ -83,11 +75,7 @@
           "grep",
           "find",
           "ls",
-          "bash",
-          "compress",
-          "decompress",
-          "search_context",
-          "acp_status"
+          "bash"
         ]
       },
       "researcher": {
@@ -97,11 +85,7 @@
           "web_search",
           "fetch_content",
           "get_search_content",
-          "source_check",
-          "compress",
-          "decompress",
-          "search_context",
-          "acp_status"
+          "source_check"
         ]
       },
       "reviewer": {
@@ -111,11 +95,7 @@
           "find",
           "ls",
           "watchdog_diff",
-          "contact_supervisor",
-          "compress",
-          "decompress",
-          "search_context",
-          "acp_status"
+          "contact_supervisor"
         ]
       },
       "scout": {
@@ -126,11 +106,7 @@
           "ls",
           "bash",
           "write",
-          "contact_supervisor",
-          "compress",
-          "decompress",
-          "search_context",
-          "acp_status"
+          "contact_supervisor"
         ]
       },
       "worker": {
@@ -142,11 +118,7 @@
           "bash",
           "edit",
           "write",
-          "contact_supervisor",
-          "compress",
-          "decompress",
-          "search_context",
-          "acp_status"
+          "contact_supervisor"
         ]
       }
     }

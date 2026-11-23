@@ -20,7 +20,6 @@ const GREEN_REMINDER =
 	"TDD guardrail: add or update a relevant test, then inspect the latest watcher result with tdd-watch status -- <same focused test command>.";
 const RED_ESTABLISHED = "TDD guardrail: red";
 const GREEN_ESTABLISHED = "TDD guardrail: green";
-const IMPLEMENTATION_DONE_REMINDER = "TDD guardrail: call implementation_done after fresh verification before completion.";
 
 interface SessionTddState {
 	cycle: WorkflowCodeState;
@@ -175,19 +174,6 @@ export function testDrivenDevelopmentEnforcementCreate(
 					continue: true,
 				};
 			}
-			if (session.cycle.phase !== "green" || session.implementationDone) return;
-
-			return {
-				entries: [
-					{
-						type: "custom_message" as const,
-						customType: "workflow-code-guardrail",
-						content: IMPLEMENTATION_DONE_REMINDER,
-						display: false,
-					},
-				],
-				continue: true,
-			};
 		});
 	};
 }

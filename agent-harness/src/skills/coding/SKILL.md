@@ -52,7 +52,7 @@ Use only the stages relevant to the task. Do not force this structure onto simpl
 
 ## Test-driven development
 
-Require every implementation change to include a relevant test change and end with a fresh passing watcher result. Start `tdd-watch watch -- <focused test command>` once using the background-job facility, then edit test and implementation code in either order or in parallel. Before completion, use `tdd-watch status -- <same focused test command>` to verify the exact watcher command and inspect the latest run without rerunning tests. In Pi, a successful command-bound status also records implementation completion, so no separate `implementation_done` call is needed. Missing, running, stale, or failed watcher results are not green. A failing test before implementation is useful evidence, not a sequencing requirement. Source-only changes do not satisfy this workflow. If TDD is impractical, state why and use the closest focused verification available.
+Require every implementation change to include a relevant test change and end with a fresh passing watcher result. Start `tdd-watch watch -- <focused test command>` once using the background-job facility, then edit test and implementation code in either order or in parallel. Before completion, use `tdd-watch status -- <same focused test command>` to verify the exact watcher command and inspect the latest run without rerunning tests. In Pi, a successful command-bound status records implementation completion. Missing, running, stale, or failed watcher results are not green. A failing test before implementation is useful evidence, not a sequencing requirement. Source-only changes do not satisfy this workflow. If TDD is impractical, state why and use the closest focused verification available.
 
 ### Test and implementation
 
@@ -90,7 +90,7 @@ Require every implementation change to include a relevant test change and end wi
 
 ## Completion
 
-- After implementation and fresh verification, call the `implementation_done` tool before the final response unless Pi recorded completion from a successful command-bound watcher status. Do not call it before verification passes, and follow its returned handoff guidance.
+- After implementation and fresh verification, provide the normal completion response. Do not report completion before verification passes. If end-to-end verification is useful, consider a self-service handoff using the guidance above.
 - Update relevant documentation when behavior, interfaces, configuration, or workflows change.
 - Report changed files, checks run, results, and remaining risks.
 - Keep Git staging and commit operations outside this workflow unless the user explicitly requests them.
