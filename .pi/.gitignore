@@ -8,7 +8,7 @@ agent/fff/frecency/
 agent/fff/history/
 agent/pi-subagents/last-seen-version.json
 agent/settings.json.bili-*
-agent/.billion-context-pi-update-check-*
+agent/.billion-context-pi-update-check*
 agent/missions/index/
 agent/missions/projects/
 agent/settings.json.acp-bak
@@ -17,7 +17,9 @@ agent/settings.json.acp-bak
 agent/models-store.json
 
 # Pi-managed package installations
+agent/bin/pi
 agent/git/
+agent/install/
 agent/npm/
 agent/tmp/
 
