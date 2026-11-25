@@ -9,7 +9,7 @@
 - Before creating a worktree, verify source status, record the explicit branch and start point, confirm the path is unused, and obtain approval.
 - Before handoff, verify worktree status and confirm the scoped diff contains only requested changes.
 - Do not move, merge or integrate, remove, or otherwise alter worktrees or related Git state without explicit approval.
-- Follow `agent-harness/src/skills/git/references/worktrees.md`.
+- Follow `~/dotfiles/agent-harness/src/skills/git/references/worktrees.md`.
 
 ## Context
 
