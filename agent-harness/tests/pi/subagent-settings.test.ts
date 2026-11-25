@@ -9,6 +9,7 @@ const settingsPath = resolve(repositoryRoot, ".pi/agent/settings.json");
 
 type Settings = {
 	extensions?: string[];
+	defaultTools?: string[];
 	packages?: string[];
 	subagents?: {
 		agentOverrides?: Record<string, { disabled?: boolean; tools?: string[] }>;
@@ -24,6 +25,10 @@ const externalCliAgents = [
 	"cursor-agent",
 	"cursor-agent-writer",
 ];
+
+test("enables Codemode without replacing inherited default tools", () => {
+	assert.deepEqual(settings.defaultTools, ["+codemode"]);
+});
 
 test("keeps the npm Pi subagent extension as the configured dispatcher", () => {
 	assert.ok(settings.packages?.includes("npm:pi-subagents"));
