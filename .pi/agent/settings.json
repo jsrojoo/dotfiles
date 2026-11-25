@@ -1,5 +1,5 @@
 {
-  "lastChangelogVersion": "0.99.2",
+  "lastChangelogVersion": "1.6.0",
   "theme": "dark",
   "defaultProvider": "azure",
   "defaultModel": "gpt-6-luna",
@@ -23,8 +23,7 @@
     "npm:@narumitw/pi-stamp",
     "npm:speak-like-you-eat",
     "npm:@ff-labs/pi-fff",
-    "npm:pi-subagents",
-    "npm:billion-context-pi"
+    "npm:pi-subagents"
   ],
   "steeringMode": "all",
   "tuiMode": "fullscreen",
@@ -46,6 +45,10 @@
   "cacheWarming": "streaming",
   "transport": "auto",
   "followUpMode": "all",
+  "extensionChangelogVersions": {
+    "{\"source\":\"npm:@narumitw/pi-stamp\",\"scope\":\"user\"}": "0.54.3",
+    "{\"source\":\"npm:pi-subagents\",\"scope\":\"user\"}": "0.90.0"
+  },
   "subagents": {
     "agentOverrides": {
       "delegate": {

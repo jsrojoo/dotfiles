@@ -97,6 +97,7 @@ export SSL_CERT_FILE=${CERT_PATH}
 
 export NIX_SSL_CERT_FILE=${CERT_PATH}
 export NODE_EXTRA_CA_CERTS="$CERT_PATH"
+export NODE_USE_SYSTEM_CA=1
 
 # export HTTP_PROXY=http://fdcproxy.1dc.com:8080
 # export HTTPS_PROXY=http://fdcproxy.1dc.com:8080
@@ -197,3 +198,16 @@ eval "$(mise activate zsh)"
 eval "$(fnox activate zsh)"
 
 fpath+=~/.zfunc; autoload -Uz compinit; compinit
+
+# FlowAI: managed settings - GitHub authentication (start)
+if command -v gh >/dev/null 2>&1; then
+  _flow_gh_token="$(gh auth token --hostname github.onefiserv.net 2>/dev/null)"
+  if [ -n "$_flow_gh_token" ]; then
+    [ "${GH_TOKEN:-}" = "$_flow_gh_token" ] && unset GH_TOKEN
+    [ "${GITHUB_TOKEN:-}" = "$_flow_gh_token" ] && unset GITHUB_TOKEN
+    export GH_ENTERPRISE_TOKEN="$_flow_gh_token"
+    export GITHUB_ENTERPRISE_TOKEN="$_flow_gh_token"
+  fi
+  unset _flow_gh_token
+fi
+# FlowAI: managed settings - GitHub authentication (end)
